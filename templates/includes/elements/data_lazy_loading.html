@@ -1,0 +1,690 @@
+{% load static gen8_tags %}
+
+{% if display_type == "card" %}
+  {% for record in records %}
+    <div id="card{{ record.id }}" class="searchable col-lg-4 col-md-6 col-sm-12 mb-3">
+      <div class="card card-record h-100">
+        <div class="card-header">
+          <div class="row d-flex align-items-center">
+            <div class="col-11">
+
+                <span class="text-uppercase text-secondary text-xs font-weight-bolder">
+                  {% if model_name == "financialtransaction" %}
+                    {{ record.id }} - {{ record.create_date|date:"d/m/Y H:i" }} - {{ record.get_transaction_type_display }}
+
+                  {% elif model_name == "databasechangelog" %}
+                    {{ record.change_date|date:"d/m/Y H:i" }} - {{ record.model_name }} - ID{{ record.record_id }} - {{ record.change }}
+
+                  {% else %}
+                    {{ record.id }} - {{ record }}
+                  {% endif %}
+                </span>
+
+
+            </div>
+            <div class="col-1">
+              <div class="dropdown top-right-postion">
+                <a class="cursor-pointer" id="dropdownTable" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fa fa-ellipsis-v text-secondary" aria-hidden="true me-2"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end px-2 py-1" aria-labelledby="dropdownMenuButton">
+                  <li>
+                    <a class="create-modal-form dropdown-item border-radius-md" data-id-record="{{ record.id }}" data-model-name="{{ model_name }}">
+                      <div class="d-flex py-1">
+                        <div class="my-auto">
+                          <img src="{% static 'img/icons/edit.png' %}" class="avatar avatar-xs me-3">
+                        </div>
+                        <div class="d-flex flex-column justify-content-center">
+                          <span class="font-weight-bold">Edit</span>
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+
+                  {% if model_name == "student" %}
+                  <li>
+                    <a class="create-modal-form dropdown-item border-radius-md" data-id-record="" data-model-name="pay_tuition" data-student-id="{{ record.id }}">
+                      <div class="d-flex py-1">
+                        <div class="my-auto">
+                          <img src="{% static 'img/icons/money.png' %}" class="avatar avatar-xs me-3">
+                        </div>
+                        <div class="d-flex flex-column justify-content-center">
+                          <h6 class="text-sm font-weight-normal mb-1">
+                            <span class="font-weight-bold">Pay tuittion fee</span>
+                          </h6>
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+
+                  <li>
+                    <a href="{% url 'student_attendance_calendar' record.id %}" class="create-modal-form dropdown-item border-radius-md" target="_blank" rel="noopener noreferrer">
+                      <div class="d-flex py-1">
+                        <div class="my-auto">
+                          <img src="{% static 'img/icons/calendar.png' %}" class="avatar avatar-xs me-3">
+                        </div>
+                        <div class="d-flex flex-column justify-content-center">
+                          <h6 class="text-sm font-weight-normal mb-1">
+                            <span class="font-weight-bold">Attendance calendar</span>
+                          </h6>
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+                  {% endif %}
+
+
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="row">
+            {% if model_name == "course" %}
+            <p class="text-info text-sm">
+              <span style="margin: 3px;" class="icon text-info text-sm"><i class="fas fa-clock"></i></span>
+              <span class="text"> {{ record.hours }} (hours)</span>
+            </p>
+            <p class="text-info text-sm">
+              <span style="margin: 3px;" class="icon text-info text-sm"><i class="fas fa-book"></i></span>
+              <span class="text"> {{ record.books }}</span>
+            </p>
+            <p class="text-info text-sm"> 
+              <span style="margin: 3px;" class="icon text-info text-sm"><i class="fas fa-info-circle"></i></span>
+              <span class="text"> {{ record.description }}</span>
+            </p>
+
+            {% elif model_name == "databasechangelog" %}
+            <p class="text-info text-sm">
+              <span class="text-info text-sm"> OLD: </span>
+              <span class="text"> {{ record.old_data }}</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="text-info text-sm"> NEW: </span>
+              <span class="text"> {{ record.new_data }}</span>
+            </p>
+
+
+            {% elif model_name == "classschedule" %}
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-clock"></i></span>
+              <span class="text"> {{ record.daytime }}</span>
+            </p>
+
+
+
+
+            {% elif model_name == "tuitionplan" %}
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-dollar-sign"></i></span>
+              <span class="text"> {{ record.price|format_vnd }}</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-hourglass-half"></i></span>
+              <span class="text"> {{ record.number_of_hours }} (hours)</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-sticky-note"></i></span>
+              <span class="text"> {{ record.note }}</span>
+            </p>
+
+
+
+            {% elif model_name == "userprofile" %}
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-id-badge"></i></span>
+              <span class="text"> {{ record.user.username }}</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-signature"></i></span>
+              <span class="text"> {{ record.name }}</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-venus-mars"></i></span>
+              <span class="text"> {{ record.get_gender_display }}</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-birthday-cake"></i></span>
+              <span class="text"> {{ record.date_of_birth }}</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-phone"></i></span>
+              <span class="text"> {{ record.phone }}</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-comment-alt"></i></span>
+              <span class="text"> {{ record.note }}</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-image"></i></span>
+              <span class="text"> {{ record.image.url }}</span>
+            </p>
+
+
+            {% elif model_name == "class" %}
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-id-badge"></i></span>
+              <span class="text"> {{ record.id }}</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-chalkboard-teacher"></i></span>
+              <span class="text"> {{ record.name }}</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-book-open"></i></span>
+              <span class="text"> {{ record.course.name }}</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-calendar-alt"></i></span>
+              <span class="text"> {{ record.schedule.name }}</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-user-tie"></i></span>
+              <span class="text"> {{ record.teacher.username }}</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-toggle-on"></i></span>
+              <span class="text"> {{ record.status }}</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-users"></i></span>
+              <span class="text"> {{ record.students.all|join:", " }}</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-sticky-note"></i></span>
+              <span class="text"> {{ record.note }}</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-image"></i></span>
+              <span class="text"> {{ record.image.url }}</span>
+            </p>
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-calendar-plus"></i></span>
+              <span class="text"> {{ record.create_date|date:"d/m/Y H:i" }}</span>
+            </p>
+
+
+            {% elif model_name == "student" %}
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">
+
+                      <p class="text-info text-sm flex-grow-1">
+                        <span class="badge badge-sm bg-status-{{ record.status }} text-xxs">{{ record.get_status_display }}</span>
+                      </p>
+                    </div>
+                    <div class="col-6">
+                      <p class="text-info text-sm">
+                        <span style="margin-right: 3px;" class="icon text-info text-sm"><i class="fas fa-clock"></i></span>
+                        <span class="text"> Hours: {{ record.total_paid_hours_remaining }} (hours)</span>
+                      </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">
+                      <p class="text-info text-sm flex-grow-1">
+                        <span class="icon icon-in-card text-info text-sm"><i class="fas fa-venus-mars"></i></span>
+                        <span class="text"> {{ record.get_gender_display }}</span>
+                      </p>
+                    </div>
+                    <div class="col-6">
+                      <p class="text-info text-sm flex-grow-1">
+                        <span class="icon icon-in-card text-info text-sm"><i class="fas fa-birthday-cake"></i></span>
+                        <span class="text"> {{ record.date_of_birth|date:"d/m/Y" }}</span>
+                      </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">
+                      <p class="text-info text-sm flex-grow-1">
+                        <span class="icon icon-in-card text-info text-sm"><i class="fas fa-user-friends"></i></span>
+                        <span class="text"> {{ record.parents }}</span>
+                      </p>
+                    </div>
+                    <div class="col-6">
+                      <p class="text-info text-sm flex-grow-1">
+                        <span class="icon icon-in-card text-info text-sm"><i class="fas fa-phone"></i></span>
+                        <span class="text"> {{ record.phone }}</span>
+                      </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">
+                      <p class="text-info text-sm flex-grow-1">
+                        <span class="icon icon-in-card text-info text-sm"><i class="fas fa-school"></i></span>
+                        <span class="text"> {{ record.school }}</span>
+                      </p>
+                    </div>
+                    <div class="col-6">
+                      <p class="text-info text-sm">
+                        <span class="icon icon-in-card text-info text-sm"><i class="fas fa-calendar-plus"></i></span>
+                        <span class="text"> {{ record.create_date|date:"d/m/Y H:i" }}</span>
+                      </p>  
+                    </div>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">
+                      <p class="text-info text-sm">
+                        <span class="icon icon-in-card text-info text-sm"><i class="fas fa-users"></i></span>
+                        {% for class in record.classes.all %}
+                            <span class="text"> {{ class.name }} {% if class in record.paid_classes %} (chargeable){% endif %}{% if not forloop.last %}, {% endif %}</span>
+                        {% endfor %}
+                      </p>
+                    </div>
+                    <div class="col-6">
+                      <p class="text-info text-sm">
+                        <span class="icon icon-in-card text-info text-sm"><i class="fas fa-money-bill-wave"></i></span>
+                        <span class="text"> GEN8 Dollars: {{ record.money }}</span>
+                      </p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-sticky-note"></i></span>
+              <span class="text"> {{ record.note }}</span>
+            </p>
+
+
+
+
+
+
+
+            {% elif model_name == "discount" %}
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-calculator"></i></span>
+              <span class="text"> {{ record.discount_value|multiply:100|floatformat:0 }}%</span>
+            </p>
+
+
+
+
+            {% elif model_name == "financialtransaction" %}
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">
+
+                      <p class="text-info text-sm flex-grow-1">
+                        <span class="badge badge-sm bg-{{ record.income_or_expense }} text-xxs">{{ record.get_income_or_expense_display }}</span>
+                      </p>
+                    </div>
+                    <div class="col-6">
+                      <p class="text-info text-sm">
+                        <span style="margin-right: 3px;" class="icon text-info text-sm"><i class="fas fa-clock"></i></span>
+                        <span class="text"> {{ record.amount|format_vnd }}</span>
+                      </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">
+                      <p class="text-info text-sm">
+                        <span class="icon icon-in-card text-info text-sm"><i class="fas fa-wallet"></i></span>
+                        <span class="text"> {{ record.get_transaction_type_display }}</span>
+                      </p>
+                    </div>
+                    <div class="col-6">
+                      <p class="text-info text-sm">
+                        <span class="icon icon-in-card text-info text-sm"><i class="fas fa-user-tie"></i></span>
+                        <span class="text"> {{ record.permission_giver.username }}</span>
+                      </p>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-6">
+                      <p class="text-info text-sm">
+                        <span class="icon icon-in-card text-info text-sm"><i class="fas fa-sign-out-alt"></i></span>
+                        <span class="text"> {{ record.giver }}</span>
+                      </p>
+                    </div>
+                    <div class="col-6">
+                      <p class="text-info text-sm">
+                        <span class="icon icon-in-card text-info text-sm"><i class="fas fa-sign-in-alt"></i></span>
+                        <span class="text"> {{ record.receiver }}</span>
+                      </p>
+                    </div>
+                </div>
+            </div>
+
+
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-comment-alt"></i></span>
+              <span class="text"> {{ record.note }}</span>
+            </p>
+
+            <p class="text-info text-sm">
+              <span class="icon icon-in-card text-info text-sm"><i class="fas fa-image"></i></span>
+              {% for image in record.images.all %}
+                  <a href="{{ image.image.url }}" target="_blank"> 
+                    <span class="text-info text-sm me-3"> Image{{ forloop.counter }}</span>
+                  </a>
+              {% endfor %}
+            </p>
+
+
+
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
+{% elif display_type ==   "table" %}
+  {% for record in records %}
+  <tr id="tablerow{{ record.id }}"  class="searchable">
+    <td class="align-middle" style="text-align: left;">
+      <div class="dropdown" style="margin-left: 20px;">
+        <a class="cursor-pointer" id="dropdownTable" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fa fa-ellipsis-v text-secondary" aria-hidden="true me-2"></i>
+        </a>
+          <ul class="dropdown-menu px-2 py-1" aria-labelledby="dropdownTable" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate3d(0px, 25.5px, 0px);" data-popper-placement="bottom-start">
+            <li>
+              <a class="create-modal-form dropdown-item border-radius-md" data-id-record="{{ record.id }}" data-model-name="{{ model_name }}">
+                <div class="d-flex py-1">
+                  <div class="my-auto">
+                    <img src="{% static 'img/icons/edit.png' %}" class="avatar avatar-xs me-3">
+                  </div>
+                  <div class="d-flex flex-column justify-content-center">
+                    <span class="font-weight-bold">Edit</span>
+                  </div>
+                </div>
+              </a>
+            </li>
+
+            {% if model_name == "student" %}
+            <li>
+              <a class="create-modal-form dropdown-item border-radius-md" data-id-record="" data-model-name="pay_tuition" data-student-id="{{ record.id }}">
+                <div class="d-flex py-1">
+                  <div class="my-auto">
+                    <img src="{% static 'img/icons/money.png' %}" class="avatar avatar-xs me-3">
+                  </div>
+                  <div class="d-flex flex-column justify-content-center">
+                    <h6 class="text-sm font-weight-normal mb-1">
+                      <span class="font-weight-bold">Pay tuittion fee</span>
+                    </h6>
+                  </div>
+                </div>
+              </a>
+            </li>
+
+            <li>
+              <a href="{% url 'student_attendance_calendar' record.id %}" class="create-modal-form dropdown-item border-radius-md" target="_blank" rel="noopener noreferrer">
+                <div class="d-flex py-1">
+                  <div class="my-auto">
+                    <img src="{% static 'img/icons/calendar.png' %}" class="avatar avatar-xs me-3">
+                  </div>
+                  <div class="d-flex flex-column justify-content-center">
+                    <h6 class="text-sm font-weight-normal mb-1">
+                      <span class="font-weight-bold">Attendance calendar</span>
+                    </h6>
+                  </div>
+                </div>
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+      </div>
+    </td>
+
+
+    {% if model_name == "course" %}
+    <td>
+      <p class="text-sm mb-0">{{ record.id }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.name }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.hours }} (hours)</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.books }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.description }}</p>
+    </td>
+
+
+
+
+    {% elif model_name == "classschedule" %}
+    <td>
+      <p class="text-sm mb-0">{{ record.id }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.name }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.daytime }}</p>
+    </td>
+
+
+
+
+    {% elif model_name == "tuitionplan" %}
+    <td>
+      <p class="text-sm mb-0">{{ record.id }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.plan }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.price|format_vnd }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.number_of_hours }} (hours)</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.note }}</p>
+    </td>
+
+
+
+
+
+    {% elif model_name == "userprofile" %}
+    <td>
+      <p class="text-sm mb-0">{{ record.id }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.user }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.name }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.get_gender_display }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.date_of_birth }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.phone }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.note }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.image.url }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.create_date|date:"d/m/Y H:i" }}</p>
+    </td>
+
+    {% elif model_name == "class" %}
+    <td>
+      <p class="text-sm mb-0">{{ record.id }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.name }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.course }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.schedule }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.teacher }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.status }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.students }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.note }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.image.url }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.create_date|date:"d/m/Y H:i" }}</p>
+    </td>
+
+
+    {% elif model_name == "student" %}
+    <td>
+      <p class="text-sm mb-0">{{ record.id }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.name }}</p>
+    </td>
+
+    <td>
+      <span class="badge badge-sm bg-status-{{ record.status }} text-xxs">{{ record.get_status_display }}</span>
+    </td>
+
+    <td>
+      <p class="text-sm mb-0">
+        <span class="text">{{ record.total_paid_hours_remaining }} (hours)</span>
+      </p>
+    </td>
+
+    <td>
+      <p class="text-sm mb-0">{{ record.get_gender_display }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.date_of_birth|date:"d/m/Y" }}</p>
+    </td>
+
+    <td>
+      <p class="text-sm mb-0">{{ record.parents }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.phone }}</p>
+    </td>
+
+
+    <td>
+      <p class="text-sm mb-0">{{ record.school }}</p>
+    </td>
+
+    <td>
+      <p class="text-sm mb-0">
+        {% for class in record.classes.all %}
+            <span class="text"> {{ class.name }} {% if class in record.paid_classes %} (chargeable){% endif %}{% if not forloop.last %}, {% endif %}</span>
+        {% endfor %}
+      </p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.money }}</p>
+    </td>
+
+    <td>
+      <p class="text-sm mb-0">{{ record.note }}</p>
+    </td>
+
+
+    <td>
+      <span class="text"> {{ record.create_date|date:"d/m/Y H:i" }}</span>
+    </td>
+
+
+
+
+    {% elif model_name == "discount" %}
+    <td>
+      <p class="text-sm mb-0">{{ record.id }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.name }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.discount_value|multiply:100|floatformat:0 }}%</p>
+    </td>
+
+
+    {% elif model_name == "financialtransaction" %}
+    <td>
+      <p class="text-sm mb-0">{{ record.id }}</p>
+    </td>
+
+    <td>
+      <p class="text-sm mb-0">{{ record.create_date|date:"d/m/Y H:i" }}</p>
+    </td>
+    <td class="align-middle text-center">
+      <p class="text-info text-sm">
+        <span class="badge badge-sm bg-{{ record.income_or_expense }} text-xxs">{{ record.get_income_or_expense_display }}</span>
+      </p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.get_transaction_type_display }}</p>
+    </td>
+
+    <td>
+      <p class="text-sm mb-0">{{ record.amount|format_vnd }}</p>
+    </td>
+
+    <td>
+      <p class="text-sm mb-0">{{ record.permission_giver.username }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.giver }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.receiver }}</p>
+    </td>
+    <td>
+      <p class="text-sm mb-0">{{ record.note }}</p>
+    </td>
+
+    <td>
+      <p class="text-sm mb-0">
+        {% for image in record.images.all %}
+            <a href="{{ image.image.url }}" target="_blank"> 
+              <span class="text-info text-sm me-3"> Image{{ forloop.counter }}</span>
+            </a>
+        {% endfor %}
+      </p>
+    </td>
+
+    {% endif %}
+  </tr>
+  {% endfor %}
+{% endif %}
+
+

@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% block title %}
+        {% endblock %} | Mycenter
+    </title>
+
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- CSS Reset -->
+    <link id="style" href="{% static 'css/tailwindstyles.css' %}" rel="stylesheet" />
+
+    <!-- JS -->
+
+    {% block extra_head %}
+    {% endblock %}
+</head>
+
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' class="bg-slate-100 dark:bg-slate-900 min-h-full" style="font-family: 'Roboto';">
+    <div class="form-input form-input-file grid grid-cols-1 grid-cols-2 grid-cols-3 grid-cols-4 grid-cols-5 hidden 'bg-green-500' 'text-white' 'rounded-lg' 'px-2', 'py-1' 'mr-2' ml-3"></div>
+ 
+    {% block display %}
+    {% endblock %}
+
+
+    <!-- js libs -->
+    <script>
+    document.body.addEventListener('htmx:configRequest', (event) => {
+      event.detail.headers['X-CSRF-Token'] = '{% csrf_token %}';
+    })
+    </script>
+
+    {% block extra_script %}
+    {% endblock %}
+</body>
+
+</html>
+
+
+

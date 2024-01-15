@@ -1,0 +1,119 @@
+
+<div class="test hidden">
+    <input id="search-box" name="search" type="text" placeholder="Type to search ..." class="form-input pl-10 w-full h-full hidden" hx-get="search" hx-trigger="keyup delay:500ms" hx-target="#display_cards" />
+
+    <!-- Advanced Search Options -->
+    <input id="search-box" type="text" name="search" placeholder="Type to search ..." class="form-input pl-10 w-full h-full" hx-get="search" hx-trigger="keyup delay:500ms" hx-indicator="#loading-indicator" hx-target="#display_cards" hx-params="search,sort"
+    />
+
+    <!-- Sort Options -->
+    <select id="sort-option" name="sort">
+        <option value="name">Name</option>
+        <option value="location">Location</option>
+        <!-- Add more sort options as needed -->
+    </select>
+</div>
+
+
+
+
+
+
+
+<div id="dbtoolbar">
+    <div id="dbtoolbar-type-1" class="flex justify-between gap-4">
+        <div class="flex justify-start gap-4 h-10 w-[800px]">
+
+            <button id="toggle-search" type="button" class="btn btn-outline h-full w-11 sm:hidden">
+                <i class="fas fa-search text-theme" style="font-size: 18px;"></i> <!-- Icon for filter -->
+            </button>
+
+            <div class="z-10 max-sm:hidden w-full">
+                <div class="flex w-full h-10">
+                    <!-- Filter Form -->
+                    <select id="filter-field" class="form-input w-fit rounded-none h-full rounded-l-lg border border-theme text-theme pr-10">
+                        <option value="name">Name</option>
+                        <option value="discription">Description</option>
+                        <!-- Add more fields as needed -->
+                    </select>
+                    <input id="filter-phrase" type="text" placeholder="Type to search ..." class="form-input rounded-none h-full border border-theme text-theme" autocomplete="off"/>
+
+                    <button id="search-button" type="button" class="btn btn-outline rounded-none h-full shadow-none">Search</button>
+
+                    <button id="add-filter-button" type="button" class="btn btn-outline rounded-l-none h-full shadow-none">Add</button>
+                </div>
+                <!-- Filter List -->
+                <div id="filter-list" class="z-10 p-4 my-2 mx-10 card flex flex-wrap justify-center gap-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hidden">
+                    <div class="flex justify-between items-end w-full mb-5">
+                        <p class="text-theme font-semibold w-full">Filter List</p>
+                        <div class="flex gap-4">
+                            <button id="clear-filter-button" type="button" class="btn btn-outline h-8 w-32 flex flex-between">
+                                <span class="me-3">Clear all</span>
+                                <i class="fas fa-trash text-theme" style="font-size: 18px;"></i> <!-- Icon for filter -->
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <button id="sort-button" type="button" class="btn btn-outline h-full max-sm:w-11">
+                <span class="max-sm:hidden me-3"> Sorts </span>
+                <i class="fas fa-sort text-theme" style="font-size: 20px;"></i> <!-- Icon for filter -->
+            </button>
+
+            
+
+        </div>
+
+        <div class="flex items-center justify-end gap-4">
+            <button id='toggle-view' type="button" class="btn btn-outline h-full w-11">
+                <i class="fas fas fa-th" style="font-size: 20px;"></i> <!-- Icon for history -->
+            </button>
+
+            <button id='toggle-inforbar' type="button" class="max-lg:hidden btn btn-outline h-full w-11">
+                <i class="fas fas fa-info-circle" style="font-size: 20px;"></i> <!-- Icon for history -->
+            </button>
+            <button id='open-modal' modal-id='modal-school' class="sm:hidden btn btn-primary h-full w-11">
+                <i class="fas fas fa-plus" style="font-size: 20px;"></i> <!-- Icon for history -->
+            </button>
+        </div>
+    </div>
+
+
+
+    <div id="dbtoolbar-type-2" class="relative flex items-center h-10 hidden w-full">
+        <div class="z-10 w-full">
+            <div class="flex w-full h-10">
+                <!-- Filter Form -->
+                <select id="filter-field" class="form-input w-fit rounded-none h-full rounded-l-lg border border-theme text-theme pr-10">
+                    <option value="name">Name</option>
+                    <option value="location">Description</option>
+                    <!-- Add more fields as needed -->
+                </select>
+                <input id="filter-phrase" type="text" placeholder="Type to search ..." class="form-input rounded-none h-full border border-theme text-theme" autocomplete="off"/>
+
+                <button id="search-button" type="button" class="btn btn-outline rounded-none h-full shadow-none">Search</button>
+
+                <button id="add-filter-button" type="button" class="btn btn-outline rounded-l-none h-full shadow-none">Add</button>
+            </div>
+            <!-- Filter List -->
+            <div id="filter-list" class="z-10 p-4 my-2 mx-10 card flex flex-wrap justify-center gap-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hidden">
+                <div class="flex justify-between items-end w-full mb-5">
+                    <p class="text-theme font-semibold w-full">Filter List</p>
+                    <div class="flex gap-4">
+                        <button id="clear-filter-button" type="button" class="btn btn-outline h-8 w-32 flex flex-between">
+                            <span class="me-3">Clear all</span>
+                            <i class="fas fa-trash text-theme" style="font-size: 18px;"></i> <!-- Icon for filter -->
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+

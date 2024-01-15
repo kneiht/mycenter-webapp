@@ -1,0 +1,126 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block extra_head %}
+<style>
+    body {
+        background-image: url('/static/images/backgrounds/bg-account.svg');
+        background-repeat: no-repeat;
+        background-size: cover; /* or 100% 100% */
+    }
+</style>
+{% endblock %}
+
+{% block display %}
+<div class="flex justify-center items-center min-h-screen 
+            transition-all duration-300 ease-in-out">
+
+    <div class="bg-white bg-opacity-30 backdrop-filter backdrop-blur-sm 
+                py-10 px-5 m-5 w-full max-w-md  
+                shadow-xl rounded-3xl">
+
+        <h1 class="text-3xl font-extrabold text-center text-theme-950 pb-6">{{ page_title }}</h1>
+
+        {% if account_message %}
+            <div class="w-full px-4 gap-4">
+                <p class="text text-center mb-4">{{ account_message }}</p>
+                <a role="button mx-10" href="{% url 'login' %}" class="btn btn-primary w-full rounded-full"> Log in </a>
+            </div>
+        {% else %}
+
+            <form class="space-y-4 px-4" role="form" method="post">
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                        <p class="text-red-500 pt-3">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+                <p class="text-red-500  px-3">{{ error_message }}</p>
+
+                {% csrf_token %}
+                {% for field in form %}
+                    {% if field.name != "remember_me" %}
+                        <div>
+                            <span class="text-theme-950">{{ field.label }}</span>
+                            {{ field }}
+
+                            {% if field.help_text %}
+                                <p class="text-blue-500 px-3">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <p class="text-red-500 px-3">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- ONLY FOR LOGIN PAGE -->
+                {% if is_log_in %}
+                    <div class="flex justify-between items-center pt-3">
+                        {% for field in form %}
+                            {% if field.name == "remember_me" %}
+                                <div class="flex items-center">
+                                    {{ field }}
+
+                                    <span class="text-theme-950 ml-2">{{ field.label }}</span>
+                                </div>
+                                <a href="{% url 'password_reset' %}" class="text-sm text-blue-600 hover:underline">Forgot Password?</a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="w-full pt-6">
+                    <button type="submit" class="btn btn-primary rounded-full w-full"
+                        data-sitekey="6LdVbj0pAAAAABFEjcwsgfRuurG-k7MU4HplH_1y"
+                        data-callback='onSubmit'
+                        data-action='submit'>
+                        {{ button_name }}
+                    </button>
+                </div>
+
+                <!-- ONLY FOR LOGIN PAGE -->
+                {% if is_log_in %}
+                    <p class="mt-4 flex justify-center text-theme-950">
+                      Don't have an account? 
+                      <a href="{% url 'register' %}" class="text-blue-600 ml-3 hover:underline">Create one</a>
+                    </p>
+                {% elif is_register %}
+                    <p class="mt-4 flex justify-center">
+                      Have an account? 
+                      <a href="{% url 'login' %}" class="text-blue-600 ml-3 hover:underline">Log in</a>
+                    </p>
+                {% endif %}
+
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block extra_script %}
+<script src="https://www.google.com/recaptcha/enterprise.js?render=6LdVbj0pAAAAABFEjcwsgfRuurG-k7MU4HplH_1y" async defer></script>  
+<script>
+    function onSubmit(token) {
+        console.log(token);
+
+        // Get a reference to the form element
+        var form = document.getElementById("accountform");
+
+        // HTML5 form validation
+        if (!form.checkValidity()) {
+            form.reportValidity(); // Display the built-in browser error messages
+            return; // Stop here if the form is invalid
+        }
+
+        // Submit the form if all checks pass
+        form.submit();
+    }
+</script>
+{% endblock %}
+    

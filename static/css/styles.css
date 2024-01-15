@@ -1,0 +1,30 @@
+/* Default styles (for medium-sized screens) */
+#sidebar {
+    max-width: 200px; /* Default max-width, used when neither media query applies */
+    left: 0px;
+}
+
+@media (max-width: 639px) {
+    #sidebar {
+        left: -150px;
+        
+    }
+
+}
+
+/* Large screens */
+@media (min-width: 639px) {
+    #sidebar {
+        max-width: 80px; /* max-width for large screens */
+    }
+    .menu-text {
+        opacity: 0;
+    }
+}
+
+/* Small screens */
+@media (max-width: 639px) {
+    #sidebar {
+        max-width: 200px; /* max-width for small screens */
+    }
+}

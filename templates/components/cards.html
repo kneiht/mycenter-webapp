@@ -1,0 +1,21 @@
+{% if component == 'card_school' %}
+    <div id="card-{{ school.pk }}" class="card p-2" record-id="{{ school.pk }}">
+        <a href="#!">
+            <img src="{{ school.image.url }}" alt="{{ school.name }}" class="aspect-video object-cover rounded-lg border border-slate-200 dark:border-slate-900" />
+        </a>
+
+        <div class="flex justify-between items-start py-2">
+            <div class="w-11/12">
+                <h3 class="text-lg font-bold text-theme text-center pl-1">{{ school.name }}</h3>
+            </div>
+            <div class="relative">
+                <div class="dropdown-button flex flex-col justify-between items-center cursor-pointer gap-y-0.5 py-1.5 w-6 rounded-xl hover:bg-gray-200 hover:dark:bg-gray-700" menu-id="menu-context-school">
+                    <div class="w-1 h-1 bg-theme-900 dark:bg-theme-100 rounded-full"></div>
+                    <div class="w-1 h-1 bg-theme-900 dark:bg-theme-100 rounded-full"></div>
+                    <div class="w-1 h-1 bg-theme-900 dark:bg-theme-100 rounded-full"></div>
+                </div>
+            </div>
+        </div>
+        <p class="text-theme whitespace-pre-line px-3"> {{ school.description }} </p>
+    </div>
+{% endif %}
