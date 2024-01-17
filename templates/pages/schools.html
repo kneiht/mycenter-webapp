@@ -16,7 +16,8 @@
     <div class="overflow-y-scroll w-full px-4" style="height: 89vh;">
         <div class="flex justify-between items-center mb-6">
             <p class="text-3xl text-center font-semibold text-theme">School Management</p>
-            <button id='open-modal' modal-id='modal-school' class="max-sm:hidden btn btn-primary"> 
+            <button id='open-modal' modal-id='modal-school' class="max-sm:hidden btn btn-primary">
+
                 <i class="fas fa-plus me-3" style="font-size: 16px;"></i>
                 <span class="max-sm:hidden me-3"> Add new </span>
             </button>
@@ -56,9 +57,19 @@
     {% endwith %}
 
     <!-- Dropdown Context Menu For School-->
-    {% with component='menu_context_school'%}
-        {% include 'components/menus.html' %}
-    {% endwith %}
+    <ul  id="menu-context-school" class="dropdown-menu right-0 hidden">
+        <li id="record-edit" class="menu-item menu-item-border menu-item-top">
+            <i class="fa fa-school ml-3 mr-5"></i> 
+            Edit information
+        </li>
+
+        <li id="record-share" class="menu-item menu-item-bot">
+            <button>
+                <i class="fa fa-school ml-3 mr-5"></i> 
+                Share your school
+            </button>
+        </li>
+    </ul>
 </div>
 {% endblock %}
 
@@ -66,9 +77,6 @@
 
 
 {% block extra_script %}
-<script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
-<script src="{% static 'js/main.js' %}"></script>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var element = document.getElementById('modal-school');
@@ -79,98 +87,8 @@
             localStorage.setItem('modal-school', htmlContent);
             element.remove();
         }
-
-        var element = document.getElementById('menu-context-school');
-        if (element) {
-            // Retrieve the entire HTML of the element
-            var htmlContent = element.outerHTML;
-            // Save to local storage
-            localStorage.setItem('menu-context-school', htmlContent);
-            element.remove();
-        }
     });
 </script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var toggleButton = document.getElementById('toggle-inforbar');
-        var infoBar = document.getElementById('inforbar');
-
-        toggleButton.addEventListener('click', function() {
-            // Check if the infoBar element exists
-            if (infoBar) {
-                // Toggle the 'hidden' class or any class that controls visibility
-                infoBar.classList.toggle('hidden');
-            }
-        });
-    });
-</script>
-
-<script>
-    function adjustGridColumns() {
-        const container = document.getElementById('display_cards');
-        if (!container) return;
-
-        const containerWidth = container.offsetWidth;
-        console.log(containerWidth)
-        // Remove all previous grid classes
-        container.className = container.className.replace(/grid-cols-\d+/g, '');
-
-        // Calculate the number of columns, ensuring at least 1 column
-        var gridNum = Math.max(1, Math.round((containerWidth - 10) / 360));
-
-        // Optionally, set a maximum number of columns
-        const maxColumns = 5; // For example, a maximum of 5 columns
-        gridNum = Math.min(gridNum, maxColumns);
-
-        container.classList.add('grid-cols-' + gridNum); // Adjust number of columns as needed
-        container.classList.remove("opacity-0")
-        container.classList.add("opacity-100")
-    }
-
-    // Initial adjustment
-    adjustGridColumns();
-    window.addEventListener('resize', adjustGridColumns);
-
-    // Call this in your sidebar toggle function
-    // toggleSidebarFunction() { ... adjustGridColumns(); ... }
-
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleButton = document.getElementById('toggle-search');
-        const dbToolBarTye2 = document.getElementById('dbtoolbar-type-2');
-        const dbToolBarTye1 = document.getElementById('dbtoolbar-type-1');
-
-
-        // Function to toggle the search bar
-        function toggleSearchBar() {
-            dbToolBarTye2.classList.remove('hidden');
-            dbToolBarTye1.classList.add('hidden');
-        }
-
-        // Add event listener to the toggle button
-        toggleButton.addEventListener('click', function() {
-            toggleSearchBar();
-        });
-
-        // Function to check if click is outside the search bar
-        function isClickOutside(event) {
-            return !dbToolBarTye2.contains(event.target) && !toggleButton.contains(event.target);
-        }
-
-        // Add event listener to the document
-        document.addEventListener('click', function(event) {
-            if (isClickOutside(event) && !dbToolBarTye2.classList.contains('hidden')) {
-                dbToolBarTye2.classList.add('hidden');
-                dbToolBarTye1.classList.remove('hidden');
-            }
-        });
-    });
-</script>
-
-
 
 
 

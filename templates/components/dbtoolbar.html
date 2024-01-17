@@ -1,59 +1,88 @@
 
-<div class="test hidden">
-    <input id="search-box" name="search" type="text" placeholder="Type to search ..." class="form-input pl-10 w-full h-full hidden" hx-get="search" hx-trigger="keyup delay:500ms" hx-target="#display_cards" />
-
-    <!-- Advanced Search Options -->
-    <input id="search-box" type="text" name="search" placeholder="Type to search ..." class="form-input pl-10 w-full h-full" hx-get="search" hx-trigger="keyup delay:500ms" hx-indicator="#loading-indicator" hx-target="#display_cards" hx-params="search,sort"
-    />
-
-    <!-- Sort Options -->
-    <select id="sort-option" name="sort">
-        <option value="name">Name</option>
-        <option value="location">Location</option>
-        <!-- Add more sort options as needed -->
-    </select>
-</div>
-
-
-
-
 
 
 
 <div id="dbtoolbar">
-    <div id="dbtoolbar-type-1" class="flex justify-between gap-4">
-        <div class="flex justify-start gap-4 h-10 w-[800px]">
+    <div  class="flex justify-between gap-4">
+        <div id='left-controls' class="flex justify-start gap-4 h-10 w-[800px]">
+            <div id="search-control" class="z-10 w-full"
 
-            <button id="toggle-search" type="button" class="btn btn-outline h-full w-11 sm:hidden">
-                <i class="fas fa-search text-theme" style="font-size: 18px;"></i> <!-- Icon for filter -->
-            </button>
+                    _="on click from elsewhere 
+                    add .hidden to #filter-list
+                    add .max-sm:hidden to #search-bar
+                    remove .hidden from #toggle-search
+                    remove .hidden from #sort-button
+                    remove .hidden from #right-controls">
+                    
+                <!-- Toggle search bar in small screen -->
+                <button id="toggle-search" type="button" class="btn btn-outline h-full w-11 sm:hidden"
 
-            <div class="z-10 max-sm:hidden w-full">
-                <div class="flex w-full h-10">
+                        _="on click
+                        add .hidden to #filter-list
+                        remove .max-sm:hidden from #search-bar
+                        add .hidden to #toggle-search
+                        add .hidden to #sort-button
+                        add .hidden to #right-controls">
+
+                    <i class="fas fa-search text-theme" style="font-size: 18px;"></i>
+                </button>  
+
+
+                <div id="search-bar" class="flex w-full h-10 max-sm:hidden">
                     <!-- Filter Form -->
-                    <select id="filter-field" class="form-input w-fit rounded-none h-full rounded-l-lg border border-theme text-theme pr-10">
+                    <select id="filter-field" class="form-input w-fit rounded-none h-full rounded-l-lg border border-theme border-opacity-50 text-theme pr-10">
                         <option value="name">Name</option>
                         <option value="discription">Description</option>
                         <!-- Add more fields as needed -->
                     </select>
-                    <input id="filter-phrase" type="text" placeholder="Type to search ..." class="form-input rounded-none h-full border border-theme text-theme" autocomplete="off"/>
 
-                    <button id="search-button" type="button" class="btn btn-outline rounded-none h-full shadow-none">Search</button>
+                    <input id="filter-phrase" type="text" placeholder="Type to search ..." class="form-input rounded-none h-full border-r-0 border-l-0 border-theme border-opacity-50 text-theme" autocomplete="off" 
 
-                    <button id="add-filter-button" type="button" class="btn btn-outline rounded-l-none h-full shadow-none">Add</button>
+                            _="on click remove .hidden from #filter-list"/>
+
+                    <button id="search-button" type="button" class="btn btn-outline border-r-0 rounded-none h-full shadow-none">Search</button>
+
+                    <button id="add-filter-button" type="button" class="btn btn-outline rounded-l-none h-full shadow-none"
+                            _="on click
+                            remove .hidden from #filter-list
+                            put #filter-field.value into field
+                            put #filter-phrase.value into phrase
+                            set #filter-phrase.value to ''
+                            if phrase is not empty
+                                put the first <span/> in #filter-tag-sample into filterTagSample
+                                put field + ': ' + phrase into filterTagSample
+                                append filterTagSample.outerHTML to #filter-list
+                                _hyperscript.processNode(#filter-list)
+                            end
+                            ">
+                        Add 
+                    </button>
+                    <!-- Store filter-tag-sample -->
+                    <div id="filter-tag-sample" class="hidden">
+                        <span class="filter-tag bg-green-500 text-white rounded-lg px-2 py-1 mr-2 hover:bg-red-600 cursor-pointer"
+                        
+                                _="on click halt the event
+                                remove me">
+                        </span>
+                    </div>
                 </div>
+
+
                 <!-- Filter List -->
                 <div id="filter-list" class="z-10 p-4 my-2 mx-10 card flex flex-wrap justify-center gap-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hidden">
                     <div class="flex justify-between items-end w-full mb-5">
                         <p class="text-theme font-semibold w-full">Filter List</p>
                         <div class="flex gap-4">
-                            <button id="clear-filter-button" type="button" class="btn btn-outline h-8 w-32 flex flex-between">
+                            <button id="clear-filter-button" type="button" class="btn btn-outline h-8 w-32 flex flex-between"
+                                    _=" on click 
+                                    remove  <.filter-tag /> in  #filter-list">
                                 <span class="me-3">Clear all</span>
                                 <i class="fas fa-trash text-theme" style="font-size: 18px;"></i> <!-- Icon for filter -->
                             </button>
                         </div>
                     </div>
                 </div>
+
             </div>
 
 
@@ -61,17 +90,17 @@
                 <span class="max-sm:hidden me-3"> Sorts </span>
                 <i class="fas fa-sort text-theme" style="font-size: 20px;"></i> <!-- Icon for filter -->
             </button>
-
-            
-
         </div>
 
-        <div class="flex items-center justify-end gap-4">
+        <div id='right-controls' class="flex items-center justify-end gap-4">
             <button id='toggle-view' type="button" class="btn btn-outline h-full w-11">
                 <i class="fas fas fa-th" style="font-size: 20px;"></i> <!-- Icon for history -->
             </button>
 
-            <button id='toggle-inforbar' type="button" class="max-lg:hidden btn btn-outline h-full w-11">
+            <button id="toggle-inforbar" type="button" class="max-lg:hidden btn btn-outline h-full w-11"
+                    _="on click
+                    toggle .hidden on #inforbar">
+
                 <i class="fas fas fa-info-circle" style="font-size: 20px;"></i> <!-- Icon for history -->
             </button>
             <button id='open-modal' modal-id='modal-school' class="sm:hidden btn btn-primary h-full w-11">
@@ -79,39 +108,6 @@
             </button>
         </div>
     </div>
-
-
-
-    <div id="dbtoolbar-type-2" class="relative flex items-center h-10 hidden w-full">
-        <div class="z-10 w-full">
-            <div class="flex w-full h-10">
-                <!-- Filter Form -->
-                <select id="filter-field" class="form-input w-fit rounded-none h-full rounded-l-lg border border-theme text-theme pr-10">
-                    <option value="name">Name</option>
-                    <option value="location">Description</option>
-                    <!-- Add more fields as needed -->
-                </select>
-                <input id="filter-phrase" type="text" placeholder="Type to search ..." class="form-input rounded-none h-full border border-theme text-theme" autocomplete="off"/>
-
-                <button id="search-button" type="button" class="btn btn-outline rounded-none h-full shadow-none">Search</button>
-
-                <button id="add-filter-button" type="button" class="btn btn-outline rounded-l-none h-full shadow-none">Add</button>
-            </div>
-            <!-- Filter List -->
-            <div id="filter-list" class="z-10 p-4 my-2 mx-10 card flex flex-wrap justify-center gap-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hidden">
-                <div class="flex justify-between items-end w-full mb-5">
-                    <p class="text-theme font-semibold w-full">Filter List</p>
-                    <div class="flex gap-4">
-                        <button id="clear-filter-button" type="button" class="btn btn-outline h-8 w-32 flex flex-between">
-                            <span class="me-3">Clear all</span>
-                            <i class="fas fa-trash text-theme" style="font-size: 18px;"></i> <!-- Icon for filter -->
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
 </div>
 
 

@@ -37,8 +37,12 @@
             {% endfor %}
 
             <div class="flex justify-center items-center gap-5 pt-3 pb-7">
-                <button type="submit" class="btn btn-primary rounded-full w-36">{% if record_id %} Update {% else %} Create {% endif %}</button>
-                <button id='cancel-modal' type="button" class="btn btn-secondary rounded-full w-36">
+                <button type="submit" class="btn btn-primary rounded-full w-36">
+                    {% if record_id %} Update {% else %} Create {% endif %}
+                </button>
+                <button id='cancel-modal' type="button" class="btn btn-secondary rounded-full w-36"
+                            _="on click
+                            remove the closest #modal-school">
                     Cancel
                 </button>
             </div>
