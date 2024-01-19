@@ -1,6 +1,6 @@
 {% if component == 'card_school' %}
     <div id="card-{{ school.pk }}" class="card p-2" record-id="{{ school.pk }}">
-        <a href="#!">
+        <a href="/{{ school.pk }}">
             <img src="{{ school.image.url }}" alt="{{ school.name }}" class="aspect-video object-cover rounded-lg border border-slate-200 dark:border-slate-900" />
         </a>
 

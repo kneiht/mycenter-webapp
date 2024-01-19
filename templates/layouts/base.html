@@ -13,7 +13,7 @@
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
-    <!-- CSS Reset -->
+    <!-- CSS -->
     <link id="style" href="{% static 'css/tailwindstyles.css' %}" rel="stylesheet" />
 
     <!-- JS -->
@@ -31,14 +31,14 @@
 
     <!-- js libs -->
     <script>
-    document.body.addEventListener('htmx:configRequest', (event) => {
-      event.detail.headers['X-CSRF-Token'] = '{% csrf_token %}';
-    })
+        document.body.addEventListener('htmx:configRequest', (event) => {
+        event.detail.headers['X-CSRF-Token'] = '{% csrf_token %}';
+        })
     </script>
-
     <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
     <script src="/static/js/main.js"></script>
+    
 
 
 

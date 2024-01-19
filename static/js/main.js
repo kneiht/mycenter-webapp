@@ -1,4 +1,32 @@
 
+function onResize() {
+    var quickSettings = document.getElementById('quick-settings-on-resize');
+    var documentWidth = document.documentElement.clientWidth;
+    quickSettings.value = documentWidth;
+    adjustGridColumns();
+}
+
+
+function moveQuickSettings() {
+    console.log("resize")
+    const themeToggle = document.getElementById('quick-settings');
+    const profileMenu = document.getElementById('menu-profile');
+
+    if (!themeToggle || !profileMenu) return;
+
+    const screenWidth = window.innerWidth;
+
+    if (screenWidth <= 768) {
+        // Move theme toggle button to profile menu
+        profileMenu.appendChild(themeToggle);
+    } else {
+        // Move theme toggle button back to its original position
+        const controlButtonsContainer = document.getElementById('control-buttons-container');
+        controlButtonsContainer.appendChild(themeToggle);
+    }
+}
+
+
 function adjustGridColumns() {
     const container = document.getElementById('display_cards');
     if (!container) return;
@@ -21,8 +49,8 @@ function adjustGridColumns() {
 }
 
 // Initial adjustment
-adjustGridColumns();
-window.addEventListener('resize', adjustGridColumns);
+onResize();
+window.addEventListener('resize', onResize);
 
 // Call this in your sidebar toggle function
 // toggleSidebarFunction() { ... adjustGridColumns(); ... }

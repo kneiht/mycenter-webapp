@@ -62,12 +62,14 @@ def change_price_letter(request):
     return render(request, 'pages/change_price_letter.html')
 
 @login_required
-def dashboard(request):
+def dashboard(request, pk=None):
+    school = get_object_or_404(School, pk=pk)
     model_name = 'student'
     model_class = apps.get_model(app_label='app_dashboard', model_name=model_name)
 
     records = model_class.objects.all().order_by('id')
     context = {
+        'school': school,
         'records': records
     }
     return render(request, 'pages/dashboard.html', context)
@@ -120,10 +122,8 @@ class SchoolViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         # Get the current user
         user = request.user
-
         # Filter the schools based on the user
         schools = School.objects.filter(users=user).order_by('-id')
-
         form = SchoolForm()
         context = {
             'form': form,   
@@ -132,33 +132,49 @@ class SchoolViewSet(viewsets.ModelViewSet):
         return render(request, 'pages/schools.html', context)
 
 
-
     @action(detail=False, methods=['get'], url_path='search')
-    def search_school(self, request, *args, **kwargs):
-        # Get the search query and sort option from the request
-        query = request.GET.get('search', '')
+    def search(self, request, *args, **kwargs):
+        # Get the and sort option from the request
         sort_option = request.GET.get('sort', 'name')
 
+        # Get query parameters as lists
+        descriptions = request.GET.getlist('description')
+        names = request.GET.getlist('name')
 
-        print(">>>> ", query, sort_option)
+        print(">>>> descriptions", descriptions)
+        print(">>>> names", names)
 
-        # Perform the search
-        schools = School.objects.filter(
-            Q(name__icontains=query) | Q(location__icontains=query)
-        )
+        # Construct Q objects for filtering
+    # Construct Q objects for filtering
+        name_query = Q()
+        for name in names:
+            name_query |= Q(name__icontains=name)
+
+        description_query = Q()
+        for description in descriptions:
+            description_query |= Q(description__icontains=description)
+
+        # Combine queries with AND logic
+        combined_query = Q()
+        if name_query:
+            combined_query &= name_query
+        if description_query:
+            combined_query &= description_query
+
+        # Filter schools based on the query
+        schools = School.objects.filter(combined_query)
 
         # Sort the results
         if sort_option == 'name':
             schools = schools.order_by('name')
-        elif sort_option == 'location':
-            schools = schools.order_by('location')
-        # Add more sort options as needed
+        elif sort_option == 'description':
+            schools = schools.order_by('description')
 
         # Render the results
         context = {
             'schools': schools,
         }
-        html = render_to_string('components/search_results.html', context, request)
+        html = render_to_string('components/display_cards.html', context, request)
         return HttpResponse(html)
 
 

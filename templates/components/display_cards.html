@@ -1,0 +1,5 @@
+{% for school in schools %}
+    {% with component='card_school'%}
+        {% include 'components/cards.html' %}
+    {% endwith %}
+{% endfor %}

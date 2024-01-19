@@ -33,6 +33,27 @@ class SchoolUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     school = models.ForeignKey(School, on_delete=models.CASCADE)
 
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    GENDER_CHOICES = (("male", "Male"), ("female", "Female"), ("other", "Other"))
+
+    name = models.CharField(max_length=255, default="Unspecified")
+    gender = models.CharField(max_length=20, choices=GENDER_CHOICES, default="other")
+    date_of_birth = models.DateField(blank=True, null=True)
+    phone = models.CharField(max_length=50, blank=True, null=True)
+    bio = models.TextField(default="", blank=True)
+    image = models.ImageField(upload_to='images/profiles/', blank=True, null=True, default='images/default/default.webp')
+    settings = models.ForeignKey('Settings', on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    def __str__(self):
+        return self.name
+
+class Settings(models.Model):
+    name = models.CharField(max_length=255, default="")
+    value = models.CharField(max_length=255, default="")
+    def __str__(self):
+        return self.name
+
 
 
 
@@ -184,20 +205,6 @@ class BaseModel(models.Model):
         super().delete(*args, **kwargs)
 
 
-
-class UserProfile(BaseModel):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    GENDER_CHOICES = (("male", "Male"), ("female", "Female"), ("other", "Other"))
-
-    name = models.CharField(max_length=255, default="Unspecified")
-    gender = models.CharField(max_length=20, choices=GENDER_CHOICES, default="other")
-    date_of_birth = models.DateField(blank=True, null=True)
-    phone = models.CharField(max_length=50, blank=True, null=True)
-    bio = models.TextField(default="", blank=True)
-    image = models.ImageField(upload_to='images/profiles/', blank=True, null=True, default='images/profiles/default.webp')
-    create_date = models.DateTimeField(default=timezone.now)
-    def __str__(self):
-        return self.name
 
 
 
