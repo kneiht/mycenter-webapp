@@ -110,24 +110,13 @@
 
     .menu-item {
         @apply 
-            flex cursor-pointer justify-start items-center whitespace-nowrap p-3 hover:bg-gray-50 dark:hover:bg-gray-700;
+            flex cursor-pointer items-center 
+            whitespace-nowrap p-3 hover:bg-gray-50 dark:hover:bg-gray-700
     }
-
-    .menu-item-top {
-        @apply 
-            rounded-t-xl;
-    }
-
-    .menu-item-bot {
-        @apply 
-            rounded-b-xl;
-    }
-
-    .menu-item-border {
+    .menu-border {
         @apply 
             border-b border-gray-100 dark:border-gray-700;
     }
-        
 }
 
 

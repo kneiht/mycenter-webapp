@@ -1,48 +1,71 @@
-{% if component == 'modal_school' %}
 
 <div id="navbar" class="flex justify-between items-center gap-4">
-    <div class="flex justify-start items-center gap-5">
-        <div>
-            <div class="h-10 w-28">
-                <img src="/static/images/logo.png" alt="Logo" class="object-contain h-10 w-28">
-            </div>  
-        </div>
+    <div id="navbar-left" class="flex justify-start items-center gap-5">
+        <img src="/static/images/logo.png" alt="Logo" class="object-contain h-10 w-28">
         {% if component != 'navbar_school' %}
             <div class="relative"
                         _="on click elsewhere
                         add .hidden to #menu-school">
                 <button class="dropdown-button grid justify-center items-center
-                        px-3 h-8 rounded-xl
-                        bg-gradient-to-r from-theme-500 to-theme-700
-                        dark:from-theme-700 dark:to-theme-800"
-                                _="on click 
-                                toggle .hidden on #menu-school">
-                        <p class="text-white dark:text-slate-300 text-sm truncate font-semibold">{{ school.name }}</p>
+                    px-3 h-8 rounded-xl
+                    bg-gradient-to-r from-theme-500 to-theme-700
+                    dark:from-theme-700 dark:to-theme-800"
+                            _="on click 
+                            toggle .hidden on #menu-school">
+                    <p class="text-white dark:text-slate-300 text-sm truncate font-semibold">{{ school.name }}</p>
                 </button>
                 <!-- Dropdown Menu -->
-                <ul id="menu-school" class="dropdown-menu hidden left-0">
-                    <li class="menu-item menu-item-border menu-item-top">
-                        <a href="/schools">
-                            <i class="fa fa-school ml-3 mr-5"></i> 
-                            <span>Manage schools</span>
-                        </a>
-                    </li>
-                    <li class="menu-item menu-item-bot">
-                        <a href="#">
-                            <i class="fa fa-gear ml-3 mr-5"></i> 
-                            Change school name
-                        </a>
-                    </li>
-                </ul>
+                <div id="menu-school" class="dropdown-menu hidden left-0">
+                    <a href="/schools" class="menu-item menu-border rounded-t-xl ">
+                        <i class="fa fa-school ml-3 mr-5"></i> 
+                        <span>Manage schools</span>
+                    </a>
+                    <a href="#" class="menu-item rounded-b-xl border-none">
+                        <i class="fa fa-gear ml-3 mr-5"></i> 
+                        <span>Change school name</span>
+                    </a>
+                </div>
             </div>
         {% endif %}
     </div>
 
+    <div id="navbar-center" class="flex justify-end items-center gap-7">
+        <a href="/dashboard" class="nav-link  active hover:">
+            <span class="fa fa-home text-theme me-1" aria-hidden="true"></span>
+            <span class="text-theme truncate">Dashboard</span>
+        </a>
 
-    <div class="flex justify-end items-center gap-5">
+        <a href="/dashboard" class="nav-link active ">
+            <span class="fa fa-chalkboard text-theme me-1" aria-hidden="true"></span>
+            <span class="text-theme truncate">Classes</span>
+        </a>
 
-        <div id="quick-settings" class="flex gap-4">
-            <input type="" id="quick-settings-on-resize">
+        <a href="/dashboard" class="nav-link active ">
+            <span class="fa fa-user-graduate text-theme me-1" aria-hidden="true"></span>
+            <span class="text-theme truncate">Students</span>
+        </a>
+
+        <a href="/dashboard" class="nav-link active ">
+            <span class="fa fa-dollar-sign text-theme me-1" aria-hidden="true"></span>
+            <span class="text-theme truncate">Finance</span>
+        </a>
+    </div>
+
+
+    <div id="navbar-right" class="flex justify-end items-center gap-5">
+        <div id="quick-settings" class="flex justify-between gap-4 hidden w-full"
+                    _="on click from #onresize-hs measure #navbar then
+                            if it.width > 639 
+                                put me before the first of #navbar-right
+                                add .rounded-t-xl to #item-2 in #menu-profile
+                                add .hidden to #item-1 in #menu-profile
+                            else 
+                                put me into #item-1 in #menu-profile
+                                remove .rounded-t-xl from #item-2 in #menu-profile
+                                remove .hidden from #item-1 in #menu-profile
+                            end
+                            remove .hidden from me">
+                            
             <label class="text-theme transition-all duration-300 ease-in-out cursor-pointer">
                 <!-- this hidden checkbox controls the state -->
                 <input id="theme-toggle" class="hidden" type="checkbox">
@@ -71,11 +94,11 @@
 
         <!-- Profile Picture and Dropdown  -->
         <div class="relative"
-                _="on click elsewhere
-                add .hidden to #menu-profile">
+                    _="on click elsewhere
+                    add .hidden to #menu-profile">
 
             <div class="dropdown-button cursor-pointer" 
-                    _="on click toggle .hidden on #menu-profile" >
+                        _="on click toggle .hidden on #menu-profile" >
 
                 <div class="flex justify-center items-center w-10 h-10 border-2 border-cyan-700 rounded-full shadow-xl">
                     <img src="https://tecdn.b-cdn.net/img/new/standard/nature/184.jpg" alt="Profile Picture" class="rounded-full object-cover w-11 h-9">
@@ -83,30 +106,24 @@
             </div>
             <!-- Dropdown Menu -->
             <ul id="menu-profile" class="dropdown-menu hidden right-0">
-                <li class="menu-item menu-item-border menu-item-top">
-                    <a class="flex justify-start items-center" href="#">
-                        <i class="fa fa-user ml-3 mr-6"></i>
-                        Profile
-                    </a>
-                </li>
-                <li class="menu-item menu-item-border">
-                    <a class="flex justify-start items-center" href="#">
-                        <i class="fa fa-gear ml-3 mr-5"></i>
-                        Settings
-                    </a>
-                </li>
-                <li class="menu-item menu-item-border">
-                    <a class="flex justify-startn  items-center" href="{% url 'password_change' %}">
-                        <i class="fa fa-key ml-3 mr-5"></i> 
-                        Change password
-                    </a>
-                </li>
-                <li class="menu-item menu-item-bot">
-                    <a class="flex justify-start items-center" href="{% url 'logout' %}">
-                        <i class="fa fa-sign-out ml-3 mr-5"></i>
-                        Log out
-                    </a>
-                </li>
+                <div id="item-1" class="menu-item menu-border rounded-t-xl hidden w-full pr-3 pl-6">
+                </div>
+                <a id="item-2" href="#" class="menu-item menu-border rounded-t-xl">
+                    <i class="fa fa-user ml-3 mr-6"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="#" class="menu-item menu-border">
+                    <i class="fa fa-gear ml-3 mr-5"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="{% url 'password_change' %}" class="menu-item menu-border">
+                    <i class="fa fa-key ml-3 mr-5"></i> 
+                    <span>Change password</span>
+                </a>
+                <a href="{% url 'logout' %}" class="menu-item rounded-b-xl">
+                    <i class="fa fa-sign-out ml-3 mr-5"></i>
+                    <span>Log out</span>
+                </a>
             </ul>
         </div>
     </div>

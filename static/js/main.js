@@ -1,8 +1,7 @@
 
 function onResize() {
-    var quickSettings = document.getElementById('quick-settings-on-resize');
-    var documentWidth = document.documentElement.clientWidth;
-    quickSettings.value = documentWidth;
+    var onresize = document.getElementById('onresize-hs');
+    onresize.click();
     adjustGridColumns();
 }
 
@@ -49,7 +48,7 @@ function adjustGridColumns() {
 }
 
 // Initial adjustment
-onResize();
+document.addEventListener('DOMContentLoaded', onResize)
 window.addEventListener('resize', onResize);
 
 // Call this in your sidebar toggle function
