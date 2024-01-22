@@ -32,7 +32,8 @@ SECRET_KEY = 'django-insecure-4!qf!8%y5=6ny_01gbgw_wcfb=6+czumg&ig5*$m-2ok@*s=3*
 
 
 computer_name = socket.gethostname()
-if computer_name == "Kay-Macbook":
+print(computer_name)
+if computer_name in ["Kay-Macbook", 'DESKTOP-3VQ6KPP']:
     DEBUG = True
     ALLOWED_HOSTS = ['minhthienk.pythonanywhere.com', 
         'www.gen8.edu.vn', 'localhost','gen8.edu.vn','*']
@@ -57,7 +58,6 @@ INSTALLED_APPS = [
     'app_accounts',
     'app_dashboard',
     'widget_tweaks',
-    'livereload',
 ]
 
 MIDDLEWARE = [
@@ -68,7 +68,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'livereload.middleware.LiveReloadScript',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -95,7 +94,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 computer_name = socket.gethostname()
-if computer_name != "Kay-Macbook":
+if computer_name not in ["Kay-Macbook", 'DESKTOP-3VQ6KPP']:
     # use mysql if not local host
     DATABASES = {
         'default': {

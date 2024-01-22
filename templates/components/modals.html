@@ -2,13 +2,14 @@
 
 {% if component == 'modal_school' %}
 <div id="modal-school" class="modal z-50 fixed inset-0 bg-slate-600 bg-opacity-80 overflow-y-auto h-full w-full">
+
     <!-- Modal Content -->
     <div class="relative top-20 mx-4 sm:mx-auto sm:w-96 card">
         <h3 class="pt-7 pb-2 text-xl font-extrabold leading-6 text-center text-theme">{% if record_id %} Edit School {% else %} Create New School {% endif %}</h3>
 
         <!-- Result could be a html card if success or a new form modal with error if fail, if success, the card will be added right after the div cards, else the form will be the same place but display as fixed -->
         <form method="post" class="space-y-4 px-6" enctype="multipart/form-data"
-            {% if record_id %} 
+            {% if record_id != "new" %} 
                 hx-put="/schools/{{ record_id }}/" hx-target="#card-{{ record_id }}" hx-swap="outerHTML"
             {% else %} 
                 hx-post="/schools/" hx-target="#display_cards" hx-swap="afterbegin"

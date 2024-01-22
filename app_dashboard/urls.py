@@ -17,6 +17,7 @@ router.register(r'schools', SchoolViewSet)
 urlpatterns = [
     re_path(r'^$', views.dashboard, name='dashboard'),
     re_path(r'^(?P<pk>\d+)/?$', views.dashboard, name='dashboard'),
+    re_path(r'^manage-schools/?$', views.manage_schools, name='manage_schools'),
 
 
     # DATABASE UPLOAD AND DOWNLOAD

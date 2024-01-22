@@ -1,0 +1,252 @@
+
+tailwind
+https://stackoverflow.com/questions/63392426/how-to-use-tailwindcss-with-django
+
+cd your-django-folder; mkdir jstoolchain; cd jstoolchain
+npm init -y
+npm install -D tailwindcss
+npx tailwindcss init
+npm install --save-dev tailwind-scrollbar
+npm install -D @tailwindcss/forms
+
+tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+
+module.exports = {
+  content: ["../templates/**/*.{html,js}"],
+  darkMode: 'class',
+  plugins: [require("@tailwindcss/forms"),require('tailwind-scrollbar'),],
+  theme: {
+    extend: {
+      fontFamily: {
+        'sans': ['Inter', 'sans-serif'], // Roboto with a sans-serif fallback
+      },
+      colors: {
+        'theme': {
+            '50': '#ecfdff',
+            '100': '#d0f6fd',
+            '200': '#a7edfa',
+            '300': '#6addf6',
+            '400': '#26c3ea',
+            '500': '#0aa6d0',
+            '600': '#0c85ae',
+            '700': '#116a8d',
+            '800': '#175773',
+            '900': '#184861',
+            '950': '#092e43',
+            '1000': '#020f17',
+        },
+        // You can add more custom colors here
+      },
+      height: {
+        '1px': '1px',
+      },
+
+    },
+    screens: {
+      'sm': '640px',
+      'lg': '1024px',
+      'xl': '1280px',
+      // => @media (min-width: 1280px) { ... }
+      '2xl': '1536px',
+      // => @media (min-width: 1536px) { ... }
+    }
+  },
+}
+
+package.json
+{
+  "scripts": {
+    "tailwind-watch": "npx tailwindcss -i ../static/css/input.css -o ../static/css/tailwindstyles.css --watch",
+    "tailwind-build": "npx tailwindcss -i ../static/css/input.css -o ../static/css/tailwindstyles.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "tailwind-scrollbar": "^3.0.5"
+  }
+}
+
+
+
+Layout
+https://dev.to/codeply/helpful-page-layouts-using-tailwind-css-1a3k
+
+https://builder.creative-tim.com/builder/project-DJtwpHVWlEi48yfKKuYv3gMjGMsmpLpDhCB
+
+https://github.com/jrief/django-formset
+
+
+
+
+TEST MYCENTER:
+- TODO:
+    + log in with google
+    + email comfirmation
+    + password  reset
+    + school modal success và fail, dùng modal có sẵn hoặc htmx
+- LOGIN
+    1. đúng username và password
+    2. sai username và password
+    3. Test remember me
+    4. Test forgot pasword
+    5. test create one1
+
+
+
+
+
+
+
+GEN8 NOTES:a
+- làm form lại cho finance
+    - chọn income => lọc income
+    - chọn expense => lọc expense
+
+- làm filter và sort
+- làm update card and row thay vì update cả page sau khi update form, thêm message vào trang khi thành công hay thất bại
+- thêm báo cáo tài chính vào trang finance
+- làm activity log parse
+- thêm báo cáo hoạt động bất thường
+
+- lam vong xoay may man
+
+- làm thêm xác nhận thông tin tài chính
+- update thông tin trên bảng đúng ngay chỗ cần update, không cần tải lại trtang
+- cập nhật thống kê nếu update  1 record nào đó trong bảng
+- cập nhật giờ khi  tính tiền học phí
+
+- nghiên cứu htmlx, alpine, tailwin css
+
+- Trần ngọc mỹ linh sai điểm danh
+- reload in class
+
+Additional Points to Consider:
+Error Handling: Implement proper error handling for file uploads and data processing.
+Security: Ensure that the uploaded files are validated to prevent malicious uploads.
+Cleanup: Decide how you want to handle existing images - whether they should be replaced, appended to, or if you need to provide functionality for deleting them.
+Testing: Test your API thoroughly to ensure that updates work as expected, including the handling of new images.
+
+
+Optimization Tips
+Pagination: Your Django view should support pagination. Instead of returning all data at once, return it in chunks. Update the AJAX request to fetch the next set of data.
+Throttling: Implement throttling in your scroll event to avoid too many AJAX calls.
+Loading Indicators: Show a loading spinner or message while data is being fetched.
+Testing and Debugging
+Test the lazy loading feature thoroughly to ensure it works smoothly across different browsers and devices.
+Monitor the performance, especially if you're loading large amounts of data, and optimize as needed.
+This is a basic setup. Depending on your specific requirements, you might need to make additional adjustments or optimizations.
+
+
+
+
+
+
+
+
+
+Tri ân phụ huynh giới thiệu 14 học sinh: Tiêu Thị Ngọc Bình, Lê Ngọc Nhung, Nguyễn Thanh Nhi, 
+
+
+
+
+
+Bảo Nhi, Bảo Vy, Tuấn Minh
+Hoài An, Phan Hà Linh
+
+
+Trả chị Quyên 6.900.000*8/12
+6*300=1.800.000 => 4.100.000
+Phạm Quỳnh Hoa, Lê Bảo An Nhiên, Trường Nguyễn Gia Hân, Nguyễn Bích Thảo, , Đặng Trường An An, Hà Phương, 
+
+
+
+
+
+
+Todo:
+- dịch tiếng việt
+- upload ảnh phải giảm chất lượng
+- ảnh profile để 1 tên cho học sinh hoặc lớp thôi
+- làm trang cho phụ huỵnh truy cập  để xem điểm danh, buổi học còn lại, bài học
+- kiểm tra lỗi đồng bộ ngày
+- ý tưởng khóa tên học viên, không cho thay đổi
+=> các thay đổi phải có admin xác nhận
+- archived nếu không dùng đến record nữa
+- thêm cách tính ngày lễ
+- làm message cho page
+
+
+12/10 commit 1:
+- add "quản lý điểm danh" to dashboard
+- change nav styles
+- put some styles to css file
+- combine db builder to handles excel, sqlite and mysql
+- make money control bar bigger, add sticky and pin styles
+- add messange pop functions to base
+- show popup with padding calculated from number of students
+
+12/10 commit 2:
+- fix upload image in class detail
+- add image to profile edit page
+
+13/10 commit 1:
+- change redirect for student edit and create
+- translate student edit and create
+- class="text-decoration-none" target="_blank" rel="noopener noreferrer"> for url to student detail
+- make student  table more style with search and sort
+- add "chọn học sinh" in payment template
+- update view to check student id in payment
+- add payment table in create payment
+- add model discount, change payment model to adapt with discount model
+- change view, html to adapt new payment model
+
+14/10 commit 1:
+- create attendance view and html
+
+15/10:
+- fix attendance view and html to select payment
+- add action buttons to student table
+- remove "Điểm Danh" from dashboard
+
+15/10 commit 2:
+- remove TZ = False
+- fix time and date
+- add double click to change attendance
+
+
+16/10:
+- add un-paid css
+
+22/10:
+- add template table.html which use for generic table
+- add api views CRUD
+- add financial model, view
+- add sound and shaking effect and memes
+
+24/10
+- test new student management page
+- add functiton to add student id automatically
+- add BaseModel to remove spaces between words
+
+
+25/10
+-  add image to new student  management
+
+26/10
+- separate template files
+- update  crud.py
+- remove discount choices
+
+26/10 commit 2
+- create database_handle  view
+
+1/11:
+- change  softui
+- create gen8-tags
+- build widgets
+- change  database id
+
+
+19/11
+- update ui
+- change logic

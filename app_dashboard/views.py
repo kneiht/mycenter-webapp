@@ -54,7 +54,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from .models import School
-
+import time
 
 
 # GENERAL PAGES ==============================================================
@@ -73,6 +73,24 @@ def dashboard(request, pk=None):
         'records': records
     }
     return render(request, 'pages/dashboard.html', context)
+
+
+@login_required
+def manage_schools(request):
+    a = time.time()
+    user = request.user
+    # Filter the schools based on the user
+    schools = School.objects.filter(users=user).order_by('-id')
+    form = SchoolForm()
+    context = { 
+        'form': form,
+        'schools': schools,
+        'title': 'Manage schools',
+        '': 'for_school',
+    }
+    print(">>>>> ", time.time()-a)
+    return render(request, 'pages/schools.html', context)
+
 
 
 # SCHOOL MANAGEMENT VIEWS
@@ -120,20 +138,6 @@ class SchoolViewSet(viewsets.ModelViewSet):
         return self.handle_form_submission(request, form, school_instance)
 
     def list(self, request, *args, **kwargs):
-        # Get the current user
-        user = request.user
-        # Filter the schools based on the user
-        schools = School.objects.filter(users=user).order_by('-id')
-        form = SchoolForm()
-        context = {
-            'form': form,   
-            'schools': schools,
-        }
-        return render(request, 'pages/schools.html', context)
-
-
-    @action(detail=False, methods=['get'], url_path='search')
-    def search(self, request, *args, **kwargs):
         # Get the and sort option from the request
         sort_option = request.GET.get('sort', 'name')
 
@@ -145,7 +149,7 @@ class SchoolViewSet(viewsets.ModelViewSet):
         print(">>>> names", names)
 
         # Construct Q objects for filtering
-    # Construct Q objects for filtering
+        # Construct Q objects for filtering
         name_query = Q()
         for name in names:
             name_query |= Q(name__icontains=name)
@@ -180,8 +184,12 @@ class SchoolViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], url_path='form')
     def form_school(self, request, pk=None, *args, **kwargs):
-        school = get_object_or_404(School, pk=pk)
-        form = SchoolForm(instance=school)
+        school = School.objects.get(pk=pk)
+        if school:
+            form = SchoolForm(instance=school)
+        else:
+            form = SchoolForm()
+            pk = 'new'
         context = {
             'form': form,
             'component': "modal_school",

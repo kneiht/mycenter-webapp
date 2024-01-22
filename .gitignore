@@ -1,0 +1,12 @@
+/env
+/venv
+.venv
+/core/__pycache__
+/dashboard/__pycache__
+/media
+/app_accounts/migrations
+/app_dashboard/migrations
+/tailwindcss
+/jstoolchain
+db.sqlite3
+*.pyc

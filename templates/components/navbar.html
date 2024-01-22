@@ -1,5 +1,5 @@
 
-<div id="navbar" class="flex justify-between items-center gap-4">
+<div id="navbar" class="flex justify-between items-center gap-4 h-8">
     <div id="navbar-left" class="flex justify-start items-center gap-5">
         <img src="/static/images/logo.png" alt="Logo" class="object-contain h-10 w-28">
         {% if component != 'navbar_school' %}
@@ -10,13 +10,13 @@
                     px-3 h-8 rounded-xl
                     bg-gradient-to-r from-theme-500 to-theme-700
                     dark:from-theme-700 dark:to-theme-800"
-                            _="on click 
+                            _="on click
                             toggle .hidden on #menu-school">
                     <p class="text-white dark:text-slate-300 text-sm truncate font-semibold">{{ school.name }}</p>
                 </button>
                 <!-- Dropdown Menu -->
                 <div id="menu-school" class="dropdown-menu hidden left-0">
-                    <a href="/schools" class="menu-item menu-border rounded-t-xl ">
+                    <a href="/manage-schools" class="menu-item menu-border rounded-t-xl ">
                         <i class="fa fa-school ml-3 mr-5"></i> 
                         <span>Manage schools</span>
                     </a>
@@ -29,27 +29,30 @@
         {% endif %}
     </div>
 
-    <div id="navbar-center" class="flex justify-end items-center gap-7">
-        <a href="/dashboard" class="nav-link  active hover:">
-            <span class="fa fa-home text-theme me-1" aria-hidden="true"></span>
-            <span class="text-theme truncate">Dashboard</span>
-        </a>
 
-        <a href="/dashboard" class="nav-link active ">
-            <span class="fa fa-chalkboard text-theme me-1" aria-hidden="true"></span>
-            <span class="text-theme truncate">Classes</span>
-        </a>
+    {% if component != 'navbar_school' %}
+        <div id="navbar-center" class="flex justify-end items-center gap-2">
 
-        <a href="/dashboard" class="nav-link active ">
-            <span class="fa fa-user-graduate text-theme me-1" aria-hidden="true"></span>
-            <span class="text-theme truncate">Students</span>
-        </a>
+            <a href="/dashboard" class="flex justify-center items-center has-tooltip w-12 h-12 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap">
+                <span class="fa fa-home text-theme me-1" style="font-size: 23px;"></span>
+            </a>
 
-        <a href="/dashboard" class="nav-link active ">
-            <span class="fa fa-dollar-sign text-theme me-1" aria-hidden="true"></span>
-            <span class="text-theme truncate">Finance</span>
-        </a>
-    </div>
+            <a href="/dashboard" class="flex justify-center items-center has-tooltip w-12 h-12 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap">
+                <span class="fa fa-chalkboard text-theme me-1" style="font-size: 23px;"></span>
+            </a>
+
+            <a href="/dashboard" class="flex justify-center items-center has-tooltip w-12 h-12 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap">
+                <span class="fa fa-user-graduate text-theme me-1" style="font-size: 23px;"></span>
+            </a>
+
+            <a href="/dashboard" class="flex justify-center items-center has-tooltip w-12 h-12 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap">
+                <span class="fa fa-dollar-sign text-theme me-1" style="font-size: 23px;"></span>
+            </a>
+            <a href="/dashboard" class="flex justify-center items-center has-tooltip w-12 h-12 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap">
+                <span class="fa fa-toolbox text-theme me-1" style="font-size: 23px;"></span>
+            </a>
+        </div>
+    {% endif %}
 
 
     <div id="navbar-right" class="flex justify-end items-center gap-5">
@@ -128,7 +131,7 @@
         </div>
     </div>
 </div>
-<hr class="border-t border-gray-300 dark:border-gray-800 my-2" />
+<hr class="border-t border-gray-300 dark:border-gray-800 my-3" />
 
 
 

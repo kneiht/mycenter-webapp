@@ -4,6 +4,16 @@
 
 
 @layer components {
+    .tooltip {
+        @apply invisible absolute;
+      }
+      
+      .has-tooltip:hover .tooltip {
+        @apply visible z-50;
+      }
+
+
+
     .btn {
         @apply 
             flex items-center justify-center

@@ -6,25 +6,6 @@ function onResize() {
 }
 
 
-function moveQuickSettings() {
-    console.log("resize")
-    const themeToggle = document.getElementById('quick-settings');
-    const profileMenu = document.getElementById('menu-profile');
-
-    if (!themeToggle || !profileMenu) return;
-
-    const screenWidth = window.innerWidth;
-
-    if (screenWidth <= 768) {
-        // Move theme toggle button to profile menu
-        profileMenu.appendChild(themeToggle);
-    } else {
-        // Move theme toggle button back to its original position
-        const controlButtonsContainer = document.getElementById('control-buttons-container');
-        controlButtonsContainer.appendChild(themeToggle);
-    }
-}
-
 
 function adjustGridColumns() {
     const container = document.getElementById('display_cards');
@@ -60,10 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Use delication to make sure  new add element can be list
     document.body.addEventListener('click', function(event) {
-        if (event.target.closest('#cancel-modal')) {
-            var element = event.target.closest('#cancel-modal')
-            removeModal(element);
-        } else if (event.target.closest('#open-modal')) {
+        if (event.target.closest('#open-modal')) {
             var element = event.target.closest('#open-modal')
             var modalID = element.getAttribute('modal-id');
             //console.log(modalID);
@@ -71,12 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    function removeModal(button) {
-        var modal = button.closest('.modal');
-        modal.remove();  // Removes the modal from the DOM
-    }
-
-    function openLocalModal(modalID) {
+    function zopenLocalModal(modalID) {
         // Retrieve the HTML content from local storage
         var htmlContent = localStorage.getItem(modalID);
         if (htmlContent) {
@@ -87,14 +60,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Remove the 'hidden' class to display the modal
             var modal = document.getElementById(modalID);
             // Rebind the element
-            htmx.process(document.body);
+            _hyperscript.processNode(modal)
+            htmx.process(modal);
         }
     }
 
     // Remove all modals after a swap to make sure no modals are on the screen, 
     // if there are errors from the form, new modal will be called to appear
     document.body.addEventListener('htmx:beforeSwap', function(event) {
-        var modals = document.querySelectorAll('.modal');
+        var modals = document.querySelectorAll('.zmodal');
         modals.forEach(function(modal) {
             modal.remove();
         });
