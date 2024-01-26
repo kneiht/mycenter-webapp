@@ -1,0 +1,620 @@
+{% extends "layouts/base.html" %}
+
+{% load static gen8_tags %}
+
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block extra_style %}
+<style>
+  .table thead th {
+      padding: 0.75rem 0.5rem;
+      text-transform: capitalize;
+      letter-spacing: 0px;
+      border-bottom: 1px solid #e9ecef;
+  }
+  .btn-manage-data {
+      --bs-btn-padding-x: 15px;
+      --bs-btn-padding-y: 7px;
+      min-width: 60px;
+  }
+  .btn-remove-sort-field {
+      --bs-btn-padding-x: 20px;
+      --bs-btn-padding-y: 5px;
+      min-width: 40px;
+  }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row d-flex align-items-center mb-3">
+    <div class="col-6">
+      <h3>{{ title }}</h3>
+    </div>
+    <div class="col-6 text-md-begin">
+      <button type="button" class="create-modal-form btn btn-raised btn-primary no-wrap" data-id-record="" data-model-name="{{ model_name }}"> Add new {{ model_name }} </button>
+    </div>
+  </div>
+
+
+  <div class="row d-flex align-items-center">
+    <div class="col-lg-4 col-sm-12">
+      <div class="controls-container d-flex">
+        <!-- Search Container -->
+        <div class="search-box flex-grow-1 me-2">
+          <input class="form-control" type="text" id="searchBox" placeholder="Type to search ...">
+        </div>
+        <div>
+          <button type="button" class="btn btn-outline-secondary btn-manage-data" id="searchButton">
+            <i class="fas fa-search" style="font-size: 23px;"></i> <!-- Icon for the search button -->
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div class="col-lg-4 col-sm-12 ">
+      <div class="controls-container d-flex justify-content-center">
+        <!-- Button for Card/Table Display Toggle -->
+        <button type="button" class="btn btn-outline-secondary btn-manage-data no-wrap me-4" id="toggleDisplayBtn">
+          <i class="fas fa-th" style="font-size: 23px;"></i> <!-- Icon for table view -->
+        </button>
+
+        <!-- Button for Filter -->
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary btn-manage-data dropdown-toggle no-wrap me-4" type="button" id="filterBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-filter" style="font-size: 23px;"></i> <!-- Icon for filter -->
+            </button>
+
+            <!-- Dropdown Menu -->
+            <ul class="dropdown-menu" aria-labelledby="filterBtn">
+                {% if model_name == "student" %}
+                    <li><a class="dropdown-item filter-option" data-filter="all">All</a></li>
+                    <li><a class="dropdown-item filter-option" data-filter="active">Active</a></li>
+                    <li><a class="dropdown-item filter-option" data-filter="inactive">Inactive</a></li>
+                    <li><a class="dropdown-item filter-option" data-filter="debt_active">Debt Active</a></li>
+                    <li><a class="dropdown-item filter-option" data-filter="debt_inactive">Debt Inactive</a></li>
+                {% elif model_name == "financialtransaction" %}
+                    <li><a class="dropdown-item filter-option" data-filter="all">All</a></li>
+                    <li><a class="dropdown-item filter-option" data-filter="income">INCOME</a></li>
+                    <li><a class="dropdown-item filter-option" data-filter="expense">EXSPENSE</a></li>
+                    <li><a class="dropdown-item filter-option" data-filter="income_tuition_fee">INCOME - Tuition Fee</a></li>
+                    <li><a class="dropdown-item filter-option" data-filter="income_capital_contribution">INCOME - Capital Contribution</a></li>
+                    <li><a class="dropdown-item filter-option" data-filter="income_product_sales">INCOME - Product Sales</a></li>
+                    <li><a class="dropdown-item filter-option" data-filter="income_other_income">INCOME - Other Income</a></li>
+                    <li><a class="dropdown-item filter-option" data-filter="expense_operational_expenses">EXPENSE - Operational Expenses</a></li>
+                    <li><a class="dropdown-item filter-option" data-filter="expense_asset_expenditure">EXPENSE - Asset Expenditure</a></li>
+
+                    <li><a class="dropdown-item filter-option" data-filter="expense_marketing_expenses">EXPENSE - Marketing Expenses</a></li>
+                    <li><a class="dropdown-item filter-option" data-filter="expense_salary_expenses">EXPENSE - Salary Expenses</a></li>
+                    <li><a class="dropdown-item filter-option" data-filter="expense_dividend_distribution">EXPENSE - Dividend Distribution</a></li>
+                    <li><a class="dropdown-item filter-option" data-filter="expense_event_organization_expenses">EXPENSE - Event Organization Expenses</a></li>
+                    <li><a class="dropdown-item filter-option" data-filter="expense_human_resources_expenses">EXPENSE - Human Resources Expenses</a></li>
+
+                    <li><a class="dropdown-item filter-option" data-filter="expense_other_expenses">EXPENSE - Other Expenses</a></li>
+                {% endif %}
+            </ul>
+        </div>
+
+
+        <!-- Button to trigger sort modal -->
+        <button type="button" class="btn btn-outline-secondary btn-manage-data no-wrap me-4" data-bs-toggle="modal" data-bs-target="#sortModal">
+          <i class="fas fa-sort" style="font-size: 23px;"></i> <!-- Icon for filter -->
+        </button>
+        <!-- Button to trigger change log modal -->
+        <button type="button" class="btn btn-outline-secondary btn-manage-data no-wrap me-4" data-bs-toggle="modal" data-bs-target="#changeLogModal">
+          <i class="fas fa-history" style="font-size: 23px;"></i> <!-- Icon for filter -->
+        </button>
+        <!-- Sort Modal -->
+        <div class="modal modal-small fade" id="sortModal" tabindex="-1" aria-labelledby="sortModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="sortModalLabel">Sorting</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div id="sortFieldsContainer">
+                  <!-- Sort fields will be added here dynamically -->
+                </div>
+                <button type="button" class="btn btn-outline-secondary" onclick="addSortField()">Add another sort column</button>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="applySort()">Sort</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    {% if model_name == "financialtransaction" %}
+    <div class="controls-container d-flex">
+      <!-- Start Date -->
+      <div class="date-picker me-2">
+        <input class="form-control" type="date" id="startDate" placeholder="Start Date">
+      </div>
+
+      <!-- End Date -->
+      <div class="date-picker me-2">
+        <input class="form-control" type="date" id="endDate" placeholder="End Date">
+      </div>
+      
+
+      <div id="summary">
+        
+          <p>Filter info: <span id="filterInfo"></span></p>
+          <p>Total Income: <span id="totalIncome"></span></p>
+          <p>Total Expenses: <span id="totalExpenses"></span></p>
+          <p>Remaining Balance: <span id="remainingBalance"></span></p>
+      </div>
+
+
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+
+
+<div class="container-fluid pb-4" id="cardView" style="display: none;">
+  <div class="row align-items-top" id="lazy_load_card_data_display">
+    <!-- Lazy loading -->
+  </div>
+</div>
+
+<div class="container-fluid pb-4" id="tableView" style="display: none;">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body px-0 pt-0">
+          <div class="table-responsive no-scroll">
+            <table class="table align-items-center mb-0">
+              <thead>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder"></th>
+                  {% if model_name == "course" %}
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">id</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">name</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">hours</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">books</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">description</th>
+
+                  {% elif model_name == "classschedule" %}
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">id</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">name</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">daytime</th>
+
+                  {% elif model_name == "daytime" %}
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">id</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">day of week</th>
+
+                  {% elif model_name == "tuitionplan" %}
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">id</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">plan</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">price</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">number of hours</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">note</th>
+
+                  {% elif model_name == "userprofile" %}
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">id</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">user</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">name</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">gender</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">date of birth</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">phone</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">note</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">image</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">create date</th>
+
+                  {% elif model_name == "class" %}
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">id</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">name</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">course</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">schedule</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">teacher</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">status</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">students</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">note</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">image</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">create date</th>
+
+                  {% elif model_name == "student" %}
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">id</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">name</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">status</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">Remaining hours</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">gender</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">date of birth</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">parents</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">phone</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">school</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">classes</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">gen8 dollars</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">note</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">create date</th>
+
+                  {% elif model_name == "discount" %}
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">id</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">name</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">discount value</th>
+
+                  {% elif model_name == "financialtransaction" %}
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">id</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">create date</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">In/out</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">type</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">amount</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">images</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">permission</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">giver</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">receiver</th>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder">note</th>
+                  {% endif %}
+                </tr>
+              </thead>
+              <tbody class="pd-10" id="lazy_load_table_data_display">
+                <!-- Lazy loading -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<div id="loadingSign" class="text-center py-5">LOADING MORE DATA ...</div>
+<div id="lastPage" class="text-center py-5" style="display: none;">There is no more data the load.</div>
+
+
+
+
+
+
+
+{% endblock %}
+
+
+
+{% block extra_script %}
+{% include "includes/js/modal_form.js" %}
+
+
+<script>
+  // HANDLE DOUBLE CLICK TO SHOW DROPDOWN MENU
+  $(document).ready(function () {
+      // Event delegation for .card-record elements
+      $(document).on('dblclick', '.card-record', function () {
+          // Find the dropdown associated with this .card-record and toggle it
+          $(this).find('.dropdown').first().find('[data-bs-toggle="dropdown"]').dropdown('toggle');
+      });
+
+      // Event delegation for 'tr' elements within 'table'
+      $(document).on('dblclick', 'table tr', function () {
+          // Find the dropdown in this row and toggle it
+          $(this).find('.dropdown').first().find('[data-bs-toggle="dropdown"]').dropdown('toggle');
+      });
+  });
+</script>
+
+
+<script>
+  // HANDLE SORT FUNCTION
+  var fieldNames = {{ field_names|safe }}; // Django template variable passed from the server
+  // Function to add a new sort field
+  function addSortField() {
+      var fieldCount = $('#sortFieldsContainer .sort-field-group').length;
+      var $sortFieldGroup = $(`
+          <div class="sort-field-group mb-3">
+              <label>Sort by:</label>
+              <select class="form-select" name="sortField${fieldCount}">
+                  ${fieldNames.map(fieldName => `<option value="${fieldName}">${fieldName}</option>`).join('')}
+              </select>
+
+              <div class="container d-flex mt-3">
+                <div class="form-check mx-3">
+                    <input class="form-check-input" type="radio" name="sortOrder${fieldCount}" value="asc" checked> A to Z
+                </div>
+                <div class="form-check mx-3">
+                    <input class="form-check-input" type="radio" name="sortOrder${fieldCount}" value="desc"> Z to A
+                </div>
+                <button type="button" class="btn btn-danger btn-sm btn-remove-sort-field mx-3"  title="Remove this sort field">
+                    <i class="fas fa-trash"  style="font-size: 15px;"></i>
+                </button>
+              </div>
+
+          </div>
+      `);
+      $('#sortFieldsContainer').append($sortFieldGroup);
+  }
+
+  // Function to remove a sort field
+  $(document).on('click', '.btn-remove-sort-field', function () {
+      $(this).closest('.sort-field-group').remove();
+  });
+
+  function applySort() {
+      var sortCriteria = [];
+      $('#sortFieldsContainer .sort-field-group').each(function () {
+          var fieldName = $(this).find('select').val();
+          var sortOrder = $(this).find('input[type="radio"]:checked').val();
+          sortCriteria.push({
+              field: fieldName,
+              order: sortOrder
+          });
+      });
+
+      console.log(sortCriteria);
+      // Here, you would typically make an AJAX request to the server with sortCriteria
+      $.ajax({
+          url: '/path-to-your-sort-endpoint',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({
+              sortCriteria: sortCriteria
+          }),
+          beforeSend: function (xhr) {
+              xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken')); // Function to get CSRF token from cookies
+          },
+          success: function (response) {
+              // Update the page with the sorted data
+              console.log(response);
+          },
+          error: function (error) {
+              console.error('Error:', error);
+          }
+      });
+
+      // Close the modal
+      $('#sortModal').modal('hide');
+  }
+
+  $(document).ready(function () {
+      addSortField();
+  });
+
+
+  // Function to get the CSRF token from cookies
+  function getCookie(name) {
+      var cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          var cookies = document.cookie.split(';');
+          for (var i = 0; i < cookies.length; i++) {
+              var cookie = jQuery.trim(cookies[i]);
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
+</script>
+
+
+<script>
+  // HANDLE DISPLAY SELECTION
+  $(document).ready(function () {
+      // Function to toggle views
+      function toggleView() {
+          var cardView = $('#cardView');
+          var tableView = $('#tableView');
+          var icon = $('#toggleDisplayBtn').find('i');
+
+          if (cardView.is(':visible')) {
+              cardView.hide();
+              tableView.show();
+              icon.removeClass('fa-th').addClass('fa-table');
+              localStorage.setItem('displayType', 'table');
+          } else {
+              tableView.hide();
+              cardView.show();
+              icon.removeClass('fa-table').addClass('fa-th');
+              localStorage.setItem('displayType', 'card');
+          }
+      }
+
+      // Event listener for button click
+      $('#toggleDisplayBtn').click(function () {
+          toggleView();
+      });
+  });
+
+  function selectView() {
+      // Check local storage and set the view accordingly
+      if (localStorage.getItem('displayType') === 'table') {
+          $('#cardView').hide();
+          $('#tableView').show();
+          $('#toggleDisplayBtn').find('i').removeClass('fa-th').addClass('fa-table');
+      } else {
+          $('#tableView').hide();
+          $('#cardView').show();
+          $('#toggleDisplayBtn').find('i').removeClass('fa-table').addClass('fa-th');
+      }
+  }
+</script>
+
+
+
+
+<script>
+  // HANDLE DATA LOADING
+
+  //$(document).ready(function() {
+  //    loadRecordsDisplay(1);
+  //    selectView();
+  //});
+
+  var currentPageNumber = 1;
+  var currentSearchQuery = "";
+  var currentFilter = "";
+  var isLoading = false;
+
+  loadRecordsDisplay(currentPageNumber, currentSearchQuery, currentFilter);
+  selectView()
+
+  var lastSearchQuery = currentSearchQuery; // Variable to store the last search query
+  var lastPageNumber = currentPageNumber; // Variable to store the last search query
+  var lastFilter = currentFilter; // Variable to store the last search query
+
+  $(document).ready(function () {
+      $(window).scroll(onScrollForLazyLoad);
+  });
+
+
+  function onScrollForLazyLoad() {
+    // Set the threshold as a percentage of the screen height
+    var thresholdPercentage = 20; // for example, 20%
+
+    // Calculate the threshold in pixels based on the current window height
+    var thresholdInPixels = $(document).height() * (thresholdPercentage / 100);
+    if (!isLoading && $(window).scrollTop() + $(window).height() > $(document).height() - 1000  ) {
+      currentPageNumber++; // Increment the page number
+      loadRecordsDisplay(currentPageNumber, currentSearchQuery, currentFilter);
+    }
+  }
+
+
+
+  $(document).ready(function () {
+      function performSearch() {
+          currentSearchQuery = $('#searchBox').val();
+          currentPageNumber = 1;
+          if (currentSearchQuery === lastSearchQuery) {
+              console.log("Search query unchanged. Skipping search.");
+              return; // Skip the search if the query is the same as the last one
+          }
+          loadRecordsDisplay(currentPageNumber, currentSearchQuery, currentFilter, true);
+          lastSearchQuery = currentSearchQuery;
+          lastPageNumber = currentPageNumber;
+          lastFilter = currentFilter;
+
+          // Re-bind the scroll event for lazy loading
+          $(window).off('scroll').scroll(onScrollForLazyLoad);
+
+      }
+
+      function performFilter() {
+          currentPageNumber = 1;
+          loadRecordsDisplay(currentPageNumber, currentSearchQuery, currentFilter, true);
+          lastSearchQuery = currentSearchQuery;
+          lastPageNumber = currentPageNumber;
+          lastFilter = currentFilter;
+
+          // Re-bind the scroll event for lazy loading
+          $(window).off('scroll').scroll(onScrollForLazyLoad);
+      }
+
+
+
+      // When the search button is clicked
+      $('#searchButton').click(function () {
+          performSearch();
+      });
+
+      // When the 'Enter' key is pressed inside the search box
+      $('#searchBox').keypress(function (e) {
+          if (e.which == 13) { // Enter key
+              performSearch();
+          }
+      });
+
+
+    // Event for selecting a filter option
+    $('.filter-option').click(function () {
+        currentFilter = $(this).data('filter'); // Update the currentFilter with the selected option's data-filter value
+        performFilter();
+    });
+
+  });
+
+  function loadRecordsDisplay(pageNumber = null, searchQuery = null, filter = null, clearView=false) {
+      if (isLoading) {
+          // Currently loading, so do not initiate another request
+          return;
+      }
+      isLoading = true;  // Set the flag to indicate loading has started
+
+      // Add start date and end date for financial filter
+      var startDate = $('#startDate').length > 0 ? $('#startDate').val() : "";
+      var endDate = $('#endDate').length > 0 ? $('#endDate').val() : "";
+
+
+      $.ajax({
+          url: "{% url 'fetch_records' %}", // URL to the view that returns records HTML
+          type: "GET",
+          data: {
+              'model_name': "{{ model_name }}",
+              'page': pageNumber,
+              'search_query': searchQuery,
+              'filter': filter,
+              "start_date": startDate,
+              'end_date': endDate
+          },
+          success: function (response) {
+              if (clearView) {
+                  $('#lazy_load_card_data_display').html('');
+                  $('#lazy_load_table_data_display').html('');
+              }
+
+              $('#lazy_load_card_data_display').append(response.html_card_content);
+
+              $('#lazy_load_table_data_display').append(response.html_table_content);
+
+              // Append the HTML content
+
+              //selectView(); // Call selectView after the new content is loaded
+
+              // Check if the lastPage element is present in the parsed HTML
+              if (response.is_last_page) {
+                  // Unbind the scroll event
+                  $(window).off('scroll');
+                  $('#loadingSign').hide();
+                  $('#lastPage').show();
+                  
+              } 
+              isLoading = false;  // Reset the flag when loading is complete
+
+
+              // Update the HTML elements with the fetched data
+              $('#filterInfo').text(response.filter_info);
+              $('#totalIncome').text(response.total_income);
+              $('#totalExpenses').text(response.total_expenses);
+              $('#remainingBalance').text(response.remaining_balance);
+
+          },
+
+          error: function (xhr, status, error) {
+              // Handle error
+              console.error("Error loading page content: ", status, error);
+              isLoading = false;  // Reset the flag even in case of an error
+          }
+      });
+  }
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

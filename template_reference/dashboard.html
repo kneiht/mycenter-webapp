@@ -1,0 +1,57 @@
+{% extends "layouts/base.html" %}
+{% load i18n static gen8_tags %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block extra_style %}
+<style>
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+    <div class="container-fluid py-4">
+
+      <div class="row">
+        <h5 class="font-weight-bolder mb-3">Quick Access</h5>
+        {% url 'manage_other_models' 'students' as url %}
+        {% include "includes/elements/big_icon_button.html" with label="Students" url=url icon="fa-user-graduate" %}
+
+        {% url 'manage_classes' as url %}
+        {% include "includes/elements/big_icon_button.html" with label="Classes" url=url icon="fa-chalkboard" %}
+
+
+        {% include "includes/elements/big_icon_button.html" with label="Payments" url='' icon="fa-dollar-sign" %}
+
+        {% url 'create_payment' as url %}
+        {% include "includes/elements/big_icon_button.html" with label="Add Payment" url=url icon="fa-hand-holding-usd" %}
+
+
+        {% url 'manage_other_models' 'financialtransactitions' as url %}
+        {% include "includes/elements/big_icon_button.html" with label="Transactions" url=url icon="fa-cash-register" %}
+
+
+        {% include "includes/elements/big_icon_button.html" with label="Tasks" url="" icon="fa-briefcase" %}
+      </div>
+
+
+      <div class="row mt-5">
+        <h5 class="font-weight-bolder mb-3">Quick Information</h5>
+        {% get_students_analysis as get_students_analysis %}
+        {% with increase_string=get_students_analysis.increase_this_month|add:" this month" %}
+            {% include "includes/elements/analysis_number.html" with label="Total active students" big_number=get_students_analysis.active_number small_number=increase_string icon="fa-user-graduate"%}
+        {% endwith %}
+      </div>
+    </div>
+
+
+{% endblock content %}
+
+{% block extra_script %}
+{% endblock extra_script %}
+
+

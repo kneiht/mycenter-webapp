@@ -830,11 +830,6 @@ select {
   padding-bottom: 0;
 }
 
-.has-tooltip:hover .tooltip {
-  visibility: visible;
-  z-index: 50;
-}
-
 .btn {
   display: flex;
   align-items: center;
@@ -1395,10 +1390,6 @@ select {
   inset-inline-end: 0px;
 }
 
-.left-0 {
-  left: 0px;
-}
-
 .right-0 {
   right: 0px;
 }
@@ -1513,6 +1504,10 @@ select {
 
 .mb-6 {
   margin-bottom: 1.5rem;
+}
+
+.mb-8 {
+  margin-bottom: 2rem;
 }
 
 .me-1 {
@@ -1643,10 +1638,6 @@ select {
   height: 2.5rem;
 }
 
-.h-12 {
-  height: 3rem;
-}
-
 .h-6 {
   height: 1.5rem;
 }
@@ -1689,10 +1680,6 @@ select {
 
 .w-11\/12 {
   width: 91.666667%;
-}
-
-.w-12 {
-  width: 3rem;
 }
 
 .w-28 {
@@ -1746,6 +1733,10 @@ select {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+.resize {
+  resize: both;
 }
 
 .grid-cols-1 {
@@ -1804,8 +1795,8 @@ select {
   justify-content: space-between;
 }
 
-.gap-2 {
-  gap: 0.5rem;
+.gap-10 {
+  gap: 2.5rem;
 }
 
 .gap-3 {
@@ -2132,6 +2123,10 @@ select {
 
 .pr-10 {
   padding-right: 2.5rem;
+}
+
+.pr-2 {
+  padding-right: 0.5rem;
 }
 
 .pr-3 {

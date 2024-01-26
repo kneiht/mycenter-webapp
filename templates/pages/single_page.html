@@ -22,82 +22,41 @@
 </head>
 
 
+<!-- Add CSRF token for htmx -->
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-ext="multi-swap" class="px-4 bg-slate-100 dark:bg-slate-900 min-h-full" style="font-family: 'Roboto';">
+    
+    <!-- A place holder for displaying modal -->
+    <div id="modal-form"></div>
+    <div id="modal-message"></div>
 
-<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' class="bg-slate-100 dark:bg-slate-900 min-h-full" style="font-family: 'Roboto';">
+    <!-- A hack to use resize event in hyperscript -->
     <div id="onresize-hs" class="hidden"></div>
 
+    <!-- Navigation bar -->
+    {% include 'components/nav_bar.html' %}
 
-    <div class="my-1 mx-4">
-        {% with component='navbar_school'%}
-            {% include 'components/navbar.html' %}
-        {% endwith %}
-    </div>
-    
-    
+    <!-- The main display -->
     <main class="flex mt-4 gap-3">
-        <div class="overflow-y-scroll w-full px-4" style="height: 89vh;">
-            <div class="flex justify-between items-center mb-6">
-                <p class="text-3xl text-center font-semibold text-theme"></p>
-                <button id='open-modal' class="max-sm:hidden btn btn-primary"
-                            hx-get="/schools/99999"
-                            hx-target="this"
-                            hx-swap="beforeend">
+
+        <!-- Keep the display fit the screen, only content inside can be scrolled -->
+        <div class="overflow-y-scroll w-full pr-2" style="height: 89vh;">
+
+            <!-- The title bar -->
+            {% include 'components/title_bar.html' %}
+
+            <!-- The tool bar for database filter, sort and more -->
+            {% include 'components/db_tool_bar.html' %}
     
-                    <i class="fas fa-plus me-3" style="font-size: 16px;"></i>
-                    <span class="max-sm:hidden me-3"> Add new </span>
-                </button>
-    
-            </div>
-    
-            <div class="mt-3 mb-4">
-                {% include 'components/dbtoolbar.html' %}
-            </div>
-    
-            <!-- Schools Cards -->
-            <div class="flex">
-                <div id="display_cards" class="w-full flex justify-center
-                 gap-6 grid opacity-0">
-                    {% for school in schools %}
-                        {% with component='card_school'%}
-                            {% include 'components/cards.html' %}
-                        {% endwith %}
-                    {% endfor %}
-                </div> 
-            </div>
+            <!-- The cards display -->
+            {% include 'components/display_cards.html' with card="card_school" %}
         </div>
     
-        <div class="inforbar max-lg:hidden pr-4">
-            {% include 'components/inforbar.html' %}
-        </div>
-    
+        <!-- The information panel -->
+        {% include 'components/infor_bar.html' %}
+
     </div>
     
-    
-    
-    <!-- Components-->
-    <div class="hidden">
-        <!-- Modal for creating school-->
-        {% with component='modal_school'%}
-            {% include 'components/modals.html' %}
-        {% endwith %}
-    
-        <!-- Dropdown Context Menu For School-->
-        <ul  id="menu-context-school" class="dropdown-menu right-0 hidden">
-            <li id="record-edit" class="menu-item menu-item-border menu-item-top">
-                <i class="fa fa-school ml-3 mr-5"></i> 
-                Edit information
-            </li>
-    
-            <li id="record-share" class="menu-item menu-item-bot">
-                <button>
-                    <i class="fa fa-school ml-3 mr-5"></i> 
-                    Share your school
-                </button>
-            </li>
-        </ul>
-    </div>
-
-
+   
     <!-- js libs -->
     <script>
         document.body.addEventListener('htmx:configRequest', (event) => {
@@ -106,6 +65,7 @@
     </script>
     <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/multi-swap.js"></script>
     <script src="/static/js/main.js"></script>
     
 

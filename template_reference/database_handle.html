@@ -1,0 +1,47 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}
+    GEN8 DB EXCEL
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row d-flex align-items-center px-10 py-4">
+            <h3 class='mb-4'>Upload excel file to batch update mysql</h3>
+            <h4>Remember to download backup database before upload</h4>
+
+            <form action="{% url 'database_handle' %}" method="post" enctype="multipart/form-data" id="upload-form">
+                {% csrf_token %}
+                <label for="table_name">Table Name:</label>
+                <input class='form-control' type="text" id="table_name" name="table_name" required>
+                
+                <label for="file">Excel File:</label>
+                <input class='form-control' type="file" id="file" name="file" accept=".xlsx" required><br><br>
+
+                <button class="btn btn-primary" type="submit" id="upload-button" disabled>Upload</button>
+            </form>
+
+            <br><br><br><br>
+
+            <!-- download_backup.html -->
+            <form action="{% url 'download_database_backup' %}" method="post" onsubmit="unlockUploadButton()">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit">Download Backup</button>
+            </form>
+        </div>
+    </div>
+
+
+
+
+{% endblock content %}
+
+
+{% block extra_script %}
+    <script>
+        function unlockUploadButton() {
+            document.getElementById("upload-button").disabled = false;
+        }
+    </script>
+{% endblock extra_script %}

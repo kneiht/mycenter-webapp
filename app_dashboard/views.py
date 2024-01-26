@@ -1,8 +1,6 @@
 # Python Standard Library Imports
 import json
-import os
 from datetime import datetime
-
 import time
 
 # Django and Other Third-Party Imports
@@ -14,128 +12,171 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
+
 from django.core.paginator import Paginator
-from django.db.models import Q, Sum
+from django.db.models import Q, Count, Sum  # 'Sum' is imported here
 
-# App-Specific Imports
-from .forms import (
-    AttendanceForm, ClassForm, CourseForm, DatabaseChangeLogForm, DayTimeForm, 
-    DiscountForm, FinancialTransactionForm, PayTuitionForm, 
-    StudentForm, TransactionImageForm, TuitionPlanForm, 
-)
-from .models import (
-    Attendance, Class, ClassSchedule, Course, FinancialTransaction, 
-    Student, StudentClass, TuitionPlan, User, format_vnd, School, SchoolUser
-)
-
-from django.http import JsonResponse
-
-from rest_framework import generics
 from rest_framework import serializers
-
-
-from django.db.models import Count, Sum  # 'Sum' is imported here
-
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+
+
+# Import forms
+from .forms import (
+    SchoolForm, StudentForm, 
+)
+# Import models
+from django.contrib.auth.models import User
+from .models import (
+    School, Student, SchoolUser
+)
+
+
 def is_admin(user):
     return user.is_authenticated and user.is_active and user.is_staff and user.is_superuser
 
-from rest_framework import viewsets
-from rest_framework.decorators import action
-
-from .forms import SchoolForm  # Import your SchoolForm
-
-
-from rest_framework.permissions import IsAuthenticated
-from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth.models import User
-from django.http import JsonResponse
-from .models import School
-import time
-
 
 # GENERAL PAGES ==============================================================
-def change_price_letter(request):
-    return render(request, 'pages/change_price_letter.html')
+def landing_page(request):
+    rendered_page = render(request, 'pages/single_page.html')
+    return rendered_page
+
 
 @login_required
 def dashboard(request, pk=None):
-    school = get_object_or_404(School, pk=pk)
-    model_name = 'student'
-    model_class = apps.get_model(app_label='app_dashboard', model_name=model_name)
-
-    records = model_class.objects.all().order_by('id')
-    context = {
+    request.user
+    school = School.objects.get(pk=pk)
+    context = { 
+        'title': school.name,
+        'page_title': 'Dashboard',
+        'nav_bar': 'dashboard',
+        'page_title': 'Dashboard',
+        'title_bar': 'for_manage_schools',
         'school': school,
-        'records': records
     }
-    return render(request, 'pages/dashboard.html', context)
+    rendered_page = render(request, 'pages/single_page.html', context)
+    return rendered_page
 
 
 @login_required
 def manage_schools(request):
-    a = time.time()
     user = request.user
     # Filter the schools based on the user
     schools = School.objects.filter(users=user).order_by('-id')
-    form = SchoolForm()
     context = { 
-        'form': form,
-        'schools': schools,
+        'records': schools,
         'title': 'Manage schools',
-        '': 'for_school',
+        'page_title': 'Manage schools',
+
+        'nav_bar': 'for_manage_schools',
+        'title_bar': 'for_manage_schools',
+        'db_tool_bar': 'for_manage_schools',
+
+        'card': 'card_school',
     }
-    print(">>>>> ", time.time()-a)
-    return render(request, 'pages/schools.html', context)
+    return render(request, 'pages/single_page.html', context)
 
 
-
-# SCHOOL MANAGEMENT VIEWS
+# DATABASE MANAGEMENT VIEWS
 #------------------------------
-class SchoolSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = School
-        fields = ['id', 'name', 'abbreviation', 'description']
-
-
-class SchoolViewSet(viewsets.ModelViewSet):
-    queryset = School.objects.all()
-    serializer_class = SchoolSerializer
+class BaseViewSet(viewsets.ModelViewSet):
+    queryset = None
+    serializer_class = None
     permission_classes = [IsAuthenticated]
+    model_class = None
+    form_class = None
 
-    def handle_form_submission(self, request, form, school_instance=None):
+    modal_selection = {
+        School: 'modal_school',
+        Student: 'modal_student',
+    }
+    card_selection ={
+        School: 'card_school',
+    }
+
+    def process_form(self, request, instance=None):
+        form = self.form_class(request.POST, request.FILES, instance=instance)
         if form.is_valid():
-            school = form.save(commit=False)
-            school.save()
-            html_card = render_to_string('components/cards.html', {'school': school, 'component': "card_school"})
-            if not school_instance:
-                # This is a new record
-                school_user = SchoolUser(school=school, user=request.user)
+            instance = form.save(commit=False)
+            instance.save()
+            if self.model_class == School:
+                school_user = SchoolUser(school=instance, user=request.user)
                 school_user.save()
-            return HttpResponse(html_card)
-
+            return 'success', instance, form
         else:
-            if school_instance:
-                html_modal = render_to_string('components/modals.html', {'form': form, 'component': "modal_school", 'record_id': school_instance.pk}, request)
-                html_card = render_to_string('components/cards.html', {'school': school_instance, 'component': "card_school"})
-                html = html_card + html_modal
-                return HttpResponse(html)
-            else:
-                html_modal = render_to_string('components/modals.html', {'form': form, 'component': "modal_school"}, request)
-                return HttpResponse(html_modal)
+            return 'failed', instance, form
+
+    def html_render(self, component, request, **kwargs):
+        if component=='card':
+            context = {
+                    'record': kwargs.get('record'), 
+                    'card': self.card_selection[self.model_class],
+                    'swap_oob': 'hx-swap-oob="true"' if kwargs.get('swap_oob') else '',
+            }
+            template = 'components/card.html'
+
+        elif component=='message':
+            context = {
+                    'modal': 'modal_message', 
+                    'message': kwargs.get('message'),
+                    'swap_oob': 'hx-swap-oob="true"',
+            }
+            template = 'components/modal.html'
+
+        elif component=='form':
+            context = {
+                    'form': kwargs.get('form'), 
+                    'modal': self.modal_selection[self.model_class],
+                    'record_id': kwargs.get('record_id'),
+                    'swap_oob': 'hx-swap-oob="true"',
+            }
+            template = 'components/modal.html'
+        
+        elif component=='display_cards':
+            context = {
+                    'records': kwargs.get('records'), 
+                    'card': self.card_selection[self.model_class],
+                    'swap_oob': 'hx-swap-oob="true"',
+            }
+            template = 'components/display_cards.html'
+
+        return render_to_string(template, context, request)
+
+    @action(detail=True, methods=['get'], url_path='form')
+    def create_form(self, request, pk=None, *args, **kwargs):
+        # Get the instance if pk is provided, use None otherwise
+        record = self.model_class.objects.filter(pk=pk).first() if pk!='new' else None
+        form = self.form_class(instance=record) if record else self.form_class()
+        html_modal = self.html_render('form', request, form=form, record_id=record.pk if record else None)
+        return HttpResponse(html_modal)
+    
 
     def create(self, request, *args, **kwargs):
-        form = SchoolForm(request.POST, request.FILES)
-        return self.handle_form_submission(request, form)
+        result, instance, form = self.process_form(request)
+        if result=='success':
+            html_card = self.html_render('card', request, record=instance, swap_oob=False)
+            html_message = self.html_render('message', request, message='create successfully')
+            return HttpResponse(html_card + html_message)
+        else:
+            html_modal = self.html_render('form', request, form=form)
+            return HttpResponse(html_modal)
 
     def update(self, request, *args, **kwargs):
-        school_id = kwargs.get('pk')
-        school_instance = get_object_or_404(School, id=school_id)
-        form = SchoolForm(request.POST, request.FILES, instance=school_instance)
-        return self.handle_form_submission(request, form, school_instance)
+        instance_id = kwargs.get('pk')
+        instance = get_object_or_404(School, id=instance_id)
+        result, instance, form = self.process_form(request, instance)
+        if result=='success':
+            html_card = self.html_render('card', request, record=instance, swap_oob=True)
+            html_message = self.html_render('message', request, message='update successfully')
+            return HttpResponse(html_card + html_message)
+        else:
+            html_modal = self.html_render('form', request, form=form, record_id=instance.pk)
+            return HttpResponse(html_modal)
+
 
     def list(self, request, *args, **kwargs):
         # Get the and sort option from the request
@@ -166,37 +207,21 @@ class SchoolViewSet(viewsets.ModelViewSet):
             combined_query &= description_query
 
         # Filter schools based on the query
-        schools = School.objects.filter(combined_query)
+        records = self.model_class.objects.filter(combined_query)
 
         # Sort the results
         if sort_option == 'name':
-            schools = schools.order_by('name')
+            records = records.order_by('name')
         elif sort_option == 'description':
-            schools = schools.order_by('description')
+            records = records.order_by('description')
 
         # Render the results
         context = {
-            'schools': schools,
+            'records': records,
         }
-        html = render_to_string('components/display_cards.html', context, request)
+        html = self.html_render('display_cards', request, records=records)
         return HttpResponse(html)
 
-
-    @action(detail=True, methods=['get'], url_path='form')
-    def form_school(self, request, pk=None, *args, **kwargs):
-        school = School.objects.get(pk=pk)
-        if school:
-            form = SchoolForm(instance=school)
-        else:
-            form = SchoolForm()
-            pk = 'new'
-        context = {
-            'form': form,
-            'component': "modal_school",
-            'record_id': pk,
-        }
-        html = render_to_string('components/modals.html', context, request)
-        return HttpResponse(html)
 
     def share_school(request, school_id):
         if request.method == 'POST':
@@ -217,8 +242,25 @@ class SchoolViewSet(viewsets.ModelViewSet):
             return JsonResponse({'status': 'error', 'message': 'Invalid request.'})
 
 
+class SchoolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = School
+        fields = ['id', 'name', 'abbreviation', 'description']
+
+class SchoolViewSet(BaseViewSet):
+    queryset = School.objects.all()
+    serializer_class = SchoolSerializer
+    model_class = School
+    form_class = SchoolForm
 
 
+
+
+
+
+
+
+'''
 # MANAGEMENT =================================================================
 @login_required
 def manage_other_models(request, model_name_plural):
@@ -301,7 +343,7 @@ def form_generator(request):
     # Fetch the form class based on the model_name parameter
     form_class = form_classes.get(model_name)
 
-    url_api = urls.get(model_name)
+    urls.get(model_name)
     
     # If form_class exists and id_record is provided, fetch the instance and initialize the form
     if form_class and id_record:
@@ -842,4 +884,4 @@ def fetch_payment_data(request, student_id):
     #print(">>>> ", clean_data)
     
     return JsonResponse({'status': 'success', 'data': clean_data})
-
+'''

@@ -42,6 +42,55 @@ class SchoolForm(forms.ModelForm):
                     'class': 'form-input-file',}),
         }
 
+class StudentForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ['name', 'gender', 'date_of_birth', 'school', 'parents', 'phone', 'status', 'note', 'money', 'image']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'placeholder': 'Student name',
+                'required': 'required',
+                'class': 'form-input'
+            }),
+            'gender': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'date_of_birth': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'school': forms.TextInput(attrs={
+                'placeholder': 'Student school',
+                'class': 'form-input'
+            }),
+            'parents': forms.TextInput(attrs={
+                'placeholder': 'Student parents',
+                'class': 'form-input'
+            }),
+            'phone': forms.TextInput(attrs={
+                'placeholder': 'Student phone',
+                'class': 'form-input'
+            }),
+            'status': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'note': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2
+            }),
+            'money': forms.NumberInput(attrs={
+                'class': 'form-control'
+            }),
+            'image': forms.FileInput(attrs={
+                'class': 'form-input-file'
+            }),
+        }
+
+
+
+
+
+'''
 
 # CourseForm
 class CourseForm(forms.ModelForm):
@@ -370,3 +419,4 @@ class TransactionImageForm(forms.ModelForm):
         }
 
 
+'''

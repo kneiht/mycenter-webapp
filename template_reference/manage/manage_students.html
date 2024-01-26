@@ -1,0 +1,153 @@
+{% extends "layouts/base_manage.html" %}
+{% load static %}
+
+{% block title %}
+Manage students
+{% endblock %}
+
+
+
+{% block page_head_left %}
+<h3> Manage students  </h3>
+{% endblock %}
+
+
+{% block page_head_right %}
+<!-- Button to Open Modal -->
+<button type="button" class="create-modal-form btn btn-raised btn-primary no-wrap" data-id-record="" data-model-name="student"> Add new student </button>
+{% endblock %}
+
+
+{% block controls %}
+<div class="search-container col-xl-4 col-lg-5 col-md-6 d-flex align-items-center">
+    <input class="form-control" type="text" id="searchBox" placeholder="Type to search ...">
+</div>
+<div class="col-xl-6 col-lg-6 col-12 d-flex align-items-center mt-3">
+    <a href="{% url 'manage_students' %}?filter=all" class="btn btn-outline-info mx-2" role="button">All</a>
+    <a href="{% url 'manage_students' %}?filter=active" class="btn btn-outline-info mx-2" role="button">Active</a>
+    <a href="{% url 'manage_students' %}?filter=inactive" class="btn btn-outline-info mx-2" role="button">Inactive</a>
+    <a href="{% url 'manage_students' %}?filter=tuition_debt_active" class="btn btn-outline-info mx-2" role="button">Debt active</a>
+    <a href="{% url 'manage_students' %}?filter=tuition_debt_inactive" class="btn btn-outline-info mx-2" role="button">Debt inactive</a>
+</div>
+{% endblock %}
+
+
+{% block page_body %}
+    <div class="container-fluid">
+        <div class="row d-flex align-items-center">
+            {% for student in students %}
+                <div class="searchable col-lg-4 col-md-6 col-sm-12 mb-3">
+                  <div class="card h-100">
+                    <div class="card-header ">
+                      <div class="row align-items-center">
+                        <div class="col align-items-center">
+                          <span class="status-{{ student.status }}" title="{{ student.get_status_display }}">
+                              <i class="fas fa-circle" style="font-size: 19px;"></i>
+                          </span>
+
+                          <span class="text-sm mb-0 text-uppercase font-weight-bold">
+                            {{ student.id|stringformat:"03d" }} - {{ student.name }}
+                          </span>
+                        </div>
+                        <div class="col-auto">
+                          <div class="dropdown">
+                            <a class="cursor-pointer" id="dropdownTable" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-ellipsis-v text-secondary" aria-hidden="true"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end px-2 py-1" aria-labelledby="dropdownMenuButton">
+                              <li>
+                                <a class="create-modal-form dropdown-item border-radius-md" data-id-record="{{ student.id }}" data-model-name="student">
+                                  <div class="d-flex py-1">
+                                    <div class="my-auto">
+                                      <img src="{% static 'img/icons/edit.png' %}" class="avatar avatar-sm me-3">
+                                    </div>
+                                    <div class="d-flex flex-column justify-content-center">
+                                      <h6 class="text-sm font-weight-normal mb-1">
+                                        <span class="font-weight-bold">Edit</span>
+                                      </h6>
+                                    </div>
+                                  </div>
+                                </a>
+                              </li>
+
+
+                              <li>
+                                <a class="create-modal-form dropdown-item border-radius-md" data-id-record="" data-model-name="pay_tuition" data-student-id="{{ student.id }}">
+                                  <div class="d-flex py-1">
+                                    <div class="my-auto">
+                                      <img src="{% static 'img/icons/money.png' %}" class="avatar avatar-sm me-3">
+                                    </div>
+                                    <div class="d-flex flex-column justify-content-center">
+                                      <h6 class="text-sm font-weight-normal mb-1">
+                                        <span class="font-weight-bold">Pay tuittion fee</span>
+                                      </h6>
+                                    </div>
+                                  </div>
+                                </a>
+                              </li>
+
+                              <li>
+                                <a href="{% url 'student_attendance_calendar' student.id %}" class="create-modal-form dropdown-item border-radius-md" target="_blank" rel="noopener noreferrer">
+                                  <div class="d-flex py-1">
+                                    <div class="my-auto">
+                                      <img src="{% static 'img/icons/calendar.png' %}" class="avatar avatar-sm me-3">
+                                    </div>
+                                    <div class="d-flex flex-column justify-content-center">
+                                      <h6 class="text-sm font-weight-normal mb-1">
+                                        <span class="font-weight-bold">Attendance calendar</span>
+                                      </h6>
+                                    </div>
+                                  </div>
+                                </a>
+                              </li>
+
+
+
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="card-body">
+                      <div class="row">
+                        <p class="text-info text-sm">
+                            <span style="margin: 3px;" class="icon text-info text-sm"><i class="fas fa-chalkboard"></i></span>
+                            {% for class in student.classes.all %}
+                                <span class="text"> {{ class.name }} {% if class in student.paid_classes %} (chargeable){% endif %}{% if not forloop.last %}, {% endif %}</span>
+                            {% endfor %}
+                        </p>
+
+
+
+                        <p class="text-info text-sm">
+                          <span style="margin: 3px;" class="icon text-info text-sm"><i class="fas fa-calendar-alt"></i></span>
+                          <span class="text"> {{ student.date_of_birth }}</span>
+                        </p>
+                        <p class="text-info text-sm">
+                          <span style="margin-right: 3px;" class="icon text-info text-sm"><i class="fas fa-user-friends"></i></span>
+                          <span class="text"> {{ student.parents }}</span>
+                        </p>
+                        <p class="text-info text-sm">
+                          <span style="margin-right: 3px;" class="icon text-info text-sm"><i class="fas fa-phone"></i></span>
+                          <span class="text"> {{ student.phone }}</span>
+                        </p>
+                        <p class="text-info text-sm">
+                          <span style="margin-right: 3px;" class="icon text-info text-sm"><i class="fas fa-school"></i></span>
+                          <span class="text"> {{ student.school }}</span>
+                        </p>
+                        <p class="text-info text-sm">
+                          <span style="margin-right: 3px;" class="icon text-info text-sm"><i class="fas fa-clock"></i></span>
+                          <span class="text"> Remaining paid hours: {{ student.total_paid_hours_remaining }}</span>
+                        </p>
+                      </div>
+                    </div>
+
+
+
+                  </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

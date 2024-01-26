@@ -1,0 +1,52 @@
+{% if card == 'card_school' %}
+    <div id="school_{{ record.pk }}" record-id="{{ record.pk }}" class="card p-2" {{ swap_oob }}>
+        <a href="/{{ record.pk }}">
+            <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-lg border border-slate-200 dark:border-slate-900" />
+        </a>
+
+        <div class="flex justify-between items-start py-2">
+            <div class="w-11/12">
+                <h3 class="text-lg font-bold text-theme text-center pl-1">{{ record.name }}</h3>
+            </div>
+            <div class="relative"
+                    _="on click elsewhere
+                    add .hidden to #menu-card-context in me">
+
+                <div class="dropdown-button flex flex-col justify-between items-center cursor-pointer gap-y-0.5 py-1.5 w-6 rounded-xl hover:bg-gray-200 hover:dark:bg-gray-700" menu-id="menu-card-context"
+                        _="on click
+                        put #menu-card-context after me
+                        remove .hidden from #menu-card-context">
+
+                    <div class="w-1 h-1 bg-theme-900 dark:bg-theme-100 rounded-full"></div>
+                    <div class="w-1 h-1 bg-theme-900 dark:bg-theme-100 rounded-full"></div>
+                    <div class="w-1 h-1 bg-theme-900 dark:bg-theme-100 rounded-full"></div>
+                </div>
+                {% if is_first %}
+                    <!-- Dropdown Context Menu For Record-->
+                    <ul  id="menu-card-context" class="dropdown-menu right-0 hidden">
+                        <li id="record-edit" class="menu-item menu-item-border menu-item-top"
+                                _="on click
+                                put the closest .card into card
+                                put @record-id of card into record_id
+                                add .hidden to #menu-card-context
+                                put #menu-card-context before the first of #display_cards
+                                set url to '/schools/' + record_id + '/form'
+                                js(url) htmx.ajax('GET', url, {swap: 'afterbegin'}) end">
+                            
+                            <i class="fa fa-school ml-3 mr-5"></i> 
+                            Edit information
+                        </li>
+
+                        <li id="record-share" class="menu-item menu-item-bot">
+                            <button>
+                                <i class="fa fa-school ml-3 mr-5"></i> 
+                                Share your school
+                            </button>
+                        </li>
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+        <p class="text-theme whitespace-pre-line px-3"> {{ record.description }} </p>
+    </div>
+{% endif %}

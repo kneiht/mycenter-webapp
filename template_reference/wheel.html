@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spin Wheel</title>
+    <style>
+        #wheel {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 16px solid #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .segment {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            clip-path: polygon(50% 50%, 100% 0, 100% 100%);
+        }
+
+        .segment div {
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            width: 200%;
+            height: 200%;
+            text-align: right;
+            transform-origin: 0 50%;
+            box-sizing: border-box;
+            padding-right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .segment:nth-child(1) div { background-color: red; transform: rotate(0deg); }
+        .segment:nth-child(2) div { background-color: blue; transform: rotate(45deg); }
+        .segment:nth-child(3) div { background-color: green; transform: rotate(90deg); }
+        .segment:nth-child(4) div { background-color: yellow; transform: rotate(135deg); }
+        .segment:nth-child(5) div { background-color: orange; transform: rotate(180deg); }
+        .segment:nth-child(6) div { background-color: purple; transform: rotate(225deg); }
+        .segment:nth-child(7) div { background-color: cyan; transform: rotate(270deg); }
+        .segment:nth-child(8) div { background-color: lime; transform: rotate(315deg); }
+
+        #wheel::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 60px;
+            height: 60px;
+            background-color: #fff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+    <div id="wheel">
+        <div class="segment"><div>20 points</div></div>
+        <div class="segment"><div>40 points</div></div>
+        <div class="segment"><div>70 points</div></div>
+        <div class="segment"><div>100 points</div></div>
+        <div class="segment"><div>20 points</div></div>
+        <div class="segment"><div>40 points</div></div>
+        <div class="segment"><div>70 points</div></div>
+        <div class="segment"><div>100 points</div></div>
+    </div>
+    <button id="spin">Spin</button>
+
+    <script>
+        document.getElementById('spin').addEventListener('click', function() {
+            var wheel = document.getElementById('wheel');
+            var deg = Math.floor(5000 + Math.random() * 5000);
+            wheel.style.transition = 'all 5s ease-out';
+            wheel.style.transform = `rotate(${deg}deg)`;
+            wheel.addEventListener('transitionend', function() {
+                wheel.style.transition = 'none';
+                var actualDeg = deg % 360;
+                wheel.style.transform = `rotate(${actualDeg}deg)`;
+            });
+        });
+    </script>
+</body>
+</html>

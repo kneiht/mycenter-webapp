@@ -1,0 +1,108 @@
+{% load i18n static admin_soft %}
+{% get_current_language as LANGUAGE_CODE %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+{% get_direction as direction %}
+{% get_admin_setting as admin_setting %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <title>Thông Báo từ Anh Ngữ GEN8</title>
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="76x76" href="{% static 'img/apple-icon.png' %}">
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+
+    <!-- Fonts and Icons -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <link href="{% static 'css/nucleo-icons.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/nucleo-svg.css' %}" rel="stylesheet" />
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+
+    <!-- CSS Files -->
+    <link id="pagestyle" href="{% static 'css/soft-ui-dashboard.css' %}" rel="stylesheet" />
+    <link id="pagestyle_dark" href="{% static 'css/dark-theme-core.css' %}" rel="stylesheet" />
+    <link id="style" href="{% static 'css/styles.css' %}" rel="stylesheet" />
+
+    <!-- Custom Style -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .content {
+            text-align: justify;
+        }
+        .signature {
+            margin-top: 30px;
+            text-align: right;
+            font-weight: bold;
+        }
+        .special-note {
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .img {
+            width: 100%;
+            border-radius: 15px;
+            object-fit: cover;
+            object-position: center;
+            bbox-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+    </style>
+
+</head>
+
+
+<body class="bg-gray-100">
+    <!-- Use a responsive container class from Bootstrap -->
+    <div class="container-letter py-4">
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-lg-6">
+                <!-- Your card and content go here -->
+                <div class="card px-4 py-5">
+                    <div class="header">THƯ THÔNG BÁO<br>Về việc áp dụng chính sách học phí mới</div>
+                    <div class="content">
+                        <p>Thân gửi Quý phụ huynh,</p>
+                        <p>Lời đầu tiên, đại diện Anh Ngữ GEN8, thầy Thiện xin cảm ơn sự đồng hành và trân quý tình cảm của Quý phụ huynh đã dành cho anh ngữ GEN8 từ những ngày đầu tiên ở lớp học trong hẻm nhỏ tại số 91/1 đường 3/2. Thầy cảm thấy may mắn và biết ơn vì sự ủng hộ và tin tưởng của Quý phụ huynh đã giúp lớp học nhỏ trưởng thành và phát triển đến nay.</p>
+                        <p>Để cảm ơn sự đồng hành của Quý phụ huynh, Trung tâm đã và đang giữ mức học phí cũ cho các em học viên cũ cho đến ngày hết 31/12/2023.</p>
+                        <p>Học phí đóng từ ngày 1/1/2024 (từ đầu năm 2024) sẽ được áp dụng chính sách học phí mới chung với toàn bộ học viên khác tại trung tâm (chính sách học phí này đã được áp dụng từ ngày 1/7/2023 cho các em học viên mới).</p>
+                        <p>Chính sách học phí mới được đính kèm bên dưới để Quý phụ huynh xem.</p>
+                        <p>Việc xây dựng một nơi học khang trang, môi trường học hiện đại, chất lượng hơn cho các con, cùng với việc hợp thức hóa hoạt động dạy và học ngoại ngữ đòi hỏi chi phí vận hành lớn hơn nhiều lần so với lớp học cá nhân trước đây. GEN8 rất mong Quý phụ huynh thông cảm vì sự thay đổi sau này.</p>
+                        <p>Một lần nữa, anh ngữ GEN8 xin chân thành cảm ơn sự ủng hộ và tin tưởng của Quý phụ huynh. GEN8 mong muốn được tiếp tục đồng hành cùng Quý phụ huynh và giúp các em học sinh của chúng ta phát triển toàn diện khả năng tiếng Anh - đúng như mục tiêu giảng dạy tại GEN8.</p>
+                        <div class="special-note">
+                            ĐẶC BIỆT:<br>
+                            - Anh ngữ GEN8 giảm 10% học phí cho lần đóng học phí đầu tiên theo chính sách học phí mới cho học viên nhận được thư thông báo này.<br>
+                            - Nếu quý phụ huynh thật sự có vấn đề tài chính khó khăn với chính sách học phí mới, xin liên hệ trực tiếp thầy Thiện qua số điện thoại hoặc Zalo 0393.593.905.
+                        </div>
+                        <div class="signature">
+                            Trân trọng,<br>
+                            ANH NGỮ GEN8,<br>
+                            Thầy Nguyễn Minh Thiện
+                        </div>
+                    </div>
+                    <img src="/media/images/posts/pricing.webp" class="img mt-5" alt="pricing">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+
+</html>
+

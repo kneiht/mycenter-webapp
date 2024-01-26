@@ -1,0 +1,70 @@
+
+{% if modal == 'modal_message' %}
+    <div id="modal-message" {{ swap_oob }}>
+        <div class="modal z-50 fixed inset-0 bg-slate-600 bg-opacity-80 overflow-y-auto h-full w-full">
+            <div class="relative top-20 mx-4 sm:mx-auto sm:w-96 card">
+                <p> {{ message }} </p>
+
+
+                <button type="button" class="btn btn-secondary rounded-full w-36"
+                        _="on click
+                        remove the closest .modal">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+{% elif modal == 'modal_school' %}
+    <div id="modal-form" {{ swap_oob }}>
+        <div class="modal z-50 fixed inset-0 bg-slate-600 bg-opacity-80 overflow-y-auto h-full w-full">
+
+            <!-- Modal Content -->
+            <div class="relative top-20 mx-4 sm:mx-auto sm:w-96 card">
+                <h3 class="pt-7 pb-2 text-xl font-extrabold leading-6 text-center text-theme">{% if record_id %} Edit School {% else %} Create New School {% endif %}</h3>
+
+                <!-- Result could be a html card if success or a new form modal with error if fail, if success, the card will be added right after the div cards, else the form will be the same place but display as fixed -->
+                <form method="post" class="space-y-4 px-6" enctype="multipart/form-data"
+                    {% if record_id %}
+                        hx-put="/schools/{{ record_id }}/"
+                        hx-swap="afterbegin"
+                    {% else %} 
+                        hx-post="/schools/" hx-target="#display_cards" hx-swap="afterbegin"
+                    {% endif %} >
+
+                    {% if form.non_field_errors %}
+                        {% for error in form.non_field_errors %}
+                        <p class="text-red-500 pt-3">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                        <div>
+                            <label for="{{ field.name }}" class="text-theme">{{ field.label }}</label>
+                            {{ field }}    
+                        
+                            {% if field.help_text %}
+                                <p class="text-blue-500 px-3">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <p class="text-red-500 px-3">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                    <div class="flex justify-center items-center gap-5 pt-3 pb-7">
+                        <button type="submit" class="btn btn-primary rounded-full w-36">
+                            {% if record_id %} Update {% else %} Create {% endif %}
+                        </button>
+                        <button id='cancel-modal' type="button" class="btn btn-secondary rounded-full w-36"
+                                    _="on click
+                                    remove the closest .modal">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}

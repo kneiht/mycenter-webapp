@@ -33,6 +33,11 @@ class SchoolUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     school = models.ForeignKey(School, on_delete=models.CASCADE)
 
+
+
+
+
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     GENDER_CHOICES = (("male", "Male"), ("female", "Female"), ("other", "Other"))
@@ -42,17 +47,122 @@ class UserProfile(models.Model):
     date_of_birth = models.DateField(blank=True, null=True)
     phone = models.CharField(max_length=50, blank=True, null=True)
     bio = models.TextField(default="", blank=True)
-    image = models.ImageField(upload_to='images/profiles/', blank=True, null=True, default='images/default/default.webp')
-    settings = models.ForeignKey('Settings', on_delete=models.SET_NULL, null=True, blank=True)
+    image = models.ImageField(upload_to='images/profiles/', blank=True, null=True, default='images/default/default_profile.webp')
+    settings = models.ForeignKey('KeyValue', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     def __str__(self):
         return self.name
 
-class Settings(models.Model):
-    name = models.CharField(max_length=255, default="")
+class KeyValue(models.Model):
+    key = models.CharField(max_length=255, default="")
     value = models.CharField(max_length=255, default="")
     def __str__(self):
+        return self.key
+
+class Student(models.Model):
+    STUDENT_STATUS = (
+        ('enrolled', 'Enrolled'),                 # Student is currently enrolled
+        ('on_hold', 'On Hold'),                   # Student is on hold
+        ('discontinued', 'Discontinued'),         # Student has discontinued
+        ('potential_customer', 'Potential Customer'),  # Potential customer with potential interest
+        ('not_contacted_customer', 'Not Contacted Customer'), # Customer not contacted yet
+        ('not_potential_customer', 'Not Potential Customer'), # Not a potential customer
+    )
+
+    GENDER_CHOICES = (("male", "Male"), ("female", "Female"), ("other", "Other"))
+
+    name = models.CharField(max_length=255, default="")
+    gender = models.CharField(max_length=20, choices=GENDER_CHOICES, default="other")
+    date_of_birth = models.DateField(null=True, blank=True)
+    school = models.CharField(max_length=255, default="", blank=True, null=True)
+    parents = models.CharField(max_length=255, default="", blank=True, null=True)
+    phone = models.CharField(max_length=50, default="", blank=True, null=True)
+    status =  models.CharField(max_length=50, choices=STUDENT_STATUS, default="not_potential_customer")
+    note = models.TextField(default="", blank=True, null=True)
+    money = models.IntegerField(default=0, blank=True)
+    image = models.ImageField(upload_to='images/profiles/', blank=True, null=True, default='images/default/default_profile.webp')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return str(self.name)
+
+
+
+class Course(models.Model):
+    name = models.CharField(max_length=255, default="")
+    hours = models.FloatField(default=0, null=True, blank=True)
+    books = models.TextField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    def __str__(self):
         return self.name
+
+
+
+class ClassSchedule(models.Model):
+    name = models.CharField(max_length=255, default="")
+    daytime = models.ManyToManyField('DayTime')
+
+    def __str__(self):
+        return self.name
+
+
+class DayTime(models.Model):
+    DAY_CHOICES = [
+        ('monday', 'Monday'),
+        ('tuesday', 'Tuesday'),
+        ('wednesday', 'Wednesday'),
+        ('thursday', 'Thursday'),
+        ('friday', 'Friday'),
+        ('saturday', 'Saturday'),
+        ('sunday', 'Sunday'),
+    ]
+
+    day_of_week = models.CharField(max_length=10, choices=DAY_CHOICES)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    def __str__(self):
+        return f"{self.get_day_of_week_display()}: {self.start_time} - {self.end_time}"
+
+
+
+
+
+
+class StudentClass(models.Model):
+    student = models.ForeignKey('Student', on_delete=models.CASCADE)
+    _class = models.ForeignKey('Class', on_delete=models.CASCADE)
+    is_paid_class = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('student', '_class')
+
+    def __str__(self):
+        return f"{self.student.name} - {self._class.name} - {'Main' if self.is_paid_class else 'Secondary'}"
+
+
+
+class Class(models.Model):
+    CLASS_STATUS = (
+        ('active', 'Active'),   # Class is active and operational
+        ('inactive', 'Inactive'), # Class is inactive or not in use
+    )
+    name = models.CharField(max_length=255, default="Unspecified")
+    note = models.TextField(default="", blank=True, null=True)
+    image = models.ImageField(upload_to='images/classes/', blank=True, null=True, default='images/classes/default.webp')
+    create_date = models.DateTimeField(default=timezone.now)
+    def __str__(self):
+        return f"{str(self.name)} - {str(self.course)}"
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -218,107 +328,6 @@ class DatabaseChangeLog(models.Model):
 
     def __str__(self):
         return f'{self.change_date.date()} - {self.model_name} - {self.change}'
-
-
-
-class Course(BaseModel):
-    name = models.CharField(max_length=255, default="")
-    hours = models.FloatField(default=0, null=True, blank=True)
-    books = models.TextField(null=True, blank=True)
-    description = models.TextField(null=True, blank=True)
-    
-    def __str__(self):
-        return self.name
-
-
-
-class ClassSchedule(BaseModel):
-    name = models.CharField(max_length=255, default="")
-    daytime = models.ManyToManyField('DayTime')
-
-    def __str__(self):
-        return self.name
-
-
-class DayTime(models.Model):
-    DAY_CHOICES = [
-        ('monday', 'Monday'),
-        ('tuesday', 'Tuesday'),
-        ('wednesday', 'Wednesday'),
-        ('thursday', 'Thursday'),
-        ('friday', 'Friday'),
-        ('saturday', 'Saturday'),
-        ('sunday', 'Sunday'),
-    ]
-
-    day_of_week = models.CharField(max_length=10, choices=DAY_CHOICES)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
-
-    def __str__(self):
-        return f"{self.get_day_of_week_display()}: {self.start_time} - {self.end_time}"
-
-
-
-
-
-class Class(BaseModel):
-    CLASS_STATUS = (
-        ('active', 'Active'),   # Class is active and operational
-        ('inactive', 'Inactive'), # Class is inactive or not in use
-    )
-    name = models.CharField(max_length=255, default="Unspecified")
-    course = models.ForeignKey(Course, on_delete=models.SET_NULL, null=True, related_name='classes', blank=True)
-    schedule = models.ForeignKey(ClassSchedule, on_delete=models.SET_NULL, null=True, related_name='classes', blank=True)
-    teacher = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='teacher_classes', blank=True)
-    status = models.CharField(max_length=255, choices=CLASS_STATUS, default="active")
-    students = models.ManyToManyField('Student', through='StudentClass', related_name='student_classes', blank=True)
-    note = models.TextField(default="", blank=True, null=True)
-    image = models.ImageField(upload_to='images/classes/', blank=True, null=True, default='images/classes/default.webp')
-    create_date = models.DateTimeField(default=timezone.now)
-    def __str__(self):
-        return f"{str(self.name)} - {str(self.course)}"
-
-
-
-class Student(BaseModel):
-    STUDENT_STATUS = (
-        ('enrolled', 'Enrolled'),                 # Student is currently enrolled
-        ('on_hold', 'On Hold'),                   # Student is on hold
-        ('discontinued', 'Discontinued'),         # Student has discontinued
-        ('potential_customer', 'Potential Customer'),  # Potential customer with potential interest
-        ('not_contacted_customer', 'Not Contacted Customer'), # Customer not contacted yet
-        ('not_potential_customer', 'Not Potential Customer'), # Not a potential customer
-    )
-
-    GENDER_CHOICES = (("male", "Male"), ("female", "Female"), ("other", "Other"))
-
-    name = models.CharField(max_length=255, default="")
-    gender = models.CharField(max_length=20, choices=GENDER_CHOICES, default="other")
-    date_of_birth = models.DateField(null=True, blank=True)
-    school = models.CharField(max_length=255, default="", blank=True, null=True)
-    parents = models.CharField(max_length=255, default="", blank=True, null=True)
-    phone = models.CharField(max_length=50, default="", blank=True, null=True)
-    status =  models.CharField(max_length=50, choices=STUDENT_STATUS, default="not_potential_customer")
-    note = models.TextField(default="", blank=True, null=True)
-    classes = models.ManyToManyField('Class', through='StudentClass', related_name='class_students', blank=True)
-    money = models.IntegerField(default=0, blank=True)
-    image = models.ImageField(upload_to='images/profiles/', blank=True, null=True, default='images/profiles/default.webp')
-    create_date = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return str(self.name)
-
-class StudentClass(BaseModel):
-    student = models.ForeignKey('Student', on_delete=models.CASCADE)
-    _class = models.ForeignKey('Class', on_delete=models.CASCADE)
-    is_paid_class = models.BooleanField(default=False)
-
-    class Meta:
-        unique_together = ('student', '_class')
-
-    def __str__(self):
-        return f"{self.student.name} - {self._class.name} - {'Main' if self.is_paid_class else 'Secondary'}"
 
 
 class TuitionPlan(BaseModel):

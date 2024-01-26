@@ -15,7 +15,7 @@ router = DefaultRouter()
 router.register(r'schools', SchoolViewSet)
 
 urlpatterns = [
-    re_path(r'^$', views.dashboard, name='dashboard'),
+    re_path(r'^$', views.landing_page, name='landing_page'),  
     re_path(r'^(?P<pk>\d+)/?$', views.dashboard, name='dashboard'),
     re_path(r'^manage-schools/?$', views.manage_schools, name='manage_schools'),
 
@@ -26,7 +26,13 @@ urlpatterns = [
 
     # Include DRF router URLs
     re_path(r'^', include(router.urls)),
+]
 
+
+
+
+
+'''
     # CRUD APIs
     re_path(r'^dashboard/api/courses/?$', api.CourseListCreateView.as_view(), name='course_list_create'),
     re_path(r'^dashboard/api/courses/(?P<pk>\d+)/?$', api.CourseDetailView.as_view(), name='course_detail'),
@@ -68,10 +74,4 @@ urlpatterns = [
 
     # OTHER MODELS
     re_path(r'^manage/(?P<model_name_plural>\w+)/?$', views.manage_other_models, name='manage_other_models'),
-
-
-    # LETTER
-    re_path(r'^thu-thong-bao-thay-doi-chinh-sach-hoc-phi/?$', views.change_price_letter, name='change_price_letter'),
-]
-
-
+'''

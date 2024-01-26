@@ -39,63 +39,16 @@ window.addEventListener('resize', onResize);
 // MODAL HANDLING =========================================
 document.addEventListener('DOMContentLoaded', function() {
 
-    // Use delication to make sure  new add element can be list
-    document.body.addEventListener('click', function(event) {
-        if (event.target.closest('#open-modal')) {
-            var element = event.target.closest('#open-modal')
-            var modalID = element.getAttribute('modal-id');
-            //console.log(modalID);
-            openLocalModal(modalID);
-        }
-    });
-
-    function zopenLocalModal(modalID) {
-        // Retrieve the HTML content from local storage
-        var htmlContent = localStorage.getItem(modalID);
-        if (htmlContent) {
-            // Select the body element
-            var body = document.body;
-            // Insert the HTML content at the beginning of the body
-            body.insertAdjacentHTML('afterbegin', htmlContent);
-            // Remove the 'hidden' class to display the modal
-            var modal = document.getElementById(modalID);
-            // Rebind the element
-            _hyperscript.processNode(modal)
-            htmx.process(modal);
-        }
-    }
-
     // Remove all modals after a swap to make sure no modals are on the screen, 
     // if there are errors from the form, new modal will be called to appear
     document.body.addEventListener('htmx:beforeSwap', function(event) {
-        var modals = document.querySelectorAll('.zmodal');
+        var modals = document.querySelectorAll('.modal');
         modals.forEach(function(modal) {
             modal.remove();
         });
     });
 });
 
-
-
-
-// CONTEXT MENU BUTTONS =========================================
-document.addEventListener('DOMContentLoaded', function() {
-    // Use delication to make sure  new add element can be list
-
-    document.body.addEventListener('click', function(event) {
-        var editButton = event.target.closest('#record-edit');
-        if (editButton) {
-            var buttonEdit = event.target
-            var recordID = buttonEdit.closest('.card').getAttribute('record-id');
-     
-            var url = '/schools/' + recordID + '/form';
-            htmx.ajax('GET', url, {
-                target: 'body', // The element to be updated with the response
-                swap: 'afterbegin'        // How to swap the response into the target
-            });
-        }
-    });
-});
 
 
 
