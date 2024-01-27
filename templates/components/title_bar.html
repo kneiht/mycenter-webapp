@@ -3,9 +3,7 @@
         <p class="text-3xl text-center font-semibold text-theme"> {{ page_title }} </p>
 
         <button class="max-sm:hidden btn btn-primary"
-                {% if title_bar == 'for_manage_schools' %}
-                    hx-get="/schools/new/form" hx-swap="afterbegin">
-                {% endif %}
+                hx-get="/{{ model_url }}/new/form" hx-swap="afterbegin">
 
             <i class="fas fa-plus me-3" style="font-size: 16px;"></i>
             <span class="max-sm:hidden me-3"> Add new </span>

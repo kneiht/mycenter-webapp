@@ -49,11 +49,9 @@
             focus:bg-slate-200 dark:focus:bg-slate-800;
     }
 
-
-
     .form-input {
         @apply 
-            w-full block px-3 pr-4
+            w-full h-10 block px-3 pr-4
             rounded-lg border border-slate-300 dark:border-slate-600
             placeholder-gray-400 
             text-sm text-theme
@@ -64,7 +62,7 @@
 
     .form-input-file {
         @apply 
-            block w-full cursor-pointer
+            block h-10 w-full cursor-pointer
             rounded-lg border border-slate-300 dark:border-slate-600
             focus:border-theme-600 focus:ring-1 focus:ring-theme-700 focus:outline-none
             disabled:opacity-50 disabled:pointer-events-none

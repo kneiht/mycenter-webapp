@@ -8,7 +8,7 @@ from django.apps import apps
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
-from django.template.loader import render_to_string
+
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -35,6 +35,7 @@ from .models import (
     School, Student, SchoolUser
 )
 
+from .html_render import html_render
 
 def is_admin(user):
     return user.is_authenticated and user.is_active and user.is_staff and user.is_superuser
@@ -69,13 +70,11 @@ def manage_schools(request):
     schools = School.objects.filter(users=user).order_by('-id')
     context = { 
         'records': schools,
-        'title': 'Manage schools',
-        'page_title': 'Manage schools',
-
+        'title': 'Manage Schools',
+        'page_title': 'Manage Schools',
         'nav_bar': 'for_manage_schools',
-        'title_bar': 'for_manage_schools',
         'db_tool_bar': 'for_manage_schools',
-
+        'model_url': 'schools',
         'card': 'card_school',
     }
     return render(request, 'pages/single_page.html', context)
@@ -90,137 +89,120 @@ class BaseViewSet(viewsets.ModelViewSet):
     model_class = None
     form_class = None
 
-    modal_selection = {
-        School: 'modal_school',
-        Student: 'modal_student',
-    }
-    card_selection ={
-        School: 'card_school',
-    }
+    modal = None
+    card = None
+    model_url =None
+    page_title =  None
+    db_tool_bar = None
 
     def process_form(self, request, instance=None):
         form = self.form_class(request.POST, request.FILES, instance=instance)
         if form.is_valid():
-            instance = form.save(commit=False)
-            instance.save()
             if self.model_class == School:
-                school_user = SchoolUser(school=instance, user=request.user)
-                school_user.save()
+                print('>>>>>>>>>> school')
+                if instance:
+                    instance = form.save(commit=False)
+                    instance.save()
+
+                else:
+                    instance = form.save(commit=False)
+                    instance.save()
+                    school_user = SchoolUser(school=instance, user=request.user)
+                    school_user.save()
+
+            else:
+                school = School.objects.filter(pk=request.POST.get('school_id')).first()
+                school_user = SchoolUser.objects.filter(school=school, user=request.user).first()
+                if school_user:
+                    print('>>>>>>>>>> other model success')
+                    instance = form.save(commit=False)
+                    print(instance)
+                    instance.school = school
+                    instance.save()
+                else:
+                    print('>>>>>>>>>> other model failed')
+                    # school not found or school does not belongs to user
+                    return 'failed', instance, form
+
             return 'success', instance, form
         else:
             return 'failed', instance, form
 
-    def html_render(self, component, request, **kwargs):
-        if component=='card':
-            context = {
-                    'record': kwargs.get('record'), 
-                    'card': self.card_selection[self.model_class],
-                    'swap_oob': 'hx-swap-oob="true"' if kwargs.get('swap_oob') else '',
-            }
-            template = 'components/card.html'
-
-        elif component=='message':
-            context = {
-                    'modal': 'modal_message', 
-                    'message': kwargs.get('message'),
-                    'swap_oob': 'hx-swap-oob="true"',
-            }
-            template = 'components/modal.html'
-
-        elif component=='form':
-            context = {
-                    'form': kwargs.get('form'), 
-                    'modal': self.modal_selection[self.model_class],
-                    'record_id': kwargs.get('record_id'),
-                    'swap_oob': 'hx-swap-oob="true"',
-            }
-            template = 'components/modal.html'
-        
-        elif component=='display_cards':
-            context = {
-                    'records': kwargs.get('records'), 
-                    'card': self.card_selection[self.model_class],
-                    'swap_oob': 'hx-swap-oob="true"',
-            }
-            template = 'components/display_cards.html'
-
-        return render_to_string(template, context, request)
-
     @action(detail=True, methods=['get'], url_path='form')
-    def create_form(self, request, pk=None, *args, **kwargs):
+    def create_form(self, request, pk=None):
         # Get the instance if pk is provided, use None otherwise
         record = self.model_class.objects.filter(pk=pk).first() if pk!='new' else None
         form = self.form_class(instance=record) if record else self.form_class()
-        html_modal = self.html_render('form', request, form=form, record_id=record.pk if record else None)
+        html_modal = html_render('form', request, form=form, modal=self.modal,record_id=record.pk if record else None, model_url=self.model_url)
         return HttpResponse(html_modal)
     
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request):
         result, instance, form = self.process_form(request)
         if result=='success':
-            html_card = self.html_render('card', request, record=instance, swap_oob=False)
-            html_message = self.html_render('message', request, message='create successfully')
+            html_card = html_render('card', request, card=self.card, record=instance, swap_oob=False)
+            html_message = html_render('message', request, message='create successfully')
             return HttpResponse(html_card + html_message)
         else:
-            html_modal = self.html_render('form', request, form=form)
+            html_modal = html_render('form', request, form=form, modal=self.modal, model_url=self.model_url)
             return HttpResponse(html_modal)
-
-    def update(self, request, *args, **kwargs):
+        
+    def update(self, request, **kwargs):
         instance_id = kwargs.get('pk')
-        instance = get_object_or_404(School, id=instance_id)
+        instance = get_object_or_404(self.model_class, id=instance_id)
         result, instance, form = self.process_form(request, instance)
         if result=='success':
-            html_card = self.html_render('card', request, record=instance, swap_oob=True)
-            html_message = self.html_render('message', request, message='update successfully')
+            html_card = html_render('card', request, card=self.card, record=instance, swap_oob=True)
+            html_message = html_render('message', request, message='update successfully')
             return HttpResponse(html_card + html_message)
         else:
-            html_modal = self.html_render('form', request, form=form, record_id=instance.pk)
+            html_modal = html_render('form', request, form=form, modal=self.modal, record_id=instance.pk, model_url=self.model_url)
             return HttpResponse(html_modal)
 
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request):
+        if self.model_class==School:
+            user = request.user
+            records = self.model_class.objects.filter(users=user)
+        elif self.model_class==Student:
+            school_id = request.GET.get('school_id')
+            records = self.model_class.objects.filter(school_id=school_id)
+        else:
+            records = self.model_class.objects.all()
+
         # Get the and sort option from the request
-        sort_option = request.GET.get('sort', 'name')
+        sort_option = request.GET.get('sort', 'default')
 
-        # Get query parameters as lists
-        descriptions = request.GET.getlist('description')
-        names = request.GET.getlist('name')
-
-        print(">>>> descriptions", descriptions)
-        print(">>>> names", names)
+        # Get all query parameters except 'sort' as they are assumed to be field filters
+        query_params = {k: v for k, v in request.GET.lists() if k != 'sort'}
 
         # Construct Q objects for filtering
-        # Construct Q objects for filtering
-        name_query = Q()
-        for name in names:
-            name_query |= Q(name__icontains=name)
-
-        description_query = Q()
-        for description in descriptions:
-            description_query |= Q(description__icontains=description)
-
-        # Combine queries with AND logic
         combined_query = Q()
-        if name_query:
-            combined_query &= name_query
-        if description_query:
-            combined_query &= description_query
+        for field, values in query_params.items():
+            # Check if the model has the field to avoid invalid queries
+            if field == 'school_id':
+                continue
+            try:
+                self.model_class._meta.get_field(field)
+                field_query = Q()
+                for value in values:
+                    field_query |= Q(**{f"{field}__icontains": value})
+                combined_query &= field_query
+            except FieldDoesNotExist:
+                print(f"Ignoring invalid field: {field}")
 
-        # Filter schools based on the query
-        records = self.model_class.objects.filter(combined_query)
+        # Filter records based on the query
+        records = records.filter(combined_query)
 
-        # Sort the results
-        if sort_option == 'name':
-            records = records.order_by('name')
-        elif sort_option == 'description':
-            records = records.order_by('description')
+        # Sort the results if the sort field exists in the model
+        if sort_option and hasattr(self.model_class, sort_option):
+            records = records.order_by(sort_option)
 
         # Render the results
-        context = {
-            'records': records,
-        }
-        html = self.html_render('display_cards', request, records=records)
-        return HttpResponse(html)
+        html_display_cards = html_render('display_cards', request, card=self.card, records=records)
+        html_title_bar = html_render('title_bar', request, page_title=self.page_title, model_url=self.model_url)
+        html_db_tool_bar = html_render('db_tool_bar', request, db_tool_bar=self.db_tool_bar, model_url=self.model_url)
+        return HttpResponse(html_display_cards + html_title_bar + html_db_tool_bar)
 
 
     def share_school(request, school_id):
@@ -242,6 +224,7 @@ class BaseViewSet(viewsets.ModelViewSet):
             return JsonResponse({'status': 'error', 'message': 'Invalid request.'})
 
 
+
 class SchoolSerializer(serializers.ModelSerializer):
     class Meta:
         model = School
@@ -252,6 +235,27 @@ class SchoolViewSet(BaseViewSet):
     serializer_class = SchoolSerializer
     model_class = School
     form_class = SchoolForm
+    modal = 'modal_school'
+    card = 'card_school'
+    model_url = 'schools'
+    page_title =  'Manage Schools'
+    db_tool_bar = 'for_manage_schools'
+
+class StudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = ['id', 'name', 'school', 'money', 'status', 'create_date', 'update_date']
+
+class StudentViewSet(BaseViewSet):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    model_class = Student
+    form_class = StudentForm
+    modal = 'modal_student'
+    card = 'card_student'
+    model_url = 'students'
+    page_title =  'Manage Students'
+    db_tool_bar = 'for_manage_students'
 
 
 

@@ -1053,6 +1053,7 @@ select {
 
 .form-input {
   display: block;
+  height: 2.5rem;
   width: 100%;
   border-radius: 0.5rem;
   border-width: 1px;
@@ -1102,6 +1103,7 @@ select {
 
 .form-input-file {
   display: block;
+  height: 2.5rem;
   width: 100%;
   cursor: pointer;
   border-radius: 0.5rem;
@@ -1602,6 +1604,10 @@ select {
   margin-top: 1.25rem;
 }
 
+.mt-7 {
+  margin-top: 1.75rem;
+}
+
 .block {
   display: block;
 }
@@ -1652,6 +1658,11 @@ select {
 
 .h-9 {
   height: 2.25rem;
+}
+
+.h-fit {
+  height: -moz-fit-content;
+  height: fit-content;
 }
 
 .h-full {
@@ -1717,6 +1728,14 @@ select {
 
 .w-full {
   width: 100%;
+}
+
+.w-\[400px\] {
+  width: 400px;
+}
+
+.w-\[300px\] {
+  width: 300px;
 }
 
 .max-w-md {
@@ -1939,8 +1958,18 @@ select {
   border-color: rgb(203 213 225 / var(--tw-border-opacity));
 }
 
+.border-gray-400 {
+  --tw-border-opacity: 1;
+  border-color: rgb(156 163 175 / var(--tw-border-opacity));
+}
+
 .border-opacity-50 {
   --tw-border-opacity: 0.5;
+}
+
+.bg-gray-200 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(229 231 235 / var(--tw-bg-opacity));
 }
 
 .bg-green-500 {
@@ -2173,6 +2202,14 @@ select {
   padding-top: 1.75rem;
 }
 
+.pt-10 {
+  padding-top: 2.5rem;
+}
+
+.pt-8 {
+  padding-top: 2rem;
+}
+
 .text-center {
   text-align: center;
 }
@@ -2379,6 +2416,16 @@ select {
   border-color: rgb(15 23 42 / var(--tw-border-opacity));
 }
 
+:is(.dark .dark\:border-gray-500) {
+  --tw-border-opacity: 1;
+  border-color: rgb(107 114 128 / var(--tw-border-opacity));
+}
+
+:is(.dark .dark\:bg-gray-600) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(75 85 99 / var(--tw-bg-opacity));
+}
+
 :is(.dark .dark\:bg-slate-700) {
   --tw-bg-opacity: 1;
   background-color: rgb(51 65 85 / var(--tw-bg-opacity));
@@ -2392,6 +2439,11 @@ select {
 :is(.dark .dark\:bg-theme-100) {
   --tw-bg-opacity: 1;
   background-color: rgb(208 246 253 / var(--tw-bg-opacity));
+}
+
+:is(.dark .dark\:bg-gray-800) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(31 41 55 / var(--tw-bg-opacity));
 }
 
 :is(.dark .dark\:from-theme-700) {
@@ -2447,6 +2499,33 @@ select {
 
   .sm\:w-96 {
     width: 24rem;
+  }
+
+  .sm\:w-fit {
+    width: -moz-fit-content;
+    width: fit-content;
+  }
+
+  .sm\:w-\[600px\] {
+    width: 600px;
+  }
+
+  .sm\:w-\[300px\] {
+    width: 300px;
+  }
+
+  .sm\:w-\[400px\] {
+    width: 400px;
+  }
+
+  .sm\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg\:w-80 {
+    width: 20rem;
   }
 }
 

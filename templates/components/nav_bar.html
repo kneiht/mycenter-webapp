@@ -9,26 +9,50 @@
         {% if nav_bar != 'for_manage_schools' %}
             <div class="flex items-center gap-5">
 
-                <a href="/dashboard" class="p-2 flex justify-center items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap">
+                <a class="p-2 flex justify-center items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer"
+                            _="
+                            behavior ActiveItem
+                                on click
+                                    remove .border from <a/> in #nav-bar-left
+                                    remove .bg-gray-200 from <a/> in #nav-bar-left
+                                    remove .border-gray-300 from <a/> in #nav-bar-left
+                                    remove .dark:bg-gray-800 from <a/> in #nav-bar-left
+                                    remove .dark:border-gray-700 from <a/> in #nav-bar-left
+                                    add .bg-gray-200 to me
+                                    add .border to me
+                                    add .border-gray-300 to me
+                                    add .dark:bg-gray-800 to me
+                                    add .dark:border-gray-700 to me
+                                end
+                            end
+                            install ActiveItem"
+                            
+                            >
                     <span class="fa fa-home text-theme me-2" style="font-size: 18px;"></span>
                     <span class="text-theme">Home</span>
                 </a>
 
-                <a href="/dashboard" class="p-2 flex justify-center items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap">
+                <a class="p-2 flex justify-center items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer"
+                            _="install ActiveItem">
                     <span class="fa fa-chalkboard text-theme me-2" style="font-size: 18px;"></span>
                     <span class="text-theme">Classes</span>
                 </a>
 
-                <a href="/dashboard" class="p-2 flex justify-center items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap">
+                <a class="p-2 flex justify-center items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer"
+                            hx-get="/students/?school_id={{ school.pk }}"
+                            hx-swap="afterbegin"
+                            _="install ActiveItem">
                     <span class="fa fa-user-graduate text-theme me-2" style="font-size: 18px;"></span>
                     <span class="text-theme">Students</span>
                 </a>
 
-                <a href="/dashboard" class="p-2 flex justify-center items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap">
+                <a class="p-2 flex justify-center items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer"
+                            _="install ActiveItem">
                     <span class="fa fa-dollar-sign text-theme me-2" style="font-size: 18px;"></span>
                     <span class="text-theme">Finance</span>
                 </a>
-                <a href="/dashboard" class="p-2 flex justify-center items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap">
+                <a class="p-2 flex justify-center items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer"
+                            _="install ActiveItem"> 
                     <span class="fa fa-toolbox text-theme me-2" style="font-size: 18px;"></span>
                     <span class="text-theme">Tools</span>
                 </a>
@@ -42,8 +66,9 @@
         <div id="nav-bar-between" class="relative"
                     _="on click elsewhere
                     add .hidden to #menu-school">
+            <div id="current-school-infor" school-id="{{ school.pk }}" class="hidden"></div>
             <button class="dropdown-button grid justify-center items-center
-                px-3 h-8 rounded-xl
+                px-3 h-8 lg:w-80 rounded-xl
                 bg-gradient-to-r from-theme-500 to-theme-700
                 dark:from-theme-700 dark:to-theme-800"
                         _="on click

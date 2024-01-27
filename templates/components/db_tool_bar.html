@@ -9,9 +9,7 @@
             <!-- Left controls for filtering and sorting -->
             <form id='left-controls' class="flex justify-start gap-4 h-10 w-[800px]"   
                         hx-trigger="submit" 
-                        {% if db_tool_bar == 'for_manage_schools' %}
-                            hx-get="/schools"
-                        {% endif %}
+                        hx-get="/{{ model_url }}"
                         hx-swap="afterbegin"
                         hx-params="*">
 
@@ -94,6 +92,10 @@
                     <div id="filter-list" class="z-10 p-4 my-2 mx-10 card flex flex-wrap justify-center gap-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hidden">
                         <div class="flex justify-between items-end w-full mb-5">
                             <p class="text-theme font-semibold w-full">Filter List</p>
+                            <input type="hidden" name="school_id" value=""
+                                    _="on load 
+                                    put @school-id of #current-school-infor into my value
+                                    ">
                             <div class="flex gap-4">
 
                                 <!-- Button to clear all filter tags -->
@@ -130,9 +132,7 @@
 
                 <!-- Button to open a modal (for additional actions or information) -->
                 <button id='open-modal' modal-id='modal-school' class="sm:hidden btn btn-primary h-full w-11"
-                        {% if title_bar == 'for_manage_schools' %}
-                            hx-get="/schools/new/form" hx-swap="afterbegin">
-                        {% endif %}
+                            hx-get="/{{ model_url }}/new/form" hx-swap="afterbegin">
                     <i class="fas fa-plus" style="font-size: 20px;"></i>
                 </button>
             </div>

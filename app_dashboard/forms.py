@@ -45,7 +45,7 @@ class SchoolForm(forms.ModelForm):
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
-        fields = ['name', 'gender', 'date_of_birth', 'school', 'parents', 'phone', 'status', 'note', 'money', 'image']
+        fields = ['name', 'status', 'gender', 'date_of_birth', 'parents', 'phones', 'reward_points', 'image']
         widgets = {
             'name': forms.TextInput(attrs={
                 'placeholder': 'Student name',
@@ -53,33 +53,29 @@ class StudentForm(forms.ModelForm):
                 'class': 'form-input'
             }),
             'gender': forms.Select(attrs={
-                'class': 'form-control'
+                'class': 'form-input'
             }),
             'date_of_birth': forms.DateInput(attrs={
-                'class': 'form-control',
+                'class': 'form-input',
                 'type': 'date'
-            }),
-            'school': forms.TextInput(attrs={
-                'placeholder': 'Student school',
-                'class': 'form-input'
             }),
             'parents': forms.TextInput(attrs={
                 'placeholder': 'Student parents',
                 'class': 'form-input'
             }),
-            'phone': forms.TextInput(attrs={
-                'placeholder': 'Student phone',
+            'phones': forms.TextInput(attrs={
+                'placeholder': 'Student phones',
                 'class': 'form-input'
             }),
             'status': forms.Select(attrs={
-                'class': 'form-control'
+                'class': 'form-input'
             }),
             'note': forms.Textarea(attrs={
-                'class': 'form-control',
+                'class': 'form-input',
                 'rows': 2
             }),
-            'money': forms.NumberInput(attrs={
-                'class': 'form-control'
+            'reward_points': forms.NumberInput(attrs={
+                'class': 'form-input'
             }),
             'image': forms.FileInput(attrs={
                 'class': 'form-input-file'

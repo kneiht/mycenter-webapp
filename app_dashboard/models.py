@@ -40,8 +40,7 @@ class SchoolUser(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    GENDER_CHOICES = (("male", "Male"), ("female", "Female"), ("other", "Other"))
-
+    GENDER_CHOICES = (("Male", "Male"), ("Female", "Female"), ("Other", "Other"))
     name = models.CharField(max_length=255, default="Unspecified")
     gender = models.CharField(max_length=20, choices=GENDER_CHOICES, default="other")
     date_of_birth = models.DateField(blank=True, null=True)
@@ -60,31 +59,26 @@ class KeyValue(models.Model):
         return self.key
 
 class Student(models.Model):
-    STUDENT_STATUS = (
-        ('enrolled', 'Enrolled'),                 # Student is currently enrolled
-        ('on_hold', 'On Hold'),                   # Student is on hold
-        ('discontinued', 'Discontinued'),         # Student has discontinued
-        ('potential_customer', 'Potential Customer'),  # Potential customer with potential interest
-        ('not_contacted_customer', 'Not Contacted Customer'), # Customer not contacted yet
-        ('not_potential_customer', 'Not Potential Customer'), # Not a potential customer
-    )
-
     GENDER_CHOICES = (("male", "Male"), ("female", "Female"), ("other", "Other"))
-
+    school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=255, default="")
     gender = models.CharField(max_length=20, choices=GENDER_CHOICES, default="other")
     date_of_birth = models.DateField(null=True, blank=True)
-    school = models.CharField(max_length=255, default="", blank=True, null=True)
     parents = models.CharField(max_length=255, default="", blank=True, null=True)
-    phone = models.CharField(max_length=50, default="", blank=True, null=True)
-    status =  models.CharField(max_length=50, choices=STUDENT_STATUS, default="not_potential_customer")
-    note = models.TextField(default="", blank=True, null=True)
-    money = models.IntegerField(default=0, blank=True)
+    phones = models.CharField(max_length=50, default="", blank=True, null=True)
+    status =  models.CharField(max_length=50, default="New", blank=True, null=True)
+    reward_points = models.IntegerField(default=0, blank=True)
     image = models.ImageField(upload_to='images/profiles/', blank=True, null=True, default='images/default/default_profile.webp')
     created_at = models.DateTimeField(default=timezone.now)
-
     def __str__(self):
         return str(self.name)
+
+
+
+
+
+
+
 
 
 
