@@ -1,144 +1,187 @@
 
+{% if db_tool_bar == 'for_manage_classroom' %}
+    <!-- Toolbar for classroom interactions -->
+    <div id="db-tool-bar" {{ swap_oob }}>
+        <div class="flex items-center 
+                    mt-2 mb-8 h-20 p-2 
+                    bg-theme-200 dark:bg-theme-900
+                    rounded-xl">
+            <!-- Separate 2 sections of controls -->
+            <div  class="flex justify-between gap-4 mx-32 w-full">
+                <!-- Right controls for select -->
+                <div id='left-controls' class="flex items-center justify-start gap-4">
+                    <!-- Button to toggle view settings -->
+                    <button id='select-all' type="button" class="btn btn-primary h-full w-fit text-nowrap">
+                        Select all
+                    </button>
 
-<!-- Toolbar for database interactions -->
-<div id="db-tool-bar" {{ swap_oob }}>
-    <div class="mt-2 mb-8">
-        <!-- Separate 2 sections of controls -->
-        <div  class="flex justify-between gap-4">
+                    <button id='deselect-all' type="button" class="btn btn-secondary h-full w-fit text-nowrap">
+                        Deselect all
+                    </button>
 
-            <!-- Left controls for filtering and sorting -->
-            <form id='left-controls' class="flex justify-start gap-4 h-10 w-[800px]"   
-                        hx-trigger="submit" 
-                        hx-get="/{{ model_url }}"
-                        hx-swap="afterbegin"
-                        hx-params="*">
-
-                <!-- Controls to manage search and filter options -->
-                <div id="search-control" class="z-10 w-full"
-                        _="on click from elsewhere  
-                        add .hidden to #filter-list
-                        add .max-sm:hidden to #search-bar
-                        remove .hidden from #toggle-search
-                        remove .hidden from #sort-button
-                        remove .hidden from #right-controls">
-                        
-                    <!-- Toggle search bar in small screen -->
-                    <button id="toggle-search" type="button" class="btn btn-outline h-full w-11 sm:hidden"
-                            _="on click
-                            add .hidden to #filter-list
-                            remove .max-sm:hidden from #search-bar
-                            add .hidden to #toggle-search
-                            add .hidden to #sort-button
-                            add .hidden to #right-controls">
-
-                        <i class="fas fa-search text-theme" style="font-size: 18px;"></i>
-                    </button>  
-
-                    <!-- Search bar and filter options -->
-                    <div id="search-bar" class="flex w-full h-10 max-sm:hidden">
-
-                        <!-- Filter dropdown to select filter type -->
-                        <select id="filter-select" class="form-input w-fit rounded-none h-full rounded-l-lg border border-theme border-opacity-50 text-theme pr-10"
-                                _="on change
-                                put my value into #filter-input.name">
-
-                            {% if db_tool_bar == 'for_manage_schools' %}
-                                <option value="name"> Name</option>
-                                <option value="description">Description</option>
-                            {% endif %}
-                        </select>
-
-                        <!-- Input field for filter values -->
-                        <input id="filter-input" name="name" type="text" placeholder="Type to search ..." class="form-input rounded-none h-full border-r-0 border-l-0 border-theme border-opacity-50 text-theme" autocomplete="off"
-                                _="on click remove .hidden from #filter-list"/>
-
-                        <!-- Button to submit search -->
-                        <button id="search-button" type="submit" class="btn btn-outline border-r-0 rounded-none h-full shadow-none"> Search </button>
-
-                        <!-- Button to add new filter tags based on the selected filter type and value -->
-                        <button id="add-filter-button" type="button" class="btn btn-outline rounded-l-none h-full shadow-none"
-                                _="on click
-                                remove .hidden from #filter-list
-                                put #filter-input.name into field
-                                put #filter-input.value into phrase
-                                set #filter-input.value to ''
-                                if phrase is not empty
-                                    put the first <span/> in #filter-tag-template into filterTag
-                                    put the first <input/> in filterTag into input
-                                    put the first <span/> in filterTag into span
-                                    put field + ':' + phrase into span.innerText
-                                    put phrase into input.value
-                                    put field into input.name
-                                    append filterTag.outerHTML to #filter-list
-                                    put '' into input.name
-                                    _hyperscript.processNode(#filter-list)
-                                end
-                                ">
-                                <!-- Template for creating new filter tags -->
-                                <div id="filter-tag-template" class="hidden">
-                                    <span name="filter-tag" class="filter-tag bg-green-500 text-white rounded-lg px-2 py-1 mr-2 hover:bg-red-600 cursor-pointer"
-                                        _="on click remove me halt">
-                                        <input type="hidden">
-                                        <span></span>
-                                    </span>
-                                </div>
-                            Add
-                        </button>
-
-
-                    </div>
-
-                    <!-- Container for displaying current filter tags with option to clear them -->
-                    <div id="filter-list" class="z-10 p-4 my-2 mx-10 card flex flex-wrap justify-center gap-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hidden">
-                        <div class="flex justify-between items-end w-full mb-5">
-                            <p class="text-theme font-semibold w-full">Filter List</p>
-                            <input type="hidden" name="school_id" value=""
-                                    _="on load 
-                                    put @school-id of #current-school-infor into my value
-                                    ">
-                            <div class="flex gap-4">
-
-                                <!-- Button to clear all filter tags -->
-                                <button id="clear-filter-button" type="button" class="btn btn-outline h-8 w-32 flex flex-between"
-                                        _="on click remove <.filter-tag /> in  #filter-list">
-                                    <span class="me-3">Clear all</span>
-                                    <i class="fas fa-trash text-theme" style="font-size: 18px;"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
+                    <button id='select-reverse' type="button" class="btn btn-primary h-full w-fit text-nowrap">
+                        Select reverse
+                    </button>
                 </div>
 
-                <!-- Button to access sorting options -->
-                <button id="sort-button" type="button" class="btn btn-outline h-full max-sm:w-11">
-                    <span class="max-sm:hidden me-3"> Sorts </span>
-                    <i class="fas fa-sort text-theme" style="font-size: 20px;"></i> <!-- Icon for filter -->
-                </button>
-            </form>
+                <!-- Right controls for view toggle and information display -->
+                <div id='right-controls' class="flex items-center justify-end gap-4">
+                    <!-- Button to toggle view settings -->
+                    <button id='wow' type="button" class="btn btn-success h-full w-fit text-nowrap">
+                        WOW
+                    </button>
 
-            <!-- Right controls for view toggle and information display -->
-            <div id='right-controls' class="flex items-center justify-end gap-4">
-                <!-- Button to toggle view settings -->
-                <button id='toggle-view' type="button" class="btn btn-outline h-full w-11">
-                    <i class="fas fa-th" style="font-size: 20px;"></i>
-                </button>
+                    <input id="stars" type="number" value=0 name="stars" class="form-input text-2xl w-28">    
 
-                <!-- Button to toggle information bar visibility -->
-                <button id="toggle-infor-bar" type="button" class="max-lg:hidden btn btn-outline h-full w-11"
-                        _="on click toggle .hidden on #infor-bar">
-                    <i class="fas fa-info-circle" style="font-size: 20px;"></i>
-                </button>
+                    <button id='oh-no' type="button" class="btn btn-danger h-full w-fit text-nowrap">
+                        OH NO
+                    </button>
+                </div>
 
-                <!-- Button to open a modal (for additional actions or information) -->
-                <button id='open-modal' modal-id='modal-school' class="sm:hidden btn btn-primary h-full w-11"
-                            hx-get="/{{ model_url }}/new/form" hx-swap="afterbegin">
-                    <i class="fas fa-plus" style="font-size: 20px;"></i>
-                </button>
             </div>
         </div>
+
     </div>
 
-</div>
+{% else %}
+    <!-- Toolbar for database interactions -->
+    <div id="db-tool-bar" {{ swap_oob }}>
+        <div class="mt-2 mb-8">
+            <!-- Separate 2 sections of controls -->
+            <div  class="flex justify-between gap-4">
+
+                <!-- Left controls for filtering and sorting -->
+                <form id='left-controls' class="flex justify-start gap-4 h-10 w-[800px]"   
+                            hx-trigger="submit" 
+                            hx-get="/{{ model_url }}"
+                            hx-swap="afterbegin"
+                            hx-params="*">
+
+                    <!-- Controls to manage search and filter options -->
+                    <div id="search-control" class="z-10 w-full"
+                            _="on click from elsewhere  
+                            add .hidden to #filter-list
+                            add .max-sm:hidden to #search-bar
+                            remove .hidden from #toggle-search
+                            remove .hidden from #sort-button
+                            remove .hidden from #right-controls">
+                            
+                        <!-- Toggle search bar in small screen -->
+                        <button id="toggle-search" type="button" class="btn btn-outline h-full w-11 sm:hidden"
+                                _="on click
+                                add .hidden to #filter-list
+                                remove .max-sm:hidden from #search-bar
+                                add .hidden to #toggle-search
+                                add .hidden to #sort-button
+                                add .hidden to #right-controls">
+
+                            <i class="fas fa-search text-theme" style="font-size: 18px;"></i>
+                        </button>  
+
+                        <!-- Search bar and filter options -->
+                        <div id="search-bar" class="flex w-full h-10 max-sm:hidden">
+
+                            <!-- Filter dropdown to select filter type -->
+                            <select id="filter-select" class="form-input w-fit rounded-none h-full rounded-l-lg border border-theme border-opacity-50 text-theme pr-10"
+                                    _="on change
+                                    put my value into #filter-input.name">
+
+                                {% if db_tool_bar == 'for_manage_schools' %}
+                                    <option value="name"> Name</option>
+                                    <option value="description">Description</option>
+                                {% endif %}
+                            </select>
+
+                            <!-- Input field for filter values -->
+                            <input id="filter-input" name="name" type="text" placeholder="Type to search ..." class="form-input rounded-none h-full border-r-0 border-l-0 border-theme border-opacity-50 text-theme" autocomplete="off"
+                                    _="on click remove .hidden from #filter-list"/>
+
+                            <!-- Button to submit search -->
+                            <button id="search-button" type="submit" class="btn btn-outline border-r-0 rounded-none h-full shadow-none"> Search </button>
+
+                            <!-- Button to add new filter tags based on the selected filter type and value -->
+                            <button id="add-filter-button" type="button" class="btn btn-outline rounded-l-none h-full shadow-none"
+                                    _="on click
+                                    remove .hidden from #filter-list
+                                    put #filter-input.name into field
+                                    put #filter-input.value into phrase
+                                    set #filter-input.value to ''
+                                    if phrase is not empty
+                                        put the first <span/> in #filter-tag-template into filterTag
+                                        put the first <input/> in filterTag into input
+                                        put the first <span/> in filterTag into span
+                                        put field + ':' + phrase into span.innerText
+                                        put phrase into input.value
+                                        put field into input.name
+                                        append filterTag.outerHTML to #filter-list
+                                        put '' into input.name
+                                        _hyperscript.processNode(#filter-list)
+                                    end
+                                    ">
+                                    <!-- Template for creating new filter tags -->
+                                    <div id="filter-tag-template" class="hidden">
+                                        <span name="filter-tag" class="filter-tag bg-green-500 text-white rounded-lg px-2 py-1 mr-2 hover:bg-red-600 cursor-pointer"
+                                            _="on click remove me halt">
+                                            <input type="hidden">
+                                            <span></span>
+                                        </span>
+                                    </div>
+                                Add
+                            </button>
 
 
+                        </div>
+
+                        <!-- Container for displaying current filter tags with option to clear them -->
+                        <div id="filter-list" class="z-10 p-4 my-2 mx-10 card flex flex-wrap justify-center gap-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hidden">
+                            <div class="flex justify-between items-end w-full mb-5">
+                                <p class="text-theme font-semibold w-full">Filter List</p>
+                                <input type="hidden" name="school_id" value=""
+                                        _="on load 
+                                        put @school-id of #current-school-infor into my value
+                                        ">
+                                <div class="flex gap-4">
+
+                                    <!-- Button to clear all filter tags -->
+                                    <button id="clear-filter-button" type="button" class="btn btn-outline h-8 w-32 flex flex-between"
+                                            _="on click remove <.filter-tag /> in  #filter-list">
+                                        <span class="me-3">Clear all</span>
+                                        <i class="fas fa-trash text-theme" style="font-size: 18px;"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Button to access sorting options -->
+                    <button id="sort-button" type="button" class="btn btn-outline h-full max-sm:w-11">
+                        <span class="max-sm:hidden me-3"> Sorts </span>
+                        <i class="fas fa-sort text-theme" style="font-size: 20px;"></i> <!-- Icon for filter -->
+                    </button>
+                </form>
+
+                <!-- Right controls for view toggle and information display -->
+                <div id='right-controls' class="flex items-center justify-end gap-4">
+                    <!-- Button to toggle view settings -->
+                    <button id='toggle-view' type="button" class="btn btn-outline h-full w-11">
+                        <i class="fas fa-th" style="font-size: 20px;"></i>
+                    </button>
+
+                    <!-- Button to toggle information bar visibility -->
+                    <button id="toggle-infor-bar" type="button" class="max-lg:hidden btn btn-outline h-full w-11"
+                            _="on click toggle .hidden on #infor-bar">
+                        <i class="fas fa-info-circle" style="font-size: 20px;"></i>
+                    </button>
+
+                    <!-- Button to open a modal (for additional actions or information) -->
+                    <button id='open-modal' modal-id='modal-school' class="sm:hidden btn btn-primary h-full w-11"
+                                hx-get="/{{ model_url }}/new/form" hx-swap="afterbegin">
+                        <i class="fas fa-plus" style="font-size: 20px;"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endif %}

@@ -23,6 +23,9 @@
                                     add .border-gray-300 to me
                                     add .dark:bg-gray-800 to me
                                     add .dark:border-gray-700 to me
+                                    put @school-id of #current-school-infor into school_id
+                                    set url to '/school/' + school_id
+                                    js(url) changeUrl(url) end
                                 end
                             end
                             install ActiveItem"
@@ -33,6 +36,8 @@
                 </a>
 
                 <a class="p-2 flex justify-center items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer"
+                            hx-get="/classes/?school_id={{ school.pk }}"
+                            hx-swap="afterbegin"
                             _="install ActiveItem">
                     <span class="fa fa-chalkboard text-theme me-2" style="font-size: 18px;"></span>
                     <span class="text-theme">Classes</span>

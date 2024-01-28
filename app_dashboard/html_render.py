@@ -5,6 +5,7 @@ def html_render( component, request, **kwargs):
         context = {
                 'record': kwargs.get('record'), 
                 'card': kwargs.get('card'),
+                'model_url': kwargs.get('model_url'),
                 'swap_oob': 'hx-swap-oob="true"' if kwargs.get('swap_oob') else '',
         }
         template = 'components/card.html'
@@ -31,6 +32,7 @@ def html_render( component, request, **kwargs):
         context = {
                 'records': kwargs.get('records'), 
                 'card': kwargs.get('card'),
+                'model_url': kwargs.get('model_url'),
                 'swap_oob': 'hx-swap-oob="true"',
         }
         template = 'components/display_cards.html'

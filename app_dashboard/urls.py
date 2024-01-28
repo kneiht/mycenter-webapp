@@ -9,17 +9,18 @@ from . import views, views_db, api
 from django.urls import re_path, include
 from rest_framework.routers import DefaultRouter
 from . import views
-from .views import SchoolViewSet, StudentViewSet
+from .views import SchoolViewSet, StudentViewSet, ClassViewSet
 
 router = DefaultRouter()
 router.register(r'schools', SchoolViewSet)
 router.register(r'students', StudentViewSet)
+router.register(r'classes', ClassViewSet)
 
 urlpatterns = [
     re_path(r'^$', views.landing_page, name='landing_page'),  
-    re_path(r'^(?P<pk>\d+)/?$', views.dashboard, name='dashboard'),
+    re_path(r'^school/(?P<pk>\d+)/?$', views.dashboard, name='dashboard'),
     re_path(r'^manage-schools/?$', views.manage_schools, name='manage_schools'),
-
+    re_path(r'^classroom/(?P<pk>\d+)/?$', views.classroom, name='classroom'),
 
     # DATABASE UPLOAD AND DOWNLOAD
     re_path(r'^download_database_backup/?$', views_db.download_database_backup, name='download_database_backup'),

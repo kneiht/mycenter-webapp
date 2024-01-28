@@ -27,12 +27,12 @@ from rest_framework.permissions import IsAuthenticated
 
 # Import forms
 from .forms import (
-    SchoolForm, StudentForm, 
+    SchoolForm, StudentForm, ClassForm,
 )
 # Import models
 from django.contrib.auth.models import User
 from .models import (
-    School, Student, SchoolUser
+    School, Student, SchoolUser, Class,
 )
 
 from .html_render import html_render
@@ -61,6 +61,29 @@ def dashboard(request, pk=None):
     }
     rendered_page = render(request, 'pages/single_page.html', context)
     return rendered_page
+
+@login_required
+def classroom(request, pk=None):
+    # remember to check if the user has access to the school and the classroom
+    # also remember to check object availability
+    request.user
+    # Assuming you have a Class instance, for example, with id=1
+    class_instance = Class.objects.get(pk=pk)
+    # Retrieve students for the class
+    students_in_class = Student.objects.filter(studentclass___class=class_instance)
+    print(students_in_class)
+    context = { 
+        'records': students_in_class,
+        'title': 'Classroom - ' + class_instance.name,
+        'page_title': 'Classroom - ' + class_instance.name,
+        'title_bar': 'for_manage_classroom',
+        'nav_bar': 'for_manage_classroom',
+        'db_tool_bar': 'for_manage_classroom',
+        'model_url': '',
+        'card': 'card_student_classroom',
+        'school': class_instance.school,
+    }
+    return render(request, 'pages/single_page.html', context)
 
 
 @login_required
@@ -100,33 +123,32 @@ class BaseViewSet(viewsets.ModelViewSet):
         if form.is_valid():
             if self.model_class == School:
                 print('>>>>>>>>>> school')
-                if instance:
-                    instance = form.save(commit=False)
-                    instance.save()
-
-                else:
-                    instance = form.save(commit=False)
-                    instance.save()
-                    school_user = SchoolUser(school=instance, user=request.user)
+                instance_form = form.save(commit=False)
+                instance_form.save()
+                if not instance:
+                    school_user = SchoolUser(school=instance_form, user=request.user)
                     school_user.save()
-
+ 
             else:
+                print('>>>>>>>>>> data POST', request.POST)
                 school = School.objects.filter(pk=request.POST.get('school_id')).first()
                 school_user = SchoolUser.objects.filter(school=school, user=request.user).first()
                 if school_user:
                     print('>>>>>>>>>> other model success')
-                    instance = form.save(commit=False)
-                    print(instance)
-                    instance.school = school
-                    instance.save()
+                    instance_form = form.save(commit=False)
+                    if not instance:
+                        instance_form.school = school
+                    instance_form.save()
+                    if  self.model_class == Class:
+                        form.save_m2m()      
                 else:
                     print('>>>>>>>>>> other model failed')
                     # school not found or school does not belongs to user
                     return 'failed', instance, form
 
-            return 'success', instance, form
+            return 'success', instance_form, form
         else:
-            return 'failed', instance, form
+            return 'failed', instance_form, form
 
     @action(detail=True, methods=['get'], url_path='form')
     def create_form(self, request, pk=None):
@@ -140,7 +162,7 @@ class BaseViewSet(viewsets.ModelViewSet):
     def create(self, request):
         result, instance, form = self.process_form(request)
         if result=='success':
-            html_card = html_render('card', request, card=self.card, record=instance, swap_oob=False)
+            html_card = html_render('card', request, card=self.card, record=instance, model_url=self.model_url,swap_oob=False)
             html_message = html_render('message', request, message='create successfully')
             return HttpResponse(html_card + html_message)
         else:
@@ -152,7 +174,7 @@ class BaseViewSet(viewsets.ModelViewSet):
         instance = get_object_or_404(self.model_class, id=instance_id)
         result, instance, form = self.process_form(request, instance)
         if result=='success':
-            html_card = html_render('card', request, card=self.card, record=instance, swap_oob=True)
+            html_card = html_render('card', request, card=self.card, record=instance, model_url=self.model_url, swap_oob=True)
             html_message = html_render('message', request, message='update successfully')
             return HttpResponse(html_card + html_message)
         else:
@@ -164,7 +186,7 @@ class BaseViewSet(viewsets.ModelViewSet):
         if self.model_class==School:
             user = request.user
             records = self.model_class.objects.filter(users=user)
-        elif self.model_class==Student:
+        elif self.model_class in [Student, Class]:
             school_id = request.GET.get('school_id')
             records = self.model_class.objects.filter(school_id=school_id)
         else:
@@ -175,7 +197,7 @@ class BaseViewSet(viewsets.ModelViewSet):
 
         # Get all query parameters except 'sort' as they are assumed to be field filters
         query_params = {k: v for k, v in request.GET.lists() if k != 'sort'}
-
+        print('>>>>>>>>>> query_params:', query_params)
         # Construct Q objects for filtering
         combined_query = Q()
         for field, values in query_params.items():
@@ -199,7 +221,7 @@ class BaseViewSet(viewsets.ModelViewSet):
             records = records.order_by(sort_option)
 
         # Render the results
-        html_display_cards = html_render('display_cards', request, card=self.card, records=records)
+        html_display_cards = html_render('display_cards', request, card=self.card, model_url=self.model_url,records=records)
         html_title_bar = html_render('title_bar', request, page_title=self.page_title, model_url=self.model_url)
         html_db_tool_bar = html_render('db_tool_bar', request, db_tool_bar=self.db_tool_bar, model_url=self.model_url)
         return HttpResponse(html_display_cards + html_title_bar + html_db_tool_bar)
@@ -256,6 +278,23 @@ class StudentViewSet(BaseViewSet):
     model_url = 'students'
     page_title =  'Manage Students'
     db_tool_bar = 'for_manage_students'
+
+class ClassSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Class
+        fields = ['id', 'name']
+
+class ClassViewSet(BaseViewSet):
+    queryset = Class.objects.all()
+    serializer_class = ClassSerializer
+    model_class = Class
+    form_class = ClassForm
+    modal = 'modal_class'
+    card = 'card_class'
+    model_url = 'classes'
+    page_title =  'Manage Classes'
+    db_tool_bar = 'for_manage_classes'
+
 
 
 

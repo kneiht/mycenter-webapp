@@ -1,3 +1,10 @@
+function changeUrl(newUrl) {
+    // Create a new state object (it can be anything, or even null)
+    var stateObj = { foo: "bar" };
+    // Use history.pushState to change the URL
+    history.pushState(stateObj, "page title", newUrl);
+}
+
 
 function onResize() {
     var onresize = document.getElementById('onresize-hs');
@@ -19,7 +26,7 @@ function adjustGridColumns() {
     var gridNum = Math.max(1, Math.round((containerWidth - 10) / 360));
 
     // Optionally, set a maximum number of columns
-    const maxColumns = 5; // For example, a maximum of 5 columns
+    const maxColumns = 10; // For example, a maximum of 5 columns
     gridNum = Math.min(gridNum, maxColumns);
 
     container.classList.add('grid-cols-' + gridNum); // Adjust number of columns as needed

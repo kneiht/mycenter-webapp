@@ -28,15 +28,12 @@ class School(models.Model):
     image = models.ImageField(upload_to='images/schools/', blank=True, null=True, default='images/default/default_school.webp')
     users = models.ManyToManyField(User, through='SchoolUser')
     created_at = models.DateTimeField(default=timezone.now)
+    def __str__(self):
+        return self.name
 
 class SchoolUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     school = models.ForeignKey(School, on_delete=models.CASCADE)
-
-
-
-
-
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -61,6 +58,7 @@ class KeyValue(models.Model):
 class Student(models.Model):
     GENDER_CHOICES = (("male", "Male"), ("female", "Female"), ("other", "Other"))
     school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)
+    classes = models.ManyToManyField('Class', through='StudentClass', blank=True)
     name = models.CharField(max_length=255, default="")
     gender = models.CharField(max_length=20, choices=GENDER_CHOICES, default="other")
     date_of_birth = models.DateField(null=True, blank=True)
@@ -73,6 +71,26 @@ class Student(models.Model):
     def __str__(self):
         return str(self.name)
 
+
+class Class(models.Model):
+    school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)
+    name = models.CharField(max_length=255, default="New class")
+    students = models.ManyToManyField('Student', through='StudentClass', blank=True)
+    image = models.ImageField(upload_to='images/classes/', blank=True, null=True, default='images/default/default_class.webp')
+    created_at = models.DateTimeField(default=timezone.now)
+    def __str__(self):
+        return f"{str(self.name)}"
+
+
+class StudentClass(models.Model):
+    student = models.ForeignKey('Student', on_delete=models.CASCADE)
+    _class = models.ForeignKey('Class', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('student', '_class')
+
+    def __str__(self):
+        return f"{self.student.name} - {self._class.name}"
 
 
 
@@ -117,38 +135,6 @@ class DayTime(models.Model):
 
     def __str__(self):
         return f"{self.get_day_of_week_display()}: {self.start_time} - {self.end_time}"
-
-
-
-
-
-
-class StudentClass(models.Model):
-    student = models.ForeignKey('Student', on_delete=models.CASCADE)
-    _class = models.ForeignKey('Class', on_delete=models.CASCADE)
-    is_paid_class = models.BooleanField(default=False)
-
-    class Meta:
-        unique_together = ('student', '_class')
-
-    def __str__(self):
-        return f"{self.student.name} - {self._class.name} - {'Main' if self.is_paid_class else 'Secondary'}"
-
-
-
-class Class(models.Model):
-    CLASS_STATUS = (
-        ('active', 'Active'),   # Class is active and operational
-        ('inactive', 'Inactive'), # Class is inactive or not in use
-    )
-    name = models.CharField(max_length=255, default="Unspecified")
-    note = models.TextField(default="", blank=True, null=True)
-    image = models.ImageField(upload_to='images/classes/', blank=True, null=True, default='images/classes/default.webp')
-    create_date = models.DateTimeField(default=timezone.now)
-    def __str__(self):
-        return f"{str(self.name)} - {str(self.course)}"
-
-
 
 
 

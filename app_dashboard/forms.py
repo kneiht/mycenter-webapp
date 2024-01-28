@@ -1,23 +1,10 @@
 
 from django import forms
-from .models import Student
-from .models import Class
-from .models import (
-    Course, ClassSchedule, UserProfile,
-    Class, TuitionPlan, Discount,
-    Attendance, FinancialTransaction, Student
-)
-
-from .models import (BaseModel, DatabaseChangeLog, Course, 
-    ClassSchedule, DayTime, UserProfile, Class, Student, 
-    StudentClass, TuitionPlan, Discount, Attendance, 
-    TransactionImage, FinancialTransaction)
-
 
 from django.shortcuts import get_object_or_404
 from django.forms import Widget
 
-from .models import School
+from .models import School, Student, Class
 
 class SchoolForm(forms.ModelForm):
     class Meta:
@@ -41,6 +28,7 @@ class SchoolForm(forms.ModelForm):
             'image': forms.FileInput(attrs={
                     'class': 'form-input-file',}),
         }
+
 
 class StudentForm(forms.ModelForm):
     class Meta:
@@ -83,6 +71,23 @@ class StudentForm(forms.ModelForm):
         }
 
 
+class ClassForm(forms.ModelForm):
+    class Meta:
+        model = Class
+        fields = ['name', 'students', 'image']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'placeholder': 'Class name',
+                'required': 'required',
+                'class': 'form-input'
+            }),
+            'students': forms.SelectMultiple(attrs={
+                'class': 'form-input'
+            }),
+            'image': forms.FileInput(attrs={
+                'class': 'form-input-file'
+            }),
+        }
 
 
 

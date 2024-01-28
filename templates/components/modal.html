@@ -22,13 +22,13 @@
             </div>
         </div>
     </div>
-{% elif modal == 'modal_school' %}
+{% elif modal != 'modal_message' %}
     <div id="modal-form" {{ swap_oob }}>
         <div class="modal z-50 fixed inset-0 bg-slate-600 bg-opacity-80 overflow-y-auto h-full w-full flex justify-center">
 
             <!-- Modal Content -->
             <div class="relative top-20 mx-4 card h-fit w-full sm:w-fit">
-                <h3 class="mt-7 mb-8 text-xl font-extrabold leading-6 text-center text-theme">{% if record_id %} Edit School {% else %} Create New School {% endif %}</h3>
+                <h3 class="mt-7 mb-8 text-xl font-extrabold leading-6 text-center text-theme">{% if record_id %} Edit Information {% else %} Create New {% endif %}</h3>
 
                 <!-- Result could be a html card if success or a new form modal with error if fail, if success, the card will be added right after the div cards, else the form will be the same place but display as fixed -->
                 <form method="post" class="" enctype="multipart/form-data"
@@ -39,68 +39,14 @@
                         hx-post="/{{ model_url }}/" hx-target="#display_cards" hx-swap="afterbegin"
                     {% endif %} >
 
-                    <div class="grid grid-cols-1 sm:w-[400px] gap-4 px-6">
-                        {% if form.non_field_errors %}
-                            {% for error in form.non_field_errors %}
-                            <p class="text-red-500 pt-3">{{ error }}</p>
-                            {% endfor %}
-                        {% endif %}
 
-                        {% csrf_token %}
-                        <input type="hidden" name="school_id" value=""
-                                _="on load 
-                                put @school-id of #current-school-infor into my value">
-                        {% for field in form %}
-                            <div class="">
-                                <div>
-                                    <label for="{{ field.name }}" class="text-theme">{{ field.label }}</label>
-                                    {{ field }}    
-                                
-                                    {% if field.help_text %}
-                                        <p class="text-blue-500 px-3">{{ field.help_text }}</p>
-                                    {% endif %}
-                                    {% for error in field.errors %}
-                                        <p class="text-red-500 px-3">{{ error }}</p>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
 
-                    <div class="flex justify-center items-center gap-5 pt-8 pb-7">
-                        <button type="submit" class="btn btn-primary rounded-full w-36">
-                            {% if record_id %} Update {% else %} Create {% endif %}
-                        </button>
-                        <button id='cancel-modal' type="button" class="btn btn-secondary rounded-full w-36"
-                                    _="on click
-                                    remove the closest .modal">
-                            Cancel
-                        </button>
-                    </div>
+                    {% if form.fields|length >= 5 or modal == 'modal_class' %}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 sm:w-[600px] gap-4 px-6">
+                    {% else %}
+                        <div class="grid grid-cols-1 w-[400px]  gap-4 px-6">
+                    {% endif %}
 
-                </form>
-            </div>
-        </div>
-    </div>
-
-{% elif modal == 'modal_student' %}
-    <div id="modal-form" {{ swap_oob }}>
-        <div class="modal z-50 fixed inset-0 bg-slate-600 bg-opacity-80 overflow-y-auto h-full w-full flex justify-center">
-
-            <!-- Modal Content -->
-            <div class="relative top-20 mx-4 card h-fit w-full sm:w-fit">
-                <h3 class="mt-7 mb-8 text-xl font-extrabold leading-6 text-center text-theme">{% if record_id %} Edit Student {% else %} Create New Student {% endif %}</h3>
-
-                <!-- Result could be a html card if success or a new form modal with error if fail, if success, the card will be added right after the div cards, else the form will be the same place but display as fixed -->
-                <form method="post" class="" enctype="multipart/form-data"
-                    {% if record_id %}
-                        hx-put="/{{ model_url }}/{{ record_id }}/"
-                        hx-swap="afterbegin"
-                    {% else %} 
-                        hx-post="/{{ model_url }}/" hx-target="#display_cards" hx-swap="afterbegin"
-                    {% endif %} >
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 sm:w-[600px] gap-4 px-6">
                         {% if form.non_field_errors %}
                             {% for error in form.non_field_errors %}
                             <p class="text-red-500 pt-3">{{ error }}</p>

@@ -2,11 +2,25 @@
     <div class="flex justify-between items-center mb-6 mt-2">
         <p class="text-3xl text-center font-semibold text-theme"> {{ page_title }} </p>
 
-        <button class="max-sm:hidden btn btn-primary"
-                hx-get="/{{ model_url }}/new/form" hx-swap="afterbegin">
 
-            <i class="fas fa-plus me-3" style="font-size: 16px;"></i>
-            <span class="max-sm:hidden me-3"> Add new </span>
-        </button>
+        {% if title_bar == 'for_manage_classroom' %}
+            <div class="flex gap-4">
+                <input id="attendance_check_date" type="date" name="attendance_check_date" class="form-input">    
+                <button class="max-sm:hidden btn btn-primary text-nowrap"
+                        hx-get="/{{ model_url }}/new/form" hx-swap="afterbegin">
+
+                    <i class="fas fa-plus me-3" style="font-size: 16px;"></i>
+                    <span class="max-sm:hidden me-3"> Attendance </span>
+                </button>
+            </div>
+        {% else %}
+            <button class="max-sm:hidden btn btn-primary"
+                    hx-get="/{{ model_url }}/new/form" hx-swap="afterbegin">
+
+                <i class="fas fa-plus me-3" style="font-size: 16px;"></i>
+                <span class="max-sm:hidden me-3"> Add new </span>
+            </button>
+        {% endif %}
+
     </div>
 </div>
