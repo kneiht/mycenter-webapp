@@ -1,7 +1,7 @@
 
 
 <div id="record_{{ record.pk }}" record-id="{{ record.pk }}" class="card p-2" {{ swap_oob }}>
-
+    
     {% if card == 'card_school' %}
         <a href="/school/{{ record.pk }}">
             <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-lg border border-slate-200 dark:border-slate-900" />
@@ -12,24 +12,19 @@
         </a>
     {% elif card == 'card_student_classroom' %}
     <a>
-        <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-lg border border-slate-200 dark:border-slate-900" />
+        <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-lg border border-slate-200 dark:border-slate-900"/>
     </a>
     {% endif %}
-
-
 
     <div class="flex justify-between items-start py-2">
         <div class="w-11/12">
             <h3 class="text-lg font-bold text-theme text-center pl-1 truncate">{{ record.name }}</h3>
         </div>
-        <div class="relative"
-                _="on click elsewhere
-                add .hidden to #menu-card-context in me">
+        <div class="menu relative">
 
-            <div class="dropdown-button flex flex-col justify-between items-center cursor-pointer gap-y-0.5 py-1.5 w-6 rounded-xl hover:bg-gray-200 hover:dark:bg-gray-700" menu-id="menu-card-context"
+            <div class="menu-button flex flex-col justify-between items-center cursor-pointer gap-y-0.5 py-1.5 w-6 rounded-xl hover:bg-gray-200 hover:dark:bg-gray-700" menu-id="menu-card-context"
                     _="on click
-                    put #menu-card-context after me
-                    remove .hidden from #menu-card-context">
+                    put #menu-card-context after me">
 
                 <div class="w-1 h-1 bg-theme-900 dark:bg-theme-100 rounded-full"></div>
                 <div class="w-1 h-1 bg-theme-900 dark:bg-theme-100 rounded-full"></div>
@@ -97,6 +92,13 @@
             <p class="text-theme h-10 truncate">
                 <i class="fas fa-venus-mars me-3"></i> {{ student }}
             </p>
+
+        {% elif card == 'card_student_classroom' %}
+        
+            <p class="text-theme h-10 truncate">
+                <i class="fas fa-star me-3"></i> {{ record.reward_points }}
+            </p>
+
         {% endif %}
     </div>
 

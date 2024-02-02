@@ -2,13 +2,13 @@
 {% if db_tool_bar == 'for_manage_classroom' %}
     <!-- Toolbar for classroom interactions -->
     <div id="db-tool-bar" {{ swap_oob }}>
-        <div class="flex items-center 
-                    mt-2 mb-8 h-20 p-2 
-                    bg-theme-200 dark:bg-theme-900
-                    rounded-xl">
+        <div id='reward-controls' class="flex items-center 
+        mt-2 mb-8 h-20 p-2 
+        bg-theme-200 dark:bg-theme-900
+        rounded-xl">
             <!-- Separate 2 sections of controls -->
             <div  class="flex justify-between gap-4 mx-32 w-full">
-                <!-- Right controls for select -->
+                <!-- Left controls for select -->
                 <div id='left-controls' class="flex items-center justify-start gap-4">
                     <!-- Button to toggle view settings -->
                     <button id='select-all' type="button" class="btn btn-primary h-full w-fit text-nowrap">
@@ -26,20 +26,78 @@
 
                 <!-- Right controls for view toggle and information display -->
                 <div id='right-controls' class="flex items-center justify-end gap-4">
+
                     <!-- Button to toggle view settings -->
                     <button id='wow' type="button" class="btn btn-success h-full w-fit text-nowrap">
                         WOW
                     </button>
 
-                    <input id="stars" type="number" value=0 name="stars" class="form-input text-2xl w-28">    
+                    <input id="stars" type="number" value=0 min="0" name="stars" class="form-input text-2xl w-28"/>    
 
                     <button id='oh-no' type="button" class="btn btn-danger h-full w-fit text-nowrap">
                         OH NO
                     </button>
+
+
                 </div>
 
             </div>
         </div>
+
+
+
+        <div id='attendance-controls' class="flex items-center 
+        mt-2 mb-8 h-20 p-2 
+        bg-theme-200 dark:bg-theme-900
+        rounded-xl hidden">
+
+                <!-- Separate 2 sections of controls -->
+                <div  class="flex justify-between gap-4 mx-32 w-full">
+                    <!-- Right controls for select -->
+                    <div id='left-controls' class="flex items-center justify-start gap-4">
+                        
+                        <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center;">
+                            <span class="attendance-badge background-status-not_checked">Not Checked</span>
+                            <span class="attendance-badge background-status-present">Present</span>
+                            <span class="attendance-badge background-status-absent">Absent</span>
+                            <span class="attendance-badge background-status-late">Late</span>
+                            <span class="attendance-badge background-status-left_early">Left Early</span>
+                        </div>
+                        <p>Click the student to check attendance.</p>
+                    </div>
+
+                    <!-- Right controls for view toggle and information display -->
+                    <div id='right-controls' class="flex items-center justify-end gap-4">
+
+                        <div class="col-12 col-md-3 text-center px-5">
+                            <div class="d-flex justify-content-center align-items-center flex-wrap">
+                                <select name="learningHours" id="learningHours" class="form-select">
+                                <option value="" selected="">---------</option>
+                                <option value="1.5">1 hour 30 minutes</option>
+                                <option value="1">1 hour</option>
+                                <option value="2">2 hours</option>
+                                <option value="0.75">45 minutes</option>
+                                <option value="0.5">30 minutes</option>
+                                <option value="0.25">15 minutes</option>
+                                </select>
+                                <p>Select learning hours</p>
+                            </div>
+                        </div>
+            
+            
+                        <!-- Attendance confirm button -->
+                        <div class="flex items-center justify-start gap-4">
+                            <button id="button-confirm-attendance" class="btn btn-primary mx-3">Confirm</button>
+                            <button id="button-cancel" class="btn btn-secondary mx-3">Cancel</button>
+                    
+                        </div>
+                    </div>
+                </div>
+        </div>
+
+    
+
+
 
     </div>
 

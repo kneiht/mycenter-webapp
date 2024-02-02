@@ -9,12 +9,13 @@ from . import views, views_db, api
 from django.urls import re_path, include
 from rest_framework.routers import DefaultRouter
 from . import views
-from .views import SchoolViewSet, StudentViewSet, ClassViewSet
+from .views import SchoolViewSet, StudentViewSet, ClassViewSet, AttendanceViewSet
 
 router = DefaultRouter()
 router.register(r'schools', SchoolViewSet)
 router.register(r'students', StudentViewSet)
 router.register(r'classes', ClassViewSet)
+router.register(r'attendances', AttendanceViewSet)
 
 urlpatterns = [
     re_path(r'^$', views.landing_page, name='landing_page'),  

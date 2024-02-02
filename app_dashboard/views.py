@@ -19,8 +19,6 @@ from django.db.models import Q, Count, Sum  # 'Sum' is imported here
 
 from rest_framework import serializers
 from rest_framework import viewsets
-from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
@@ -32,7 +30,7 @@ from .forms import (
 # Import models
 from django.contrib.auth.models import User
 from .models import (
-    School, Student, SchoolUser, Class,
+    School, Student, SchoolUser, Class, StudentClass, Attendance
 )
 
 from .html_render import html_render
@@ -141,6 +139,26 @@ class BaseViewSet(viewsets.ModelViewSet):
                     instance_form.save()
                     if  self.model_class == Class:
                         form.save_m2m()      
+
+                        # Data from the client
+                        student_ids = request.POST.getlist('students')
+                        payment_required_ids = request.POST.getlist('payment_required')
+
+                        # Convert payment_required_ids to a set for faster lookup
+                        payment_required_set = set(map(int, payment_required_ids))
+
+                        # Update or create StudentClass instances
+                        for student_id in student_ids:
+                            student_id = int(student_id)
+                            payment_required = student_id in payment_required_set
+
+                            StudentClass.objects.update_or_create(
+                                student_id=student_id,
+                                _class=instance_form,
+                                defaults={'payment_required': payment_required}
+                            )
+
+
                 else:
                     print('>>>>>>>>>> other model failed')
                     # school not found or school does not belongs to user
@@ -157,7 +175,6 @@ class BaseViewSet(viewsets.ModelViewSet):
         form = self.form_class(instance=record) if record else self.form_class()
         html_modal = html_render('form', request, form=form, modal=self.modal,record_id=record.pk if record else None, model_url=self.model_url)
         return HttpResponse(html_modal)
-    
 
     def create(self, request):
         result, instance, form = self.process_form(request)
@@ -168,7 +185,7 @@ class BaseViewSet(viewsets.ModelViewSet):
         else:
             html_modal = html_render('form', request, form=form, modal=self.modal, model_url=self.model_url)
             return HttpResponse(html_modal)
-        
+
     def update(self, request, **kwargs):
         instance_id = kwargs.get('pk')
         instance = get_object_or_404(self.model_class, id=instance_id)
@@ -180,7 +197,6 @@ class BaseViewSet(viewsets.ModelViewSet):
         else:
             html_modal = html_render('form', request, form=form, modal=self.modal, record_id=instance.pk, model_url=self.model_url)
             return HttpResponse(html_modal)
-
 
     def list(self, request):
         if self.model_class==School:
@@ -227,6 +243,24 @@ class BaseViewSet(viewsets.ModelViewSet):
         return HttpResponse(html_display_cards + html_title_bar + html_db_tool_bar)
 
 
+
+
+class SchoolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = School
+        fields = ['id', 'name', 'abbreviation', 'description']
+
+class SchoolViewSet(BaseViewSet):
+    queryset = School.objects.all()
+    serializer_class = SchoolSerializer
+    model_class = School
+    form_class = SchoolForm
+    modal = 'modal_school'
+    card = 'card_school'
+    model_url = 'schools'
+    page_title =  'Manage Schools'
+    db_tool_bar = 'for_manage_schools'
+
     def share_school(request, school_id):
         if request.method == 'POST':
             email = request.POST.get('email')
@@ -247,22 +281,6 @@ class BaseViewSet(viewsets.ModelViewSet):
 
 
 
-class SchoolSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = School
-        fields = ['id', 'name', 'abbreviation', 'description']
-
-class SchoolViewSet(BaseViewSet):
-    queryset = School.objects.all()
-    serializer_class = SchoolSerializer
-    model_class = School
-    form_class = SchoolForm
-    modal = 'modal_school'
-    card = 'card_school'
-    model_url = 'schools'
-    page_title =  'Manage Schools'
-    db_tool_bar = 'for_manage_schools'
-
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
@@ -278,6 +296,41 @@ class StudentViewSet(BaseViewSet):
     model_url = 'students'
     page_title =  'Manage Students'
     db_tool_bar = 'for_manage_students'
+
+    @action(detail=False, methods=['post'], url_path='reward')
+    def update_reward_points(self, request):
+        if request.method == 'POST':
+            # Get the parameters from the URL
+            school_id = request.GET.get('school_id')
+            reward_points = request.GET.get('reward_points')
+            student_ids = request.GET.get('students')
+            # Split student_ids by "-" to get a list of individual student IDs
+            student_id_list = student_ids.split('-')
+
+            # Find the school (assuming you have a School model)
+            school = get_object_or_404(School, pk=int(school_id))
+            html = ''
+            # Update reward points for selected students
+            for student_id in student_id_list:
+                try:
+                    student = Student.objects.filter(pk=int(student_id), school=school).first()
+                    student.reward_points += int(reward_points)
+                    student.save()
+                    html += html_render('card', request, card='card_student_classroom', record=student, model_url=self.model_url,swap_oob=True)
+                except Exception as e:
+                    print(e)
+
+            html_message = html_render('message', request, message='update reward points successfully')
+
+            
+            return HttpResponse(html + html_message)
+
+        else:
+            # Handle other HTTP methods if needed
+            html_message = html_render('message', request, message='update reward failed')
+            return HttpResponse(html_message)
+
+    
 
 class ClassSerializer(serializers.ModelSerializer):
     class Meta:
@@ -295,8 +348,31 @@ class ClassViewSet(BaseViewSet):
     page_title =  'Manage Classes'
     db_tool_bar = 'for_manage_classes'
 
+class AttendanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Attendance
+        fields = ['student']
 
+class AttendanceViewSet(BaseViewSet):
+    queryset = Attendance.objects.all()
+    serializer_class = AttendanceSerializer
+    model_class = Attendance
+    form_class = None
+    modal = 'modal_attendance'
+    card = 'card_attendance'
+    model_url = 'attendances'
+    page_title =  'Manage Attendances'
+    db_tool_bar = 'for_manage_attendances'
 
+    @action(detail=False, methods=['post'], url_path='class')
+    def class_check_attendance(self, request):
+        if request.method == 'POST':
+            print('>>>>>>>>>> data POST', request.POST)
+            return HttpResponse('hello')
+        else:
+            # Handle other HTTP methods if needed
+            html_message = html_render('message', request, message='update reward failed')
+            return HttpResponse(html_message)
 
 
 

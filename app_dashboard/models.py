@@ -44,12 +44,14 @@ class UserProfile(models.Model):
     phone = models.CharField(max_length=50, blank=True, null=True)
     bio = models.TextField(default="", blank=True)
     image = models.ImageField(upload_to='images/profiles/', blank=True, null=True, default='images/default/default_profile.webp')
-    settings = models.ForeignKey('KeyValue', on_delete=models.SET_NULL, null=True, blank=True)
+    settings = models.ForeignKey('Values', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     def __str__(self):
         return self.name
 
-class KeyValue(models.Model):
+class Values(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=True)
     key = models.CharField(max_length=255, default="")
     value = models.CharField(max_length=255, default="")
     def __str__(self):
@@ -85,12 +87,35 @@ class Class(models.Model):
 class StudentClass(models.Model):
     student = models.ForeignKey('Student', on_delete=models.CASCADE)
     _class = models.ForeignKey('Class', on_delete=models.CASCADE)
-
+    is_payment_required = models.BooleanField(default=True)
     class Meta:
         unique_together = ('student', '_class')
 
     def __str__(self):
         return f"{self.student.name} - {self._class.name}"
+
+
+class Attendance(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True)
+    check_class = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True)
+    check_date = models.DateTimeField(default=timezone.now)
+    status = models.CharField(max_length=20)
+    learning_hours = models.FloatField(default=1.5, null=True, blank=True)
+    payment_mount = models.FloatField(default=0, null=True, blank=True)
+
+    is_payment_required = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return "{} - {} - {} - {}".format(str(self.student), str(self.check_class), str(self.check_date), str(self.status))
+
+
+
+
+
+
+
+
 
 
 
@@ -324,29 +349,6 @@ class Discount(BaseModel):
     discount_value = models.FloatField(default=0.0)
     def __str__(self):
         return self.name
-
-
-class Attendance(BaseModel):
-    ATTENDANCE_STATUS = (
-        ('present', 'Present'),    # Student is present
-        ('absent', 'Absent'),      # Student is absent
-        ('late', 'Late'),          # Student is late
-        ('left_early', 'Left Early'),  # Student left early
-    )
-
-    student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True)
-    check_class = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True)
-    check_date = models.DateTimeField(default=timezone.now)
-    status = models.CharField(max_length=20, choices=ATTENDANCE_STATUS)
-    learning_hours = models.FloatField(default=1.5, null=True, blank=True)
-
-    is_paid_class = models.BooleanField(default=True) 
-    note = models.TextField(default="", blank=True, null=True)
-    create_date = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return "{} - {} - {} - {}".format(str(self.student), str(self.check_class), str(self.check_date), str(self.status))
-
 
 
 class FinancialTransaction(BaseModel):

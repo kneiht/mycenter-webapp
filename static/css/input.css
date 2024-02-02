@@ -46,7 +46,7 @@
             active:bg-green-700 
             focus:bg-green-800;
     }
-    
+
 
 
 
@@ -167,6 +167,7 @@
     /* Track */
     ::-webkit-scrollbar-track {
       border-radius: 10px;
+      height: -20px;
     }
 
     /* Handle */

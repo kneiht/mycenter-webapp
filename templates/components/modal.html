@@ -42,9 +42,9 @@
 
 
                     {% if form.fields|length >= 5 or modal == 'modal_class' %}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 sm:w-[600px] gap-4 px-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 sm:w-[600px] gap-4 px-6">
                     {% else %}
-                        <div class="grid grid-cols-1 w-[400px]  gap-4 px-6">
+                    <div class="grid grid-cols-1 w-[400px]  gap-4 px-6">
                     {% endif %}
 
                         {% if form.non_field_errors %}
@@ -59,20 +59,45 @@
                                 put @school-id of #current-school-infor into my value">
                         {% for field in form %}
                             <div class="">
-                                <div>
-                                    <label for="{{ field.name }}" class="text-theme">{{ field.label }}</label>
-                                    {{ field }}    
-                                
-                                    {% if field.help_text %}
-                                        <p class="text-blue-500 px-3">{{ field.help_text }}</p>
-                                    {% endif %}
-                                    {% for error in field.errors %}
-                                        <p class="text-red-500 px-3">{{ error }}</p>
-                                    {% endfor %}
-                                </div>
+                                {% if field.name != 'students' %}
+                                    <div>
+                                        <label for="{{ field.name }}" class="text-theme">{{ field.label }}</label>
+                                        {{ field }}    
+                                    
+                                        {% if field.help_text %}
+                                            <p class="text-blue-500 px-3">{{ field.help_text }}</p>
+                                        {% endif %}
+                                        {% for error in field.errors %}
+                                            <p class="text-red-500 px-3">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
                             </div>
                         {% endfor %}
                     </div>
+
+                    {% if modal == 'modal_class' %}
+                        <div class="sm:w-[600px] pt-4 px-6">
+                            <label for="students" class="text-theme">Students</label>
+                            <div class="form-input flex flex-col h-52 gap-4 pt-4 pb-6 overflow-y-scroll">
+                                <div class="border-b pb-0.5 flex justify-between w-full">
+                                    <span class="w-4/6"> Name </span>
+                                    <span class="w-1/6 text-center"> Add </span>
+                                    <span class="w-1/6 text-center"> Paid class </span>
+                                </div>
+                                {% for student in form.get_students %}
+                                    <div class="border-b pb-0.5 flex justify-between w-full">
+                                        <span class="w-4/6"> {{ student}} </span>
+                                        <span class="w-1/6 text-center"><input type="checkbox" class="checkbox" name="students" value="{{ student.id }}"></span>
+
+                                        <span class="w-1/6 text-center"><input type="checkbox" class="checkbox" name="payment_required" value="{{ student.id }}"></span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+
 
                     <div class="flex justify-center items-center gap-5 pt-8 pb-7">
                         <button type="submit" class="btn btn-primary rounded-full w-36">

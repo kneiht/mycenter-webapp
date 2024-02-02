@@ -74,7 +74,7 @@ class StudentForm(forms.ModelForm):
 class ClassForm(forms.ModelForm):
     class Meta:
         model = Class
-        fields = ['name', 'students', 'image']
+        fields = ['name', 'image', 'students']
         widgets = {
             'name': forms.TextInput(attrs={
                 'placeholder': 'Class name',
@@ -89,6 +89,8 @@ class ClassForm(forms.ModelForm):
             }),
         }
 
+    def get_students(self):
+        return Student.objects.all()
 
 
 '''
