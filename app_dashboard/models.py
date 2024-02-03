@@ -96,6 +96,7 @@ class StudentClass(models.Model):
 
 
 class Attendance(models.Model):
+
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True)
     check_class = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True)
     check_date = models.DateTimeField(default=timezone.now)
@@ -105,6 +106,12 @@ class Attendance(models.Model):
 
     is_payment_required = models.BooleanField(default=True)
     created_at = models.DateTimeField(default=timezone.now)
+
+    def save(self, *args, **kwargs):
+        # Set the microsecond part to zero before saving
+        if self.check_date:
+            self.check_date = self.check_date.replace(microsecond=0)
+        super(Attendance, self).save(*args, **kwargs)
 
     def __str__(self):
         return "{} - {} - {} - {}".format(str(self.student), str(self.check_class), str(self.check_date), str(self.status))

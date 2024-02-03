@@ -80,6 +80,7 @@ def classroom(request, pk=None):
         'model_url': '',
         'card': 'card_student_classroom',
         'school': class_instance.school,
+        'class': class_instance,
     }
     return render(request, 'pages/single_page.html', context)
 
@@ -366,17 +367,110 @@ class AttendanceViewSet(BaseViewSet):
 
     @action(detail=False, methods=['post'], url_path='class')
     def class_check_attendance(self, request):
-        if request.method == 'POST':
-            print('>>>>>>>>>> data POST', request.POST)
-            return HttpResponse('hello')
-        else:
-            # Handle other HTTP methods if needed
-            html_message = html_render('message', request, message='update reward failed')
+        # Parsing the JSON data sent from HTMX
+        data = request.POST
+        school_id = data.get('school_id')
+        class_id = data.get('class_id')
+        check_date_str = data.get('check_date')  # Assuming 'checkDate' is sent in the format 'YYYY-MM-DD HH:MM'
+        print('>>>>>>>>>> class_check_attendance data:', data)
+        # Assuming 'school_id' can be directly used to find a class, adjust as needed
+        check_class = get_object_or_404(Class, id=class_id)
+        if not check_class:
+            html_message = html_render('message', request, message='update attendance failed')
             return HttpResponse(html_message)
 
+        # Function to process students by status
+        def process_students(status, student_ids_str):
+            if student_ids_str:
+                student_ids = student_ids_str.split('-')
+                for student_id in student_ids:
+                    student = Student.objects.filter(id=student_id).first()
+                    if student:
+                        print('>>>>>>>>>> student:', student)
+                        # Parse the check_date_str to a datetime object
+                        try:
+                            # If parsing with '%Y-%m-%d' fails, try parsing with '%Y-%m-%dT%H:%M'
+                            check_datetime = datetime.strptime(check_date_str, '%Y-%m-%dT%H:%M')
+                        except ValueError:
+                            # Handle invalid date formats here
+                            check_datetime = timezone.now()
+                                
+                        # Filter Attendance objects based on student and check_date
+                        attendance = Attendance.objects.filter(
+                            student=student,
+                            check_class=check_class,
+                            check_date__date=check_datetime.date()
+                        ).first()
+
+                        # If an attendance record exists for the same date, update it
+                        if attendance:
+                            attendance.status = status
+                            attendance.is_payment_required = True
+                            attendance.check_date = check_datetime  # Update check_datetime if needed
+                            attendance.save()
+                        else:
+                            # Create a new Attendance record if none exists for the same date
+                            attendance = Attendance.objects.create(
+                                student=student,
+                                check_class=check_class,
+                                check_date=check_datetime,  # Use the parsed check_datetime here
+                                status=status,
+                                is_payment_required=True
+                            )
+
+        # Process each status
+        process_students('present', data.get('present', ''))
+        process_students('absent', data.get('absent', ''))
+        process_students('late', data.get('late', ''))
+        process_students('left_early', data.get('left_early', ''))
+
+        html_message = html_render('message', request, message='update attendance successfully')
+        return HttpResponse(html_message)
 
 
+    @action(detail=False, methods=['get'], url_path='by-class')
+    def get_attendance_by_class(self, request):
+        # Get class_id and checkDate from request parameters
+        class_id = request.GET.get('class_id')
+        check_date_str = request.GET.get('check_date')  # 'YYYY-MM-DD'
+        print('>>>>>>>>>> request.GET:', request.GET)
+        
+        # Ensure class_id is provided
+        if not class_id:
+            html_message = render(request, 'message.html', {'message': 'Class ID is required'})
+            return html_message
 
+        # Attempt to fetch the class, return 404 if not found
+        check_class = get_object_or_404(Class, id=class_id)
+        # Parse checkDate string to date object if provided
+        if check_date_str:
+            try:
+                # Try parsing the datetime string with the format '%Y-%m-%d'
+                check_date = datetime.strptime(check_date_str, '%Y-%m-%d').date()
+            except ValueError:
+                try:
+                    # If parsing with '%Y-%m-%d' fails, try parsing with '%Y-%m-%dT%H:%M'
+                    check_date = datetime.strptime(check_date_str, '%Y-%m-%dT%H:%M').date()
+                except ValueError:
+                    # Handle invalid date formats here
+                    check_date = timezone.now().date()  
+
+            # Filter Attendance records for the class on the specific date
+            attendance_records = Attendance.objects.filter(
+                check_class=check_class,
+                check_date__date=check_date  # Assumes check_date is a DateTimeField
+            ).select_related('student')
+
+        # Serialize the attendance records
+        attendance_data = [{
+            'id': str(record.student_id),
+            'student_name': str(record.student),  # Adjust according to your model
+            'status': record.status,
+            'check_date': record.check_date.strftime('%Y-%m-%d'),
+            'is_payment_required': record.is_payment_required,
+        } for record in attendance_records]
+        print('>>>>>>>>>> attendance_data:', attendance_data)
+        return JsonResponse({'status': 'success', 'attendance_data': attendance_data})
 
 
 '''

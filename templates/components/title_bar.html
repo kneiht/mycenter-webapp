@@ -3,8 +3,9 @@
         <p class="text-3xl text-center font-semibold text-theme"> {{ page_title }} </p>
 
         {% if title_bar == 'for_manage_classroom' %}
+            <div id='class-infor' class="hidden" class-id="{{ class.pk }}"></div>
             <div class="flex gap-4">
-                <input id="attendance-check-date" type="date" name="attendance_check_date" class="form-input">    
+                <input id="attendance-check-date" type="datetime-local" name="attendance_check_date" class="form-input"> 
                 <button id="attendance-button" class="max-sm:hidden btn btn-primary text-nowrap"
                         hx-get="/{{ model_url }}/new/form" hx-swap="afterbegin">
 

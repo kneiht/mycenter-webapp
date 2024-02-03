@@ -6,16 +6,38 @@ class CardStyler {
         this.absentAttendanceClasses = 'absent bg-red-300 dark:bg-red-700';
         this.lateAttendanceClasses = 'late bg-blue-300 dark:bg-blue-700';
         this.leftEarlyAttendanceClasses = 'left-early bg-purple-300 dark:bg-purple-700';
+        this.notCheckedAttendanceClasses = 'not-checked bg-gray-300 dark:bg-gray-700';
         this.attendanceClassesSet = this.presentAttendanceClasses + ' ' + 
                                     this.absentAttendanceClasses + ' ' + 
                                     this.lateAttendanceClasses + ' ' + 
-                                    this.leftEarlyAttendanceClasses;
+                                    this.leftEarlyAttendanceClasses + ' ' +
+                                    this.netCheckedAttendanceClasses;
         
     }
     toggleCard(card) {toggleClass(card, this.rewardClasses);}
     selectCard(card) {addClass(card, this.rewardClasses);}
     deselectCard(card) {removeClass(card, this.rewardClasses);}
     clearAttendanceClasses(card) {removeClass(card, this.attendanceClassesSet);}
+
+    applyStatus(card, status) {
+        this.clearAttendanceClasses(card);
+        if (status === 'present') {
+            addClass(card, this.presentAttendanceClasses);
+        }
+        else if (status === 'absent') {
+            addClass(card, this.absentAttendanceClasses);
+        }
+        else if (status === 'late') {
+            addClass(card, this.lateAttendanceClasses);
+        }
+        else if (status === 'left-early') {
+            addClass(card, this.leftEarlyAttendanceClasses);
+        }
+        else {
+            addClass(card, this.notCheckedAttendanceClasses);
+        }
+    }
+
     circleAttendanceState(card) {
         // Get the current class name
         let currentClass = card.classList;
@@ -36,6 +58,7 @@ class CardStyler {
             addClass(card, this.presentAttendanceClasses);
         }
         else {
+            this.clearAttendanceClasses(card);
             addClass(card, this.presentAttendanceClasses);
         }
     }
@@ -45,11 +68,49 @@ class CardStyler {
 
 // CHECK ATTTENDANCE STUDENTS =========================================
 document.addEventListener('DOMContentLoaded', function() {
+    // Function to fetch attendance data
+    async function fetchAndApplyAttendanceData(classId, checkDate) {
+        try {
+            const response = await fetch(`/attendances/by-class/?class_id=${classId}&check_date=${checkDate}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            if (data.status === 'success') {
+                console.log('got data:', data.attendance_data);
+                applyAttendanceStyles(data.attendance_data);
+            } else {
+                console.error('Failed to fetch data:', data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching attendance data:', error);
+        }
+    }
+
+    // Function to apply attendance styles
+    function applyAttendanceStyles(attendanceData) {
+        const cardStyler = new CardStyler();
+        console.log('attendanceData:', attendanceData);
+        attendanceData.forEach(student => {
+            let card = document.querySelector(`#record_${student.id}`);
+            console.log(`#record_${student.student_id}`);
+            if (card) {
+                cardStyler.clearAttendanceClasses(card);
+                if (student.status) {
+                    cardStyler.applyStatus(card, student.status);
+                }
+            }
+        });
+    }
+
 
     function sendAttendance() {
         // Correcting the typo in the selector from 'current-school-infor' to 'current-school-info'
         let schoolId = document.querySelector('#current-school-infor').getAttribute('school-id');
-    
+        let classId = document.querySelector('#class-infor').getAttribute('class-id');
+        let checkDate = document.querySelector('#attendance-check-date').value;
+
+        console.log('schoolId:', schoolId, 'classId:', classId, 'checkDate:', checkDate);
         // A helper function to collect student IDs based on attendance status
         function collectStudentIds(status) {
             return Array.from(document.querySelectorAll(`#display_cards .${status}`))
@@ -63,11 +124,22 @@ document.addEventListener('DOMContentLoaded', function() {
         let late_students = collectStudentIds('late');
         let left_early_students = collectStudentIds('left-early');
     
-        // Building the URL with template literals
-        let url = `/attendances/class/?school_id=${schoolId}&present=${present_students}&absent=${absent_students}&late=${late_students}&left_early=${left_early_students}`;
-    
-        // Assuming HTMX is correctly set up in your project
-        htmx.ajax('POST', url, {swap: 'afterbegin'});
+        // Creating FormData object to send data
+        let formData = {
+            'check_date': checkDate,
+            'school_id':schoolId,
+            'class_id':classId,
+            'present': present_students,
+            'absent': absent_students,
+            'late': late_students,
+            'left_early': left_early_students
+        };
+        console.log('formData:', formData);
+        // Sending the request with FormData using HTMX
+        htmx.ajax('POST', '/attendances/class/', {
+            values: formData,
+            swap: 'afterbegin'
+        });
     }
     
     let confirmAttendanceButton = document.querySelector('#button-confirm-attendance');
@@ -85,6 +157,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (attendanceControls.getAttribute('active') === 'false') {
             attendanceControls.setAttribute('active', 'true');
             attendanceControls.classList.remove('hidden');
+            // Fetch attendance data
+            let classId = document.querySelector('#class-infor').getAttribute('class-id');
+            let checkDate = document.querySelector('#attendance-check-date').value;
+            
+            if (checkDate === '') {
+                checkDate = new Date().toISOString().split('T')[0];
+            }
+            console.log('classId:', classId, 'checkDate:', checkDate);
+            fetchAndApplyAttendanceData(classId, checkDate);
+
         }
         else {
             document.querySelectorAll('#display_cards .card').forEach(card => {
