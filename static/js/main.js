@@ -1,3 +1,135 @@
+// CHANGE URL FOR SPA =========================================
+function changeUrl(newUrl) {
+    // Create a new state object (it can be anything, or even null)
+    var stateObj = { foo: "bar" };
+    // Use history.pushState to change the URL
+    history.pushState(stateObj, "page title", newUrl);
+}
+
+
+// ADD, REMOVE, TOGGLE, CLICK ELSEWHERE =========================================
+function modifyClass(selectorOrElement, classNames, operation) {
+    let elements;
+    if (typeof selectorOrElement === 'string') {
+        elements = document.querySelectorAll(selectorOrElement);
+    } else if (selectorOrElement instanceof Element) {
+        elements = [selectorOrElement];
+    } else {
+        // Handle cases where selectorOrElement is neither a string nor an Element
+        console.error('selectorOrElement must be a string or an Element');
+        return;
+    }
+    
+    elements.forEach(element => {
+        // Split string of class names into an array if classNames is a string
+        if (typeof classNames === 'string') {
+            classNames = classNames.split(' '); // This will create an array of class names
+        }
+    
+        if (Array.isArray(classNames)) {
+            switch (operation) {
+                case 'add': element.classList.add(...classNames); break;
+                case 'remove': element.classList.remove(...classNames); break;
+                // Handle toggle for each class name individually for compatibility
+                case 'toggle': classNames.forEach(className => element.classList.toggle(className)); break;
+                default: console.error('Invalid operation');
+            }
+        }
+    });
+}
+// Usage examples
+function addClass(selectorOrElement, classNames) {
+    modifyClass(selectorOrElement, classNames, 'add');
+}
+function removeClass(selectorOrElement, classNames) {
+    modifyClass(selectorOrElement, classNames, 'remove');
+}
+function toggleClass(selectorOrElement, classNames) {
+    modifyClass(selectorOrElement, classNames, 'toggle');
+}
+
+
+
+
+// THEME CHANGE =========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const themeToggles = document.querySelectorAll('#theme-toggle');
+    const storedTheme = localStorage.getItem('theme'); 
+    console.log(storedTheme);
+    function updateTheme(isDark) {
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+        // Update theme class
+        document.documentElement.classList.toggle('dark', isDark);
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+        // Update icons for all sun and moon instances
+        sunIcon.style.opacity = isDark ? '0' : '1';
+        moonIcon.style.opacity = isDark ? '1' : '0';
+    }
+
+    // Event listener for each theme toggle
+    themeToggles.forEach(toggle => {
+        toggle.addEventListener('change', () => {
+            updateTheme(toggle.checked);
+        });
+    });
+
+    // Check for stored theme preference and apply it
+    if (storedTheme) {
+        const isDark = storedTheme === 'dark';
+        updateTheme(isDark);
+        themeToggles.forEach(toggle => {
+            toggle.checked = isDark;
+        });
+    }
+});
+
+
+
+// CHANNGE QUICK SETTINGS POSITION ON RESIZE =========================================
+up.compiler('#quick-settings', function(element) {
+    // Get a reference to the quick-settings element
+    var quickSettings = element;
+
+    function changePosition() {
+        console.log('changePosition');
+        // Measure the #nav-bar element
+        var navBar = document.querySelector('#nav_bar');
+        var navBarWidth = navBar.offsetWidth;
+
+        // Get references to the elements
+        var profileMenu = document.querySelector('#menu-profile');
+        var profile = document.querySelector('#profile');
+        var item1 = document.querySelector('#item-1');
+        var item2 = document.querySelector('#item-2');
+
+        // Check the width of #nav-bar and apply the logic accordingly
+        if (navBarWidth > 639) {
+            quickSettings.classList.remove('w-full');
+            var parent = profile.parentNode;
+            parent.insertBefore(quickSettings, profile);
+            item2.classList.add('rounded-t-xl');
+            item1.classList.add('hidden');
+        } else {
+            quickSettings.classList.add('w-full');
+            item1.appendChild(quickSettings);
+            item2.classList.remove('rounded-t-xl');
+            item1.classList.remove('hidden');
+        }
+
+        // Remove the 'hidden' class from me
+        quickSettings.classList.remove('hidden');
+    }
+
+    // Initial adjustment
+    changePosition();
+    window.addEventListener('resize', changePosition);
+});
+
+
+
+// CARD STYLES =========================================
 class CardStyler {
     constructor() {
         // Splitting the class names into an array for easier manipulation
@@ -287,11 +419,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 // NAVIGATION BAR ITEMS =========================================
-document.addEventListener('DOMContentLoaded', function() {
+up.compiler('#nav_bar', function(element) {
     function activeMenuItem(item) {
         console.log('activeMenuItem');
-        // Remove specific classes from all <a> elements within #nav-bar-left
-        document.querySelectorAll('#nav-bar-left a').forEach(link => {
+        // Remove specific classes from all <a> elements within #nav_bar_left
+        document.querySelectorAll('#nav_bar_left a').forEach(link => {
             link.classList.remove('border');
             link.classList.remove('bg-gray-200');
             link.classList.remove('border-gray-300');
@@ -317,7 +449,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Add event listener to each navigation item
-    document.querySelectorAll('#nav-bar-left a').forEach(item => {
+    document.querySelectorAll('#nav_bar_left a').forEach(item => {
         item.addEventListener('click', function() {
             activeMenuItem(item);
         });
@@ -325,19 +457,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// CHANGE URL FOR SPA =========================================
-function changeUrl(newUrl) {
-    // Create a new state object (it can be anything, or even null)
-    var stateObj = { foo: "bar" };
-    // Use history.pushState to change the URL
-    history.pushState(stateObj, "page title", newUrl);
-}
 
 
 
 
 // RESPONSIVE ELEMENTS ON RESIZE =========================================
-document.addEventListener('DOMContentLoaded', function() {
+up.compiler('#display_cards', function(element) {
     // Function to adjust the number of grid columns
     function adjustGridColumns() {
         const container = document.getElementById('display_cards');
@@ -370,118 +495,48 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 // MODAL HANDLING =========================================
-document.addEventListener('DOMContentLoaded', function() {
-    // Remove all modals after a swap to make sure no modals are on the screen, 
-    // if there are errors from the form, new modal will be called to appear
-    document.body.addEventListener('htmx:beforeSwap', function(event) {
-        var modals = document.querySelectorAll('.modal');
-        modals.forEach(function(modal) {
-            modal.remove();
-        });
+up.compiler('.modal', function(element) {
+    element.querySelector('#cancel').addEventListener('click', function() {
+        element.remove();
     });
 });
 
 
 
+// CARD DROPDOWN MENU =========================================
+// this code must be placed before the dropdown menu code
+up.compiler('.card', function(element) {
+    const card = element;
+    const menuButton = element.querySelector('.menu-button');
+    if (menuButton) {
+        menuButton.addEventListener('click', function() {
+            var menuCardContext = document.getElementById('menu-card-context');
+            if (menuCardContext) {
+                let recordId = card.getAttribute('record-id');
+                let recordEdit = document.getElementById('record-edit');
+                let href = recordEdit.getAttribute('href');
+                // Remove the number from the URL
+                let parts = href.replace('/?get=form','').split('/');
+                parts.pop();
+                href = parts.join('/');
 
-
-
-// THEME CHANGE =========================================
-document.addEventListener('DOMContentLoaded', () => {
-    const themeToggles = document.querySelectorAll('#theme-toggle');
-    const storedTheme = localStorage.getItem('theme'); 
-    console.log(storedTheme);
-    function updateTheme(isDark) {
-        const sunIcon = document.getElementById('sun-icon');
-        const moonIcon = document.getElementById('moon-icon');
-        // Update theme class
-        document.documentElement.classList.toggle('dark', isDark);
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-
-        // Update icons for all sun and moon instances
-        sunIcon.style.opacity = isDark ? '0' : '1';
-        moonIcon.style.opacity = isDark ? '1' : '0';
-    }
-
-    // Event listener for each theme toggle
-    themeToggles.forEach(toggle => {
-        toggle.addEventListener('change', () => {
-            updateTheme(toggle.checked);
-        });
-    });
-
-    // Check for stored theme preference and apply it
-    if (storedTheme) {
-        const isDark = storedTheme === 'dark';
-        updateTheme(isDark);
-        themeToggles.forEach(toggle => {
-            toggle.checked = isDark;
-        });
-    }
-});
-
-
-
-
-// ADD, REMOVE, TOGGLE, CLICK ELSEWHERE =========================================
-function modifyClass(selectorOrElement, classNames, operation) {
-    let elements;
-    if (typeof selectorOrElement === 'string') {
-        elements = document.querySelectorAll(selectorOrElement);
-    } else if (selectorOrElement instanceof Element) {
-        elements = [selectorOrElement];
-    } else {
-        // Handle cases where selectorOrElement is neither a string nor an Element
-        console.error('selectorOrElement must be a string or an Element');
-        return;
-    }
-    
-    elements.forEach(element => {
-        // Split string of class names into an array if classNames is a string
-        if (typeof classNames === 'string') {
-            classNames = classNames.split(' '); // This will create an array of class names
-        }
-    
-        if (Array.isArray(classNames)) {
-            switch (operation) {
-                case 'add': element.classList.add(...classNames); break;
-                case 'remove': element.classList.remove(...classNames); break;
-                // Handle toggle for each class name individually for compatibility
-                case 'toggle': classNames.forEach(className => element.classList.toggle(className)); break;
-                default: console.error('Invalid operation');
+                href = href + '/' + recordId + '/?get=form';
+                console.log('href:', href);
+                recordEdit.setAttribute('href', href);
             }
-        }
-    });
-}
-// Usage examples
-function addClass(selectorOrElement, classNames) {
-    modifyClass(selectorOrElement, classNames, 'add');
-}
-function removeClass(selectorOrElement, classNames) {
-    modifyClass(selectorOrElement, classNames, 'remove');
-}
-function toggleClass(selectorOrElement, classNames) {
-    modifyClass(selectorOrElement, classNames, 'toggle');
-}
+            if (menuCardContext && !card.contains(menuCardContext)) {
+                // Move #menu-card-context to be after the clicked element
+                // Check if menuCardContext exists before trying to move it
+                    menuButton.insertAdjacentElement('afterend', menuCardContext);
+                    menuCardContext.classList.add('hidden');
+                }
 
-function setupClickElsewhereListener(element) {
-    // This function now accepts an element to attach the click listener to
-    document.addEventListener('click', function(event) {
-        var menuSchool = document.getElementById('menu-school');
-        // Check if the click is outside the passed element
-        if (element && !element.contains(event.target)) {
-            menuSchool.classList.add('hidden');
-        }
-    });
-}
-
-
+        });
+    }
+});
 
 // DROPDOWN MENUS =========================================
-document.addEventListener('DOMContentLoaded', function() {
-    // Get all elements with class "menu"
-    var menus = document.querySelectorAll('.menu');
-
+up.compiler('.menu', function(element) {
     // Function to show a menu
     function showHideMenu(menu, action) {
         var dropdownMenu = menu.querySelector('.dropdown-menu');
@@ -498,62 +553,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     // Attach click event listeners to menu buttons
-    menus.forEach(function(menu) {
-        var button = menu.querySelector('.menu-button');
-        button.addEventListener('click', function() {
-            showHideMenu(menu, 'toggle')
-        });
+    element.querySelector('.menu-button').addEventListener('click', function() {
+            showHideMenu(element, 'toggle')
     });
 
     // Hide menus when clicking outside of them
     document.addEventListener('click', function(event) {
-        menus.forEach(function(menu) {
-            if (!menu.contains(event.target)) {
-                showHideMenu(menu, 'hide')
-            }
-        });
-    });
-
-});
-
-
-
-// CHANNGE QUICK SETTINGS POSITION ON RESIZE =========================================
-document.addEventListener('DOMContentLoaded', function() {
-    // Get a reference to the quick-settings element
-    var quickSettings = document.getElementById('quick-settings');
-
-    function changePosition() {
-        console.log('changePosition');
-        // Measure the #nav-bar element
-        var navBar = document.querySelector('#nav-bar');
-        var navBarWidth = navBar.offsetWidth;
-
-        // Get references to the elements
-        var profileMenu = document.querySelector('#menu-profile');
-        var profile = document.querySelector('#profile');
-        var item1 = document.querySelector('#item-1');
-        var item2 = document.querySelector('#item-2');
-
-        // Check the width of #nav-bar and apply the logic accordingly
-        if (navBarWidth > 639) {
-            quickSettings.classList.remove('w-full');
-            var parent = profile.parentNode;
-            parent.insertBefore(quickSettings, profile);
-            item2.classList.add('rounded-t-xl');
-            item1.classList.add('hidden');
-        } else {
-            quickSettings.classList.add('w-full');
-            item1.appendChild(quickSettings);
-            item2.classList.remove('rounded-t-xl');
-            item1.classList.remove('hidden');
+        if (!element.contains(event.target)) {
+            showHideMenu(element, 'hide')
         }
+    })
 
-        // Remove the 'hidden' class from me
-        quickSettings.classList.remove('hidden');
-    }
-
-    // Initial adjustment
-    changePosition();
-    window.addEventListener('resize', changePosition);
 });
+
+

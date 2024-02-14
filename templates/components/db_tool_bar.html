@@ -1,7 +1,7 @@
 
-{% if db_tool_bar == 'for_manage_classroom' %}
+{% if select == 'classroom' %}
     <!-- Toolbar for classroom interactions -->
-    <div id="db-tool-bar" {{ swap_oob }}>
+    <div id="db-tool-bar">
         <div id='reward-controls' class="flex items-center 
         mt-2 mb-8 h-20 p-2 
         bg-theme-200 dark:bg-theme-900
@@ -94,16 +94,11 @@
                     </div>
                 </div>
         </div>
-
-    
-
-
-
     </div>
 
 {% else %}
     <!-- Toolbar for database interactions -->
-    <div id="db-tool-bar" {{ swap_oob }}>
+    <div id="db-tool-bar">
         <div class="mt-2 mb-8">
             <!-- Separate 2 sections of controls -->
             <div  class="flex justify-between gap-4">
@@ -144,7 +139,7 @@
                                     _="on change
                                     put my value into #filter-input.name">
 
-                                {% if db_tool_bar == 'for_manage_schools' %}
+                                {% if select == 'schools' %}
                                     <option value="name"> Name</option>
                                     <option value="description">Description</option>
                                 {% endif %}
@@ -233,10 +228,9 @@
                     </button>
 
                     <!-- Button to open a modal (for additional actions or information) -->
-                    <button id='open-modal' modal-id='modal-school' class="sm:hidden btn btn-primary h-full w-11"
-                                hx-get="/{{ model_url }}/new/form" hx-swap="afterbegin">
+                    <a href="{{ base_url }}?get=form" class="sm:hidden btn btn-primary h-full w-11">
                         <i class="fas fa-plus" style="font-size: 20px;"></i>
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>

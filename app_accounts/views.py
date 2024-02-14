@@ -118,7 +118,7 @@ def register(request):
 
     context['is_register'] = True
     context['title'] = "Sign up"
-    context['page_title'] = "Create new account to Mycenter"
+    context['title'] = "Create new account to Mycenter"
     context['button_name'] = "Create new account"
     return render(request, 'pages/account.html', context)
 
@@ -134,7 +134,7 @@ class UserLoginView(LoginView):
         context = super().get_context_data(**kwargs)
         context['is_log_in'] = True
         context['title'] = "Log in"
-        context['page_title'] = "Log in to Mycenter"
+        context['title'] = "Log in to Mycenter"
         context['button_name'] = "Log in"
         return context
 
@@ -151,9 +151,9 @@ class UserLoginView(LoginView):
     def get_success_url(self):
         # Add your logic here to determine the dynamic redirect URL based on user conditions
         if is_admin(self.request.user):
-            return reverse('manage_schools')  # Example: Redirect staff users to the admin interface
+            return reverse('schools')  # Example: Redirect staff users to the admin interface
         else:
-            return reverse('manage_schools')  # Example: Redirect other users to a dashboard
+            return reverse('schools')  # Example: Redirect other users to a dashboard
 
 
 class UserPasswordChangeView(PasswordChangeView):
@@ -163,7 +163,7 @@ class UserPasswordChangeView(PasswordChangeView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = "Change password"
-        context['page_title'] = "Change password"
+        context['title'] = "Change password"
         context['button_name'] = "Change"
         return context
 
@@ -185,7 +185,7 @@ class UserPasswordResetView(PasswordResetView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = "Reset password"
-        context['page_title'] = "Reset password"
+        context['title'] = "Reset password"
         context['button_name'] = "Reset"
         return context
 
@@ -196,7 +196,7 @@ class UserPasswordResetDoneView(PasswordResetDoneView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = "Reset password done"
-        context['page_title'] = "Email Sent"
+        context['title'] = "Email Sent"
         context['account_message'] = "An email has been sent to your email address. Please click the link and reset your password then log in with the new password you created."
         return context
 
@@ -206,7 +206,7 @@ class UserPasswordResetConfirmView(PasswordResetConfirmView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = "Reset password"
-        context['page_title'] = "Reset password"
+        context['title'] = "Reset password"
         context['button_name'] = "Reset"
         return context
 
@@ -217,7 +217,7 @@ class UserPasswordResetCompleteView(PasswordResetDoneView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = "Password Changed"
-        context['page_title'] = "Password Changed"
+        context['title'] = "Password Changed"
         context['account_message'] = "Your password has been changed successfully. Login again."
         return context
 

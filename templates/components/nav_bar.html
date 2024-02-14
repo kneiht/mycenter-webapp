@@ -1,29 +1,28 @@
 <!-- This is the navagation bar section, which contains the navigation elements. -->
-<div id="nav-bar" class="flex justify-between items-center gap-4 h-8 my-3">
+<div id="nav_bar" class="flex justify-between items-center gap-4 h-8 my-3">
 
     <!-- This is the left part of the navagation bar with the logo, buttons -->
-    <div id="nav-bar-left" class="flex justify-start items-center gap-10">
+    <div id="nav_bar_left" class="flex justify-start items-center gap-10">
         <img src="/static/images/logo.png" alt="Logo" class="object-contain h-10 w-28">
 
         <!-- This is the center part of the navagation bar with various icons and links. It only appears when user is in dashboard-->
-        {% if nav_bar != 'for_manage_schools' %}
+        {% if select != 'schools' %}
             <div class="flex items-center gap-5">
 
-                <a class="p-2 flex justify-center items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer">
+                <a href="" class="p-2 flex justify-center items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer"
+                        up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
                     <span class="fa fa-home text-theme me-2" style="font-size: 18px;"></span>
                     <span class="text-theme">Home</span>
                 </a>
 
-                <a class="p-2 flex justify-center items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer"
-                            hx-get="/classes/?school_id={{ school.pk }}"
-                            hx-swap="afterbegin">
+                <a href="{% url 'classes' school.pk %}" class="p-2 flex justify-center items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer" 
+                            up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
                     <span class="fa fa-chalkboard text-theme me-2" style="font-size: 18px;"></span>
                     <span class="text-theme">Classes</span>
                 </a>
 
-                <a class="p-2 flex justify-center items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer"
-                            hx-get="/students/?school_id={{ school.pk }}"
-                            hx-swap="afterbegin">
+                <a href="{% url 'students' school.pk %}" class="p-2 flex justify-center items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer" 
+                            up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
                     <span class="fa fa-user-graduate text-theme me-2" style="font-size: 18px;"></span>
                     <span class="text-theme">Students</span>
                 </a>
@@ -42,7 +41,7 @@
     </div>
 
     <!-- This div contains a button for the school dropdown menu, it only appears when user is in school mangement page. -->
-    {% if nav_bar != 'for_manage_schools' %}
+    {% if select != 'schools' %}
         <div id="menu-school" class="menu relative">
             <div id="current-school-infor" school-id="{{ school.pk }}" class="hidden"></div>
             <button class="menu-button grid justify-center items-center
@@ -53,7 +52,7 @@
             </button>
             <!-- Dropdown Menu -->
             <div class="dropdown-menu hidden right-0">
-                <a href="/manage-schools" class="menu-item menu-border rounded-t-xl ">
+                <a href="/schools" class="menu-item menu-border rounded-t-xl ">
                     <i class="fa fa-school ml-3 mr-5"></i> 
                     <span>Manage schools</span>
                 </a>
@@ -67,7 +66,7 @@
 
 
     <!-- This is the right part of the navagation bar with quick settings, and profile dropdown. -->
-    <div id="nav-bar-right" class="flex justify-end items-center gap-5">
+    <div id="nav_bar_right" class="flex justify-end items-center gap-5">
 
         <!-- This div contains quick settings that can be toggled. -->
         <div id="quick-settings" class="flex justify-between gap-4 hidden">

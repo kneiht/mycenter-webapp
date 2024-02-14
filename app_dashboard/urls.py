@@ -2,33 +2,35 @@ from django.urls import re_path
 from django.contrib.auth import views as auth_views
 from . import views, views_db, api
 
-    
+from .views import SchoolViewSet, ClassViewSet, StudentViewSet
 
 
 
-from django.urls import re_path, include
-from rest_framework.routers import DefaultRouter
+from django.urls import re_path
 from . import views
-from .views import SchoolViewSet, StudentViewSet, ClassViewSet, AttendanceViewSet
 
-router = DefaultRouter()
-router.register(r'schools', SchoolViewSet)
-router.register(r'students', StudentViewSet)
-router.register(r'classes', ClassViewSet)
-router.register(r'attendances', AttendanceViewSet)
 
 urlpatterns = [
-    re_path(r'^$', views.landing_page, name='landing_page'),  
-    re_path(r'^school/(?P<pk>\d+)/?$', views.dashboard, name='dashboard'),
-    re_path(r'^manage-schools/?$', views.manage_schools, name='manage_schools'),
-    re_path(r'^classroom/(?P<pk>\d+)/?$', views.classroom, name='classroom'),
+    re_path(r'^schools/?$', SchoolViewSet.as_view(), name='schools'),
+    re_path(r'^schools/(?P<pk>\d+)/?$', SchoolViewSet.as_view(), name='schools_pk'),
+
+    re_path(r'^schools/(?P<school_id>\d+)/dashboard/?$', views.dashboard, name='dashboard'),
+
+    re_path(r'^schools/(?P<school_id>\d+)/classes/?$', ClassViewSet.as_view(), name='classes'),
+    re_path(r'^schools/(?P<school_id>\d+)/classes/(?P<pk>\d+)/?$', ClassViewSet.as_view(), name='classroom'),
+
+    re_path(r'^schools/(?P<school_id>\d+)/students/?$', StudentViewSet.as_view(), name='students'),
+    re_path(r'^schools/(?P<school_id>\d+)/students/(?P<pk>\d+)/?$', StudentViewSet.as_view(), name='students_pk'),
+
+
+
+    
+    #re_path(r'^classroom/(?P<pk>\d+)/?$', views.classroom, name='classroom'),
 
     # DATABASE UPLOAD AND DOWNLOAD
     re_path(r'^download_database_backup/?$', views_db.download_database_backup, name='download_database_backup'),
     re_path(r'^database_handle/?$', views_db.database_handle, name='database_handle'),
 
-    # Include DRF router URLs
-    re_path(r'^', include(router.urls)),
 ]
 
 

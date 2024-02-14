@@ -17,12 +17,6 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.core.paginator import Paginator
 from django.db.models import Q, Count, Sum  # 'Sum' is imported here
 
-from rest_framework import serializers
-from rest_framework import viewsets
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
-
-
 # Import forms
 from .forms import (
     SchoolForm, StudentForm, ClassForm,
@@ -35,6 +29,9 @@ from .models import (
 
 from .html_render import html_render
 
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 def is_admin(user):
     return user.is_authenticated and user.is_active and user.is_staff and user.is_superuser
 
@@ -44,167 +41,45 @@ def landing_page(request):
     rendered_page = render(request, 'pages/single_page.html')
     return rendered_page
 
-
 @login_required
-def dashboard(request, pk=None):
-    request.user
-    school = School.objects.get(pk=pk)
-    context = { 
-        'title': school.name,
-        'page_title': 'Dashboard',
-        'nav_bar': 'dashboard',
-        'page_title': 'Dashboard',
-        'title_bar': 'for_manage_schools',
-        'school': school,
-    }
-    rendered_page = render(request, 'pages/single_page.html', context)
-    return rendered_page
-
-@login_required
-def classroom(request, pk=None):
-    # remember to check if the user has access to the school and the classroom
-    # also remember to check object availability
-    request.user
-    # Assuming you have a Class instance, for example, with id=1
-    class_instance = Class.objects.get(pk=pk)
-    # Retrieve students for the class
-    students_in_class = Student.objects.filter(studentclass___class=class_instance)
-    print(students_in_class)
-    context = { 
-        'records': students_in_class,
-        'title': 'Classroom - ' + class_instance.name,
-        'page_title': 'Classroom - ' + class_instance.name,
-        'title_bar': 'for_manage_classroom',
-        'nav_bar': 'for_manage_classroom',
-        'db_tool_bar': 'for_manage_classroom',
-        'model_url': '',
-        'card': 'card_student_classroom',
-        'school': class_instance.school,
-        'class': class_instance,
-    }
+def dashboard(request, school_id):
+    school = School.objects.filter(pk=school_id).first()
+    context = {'page': 'dashboard', 'title': 'Dashboard', 'school': school}
     return render(request, 'pages/single_page.html', context)
 
 
-@login_required
-def manage_schools(request):
-    user = request.user
-    # Filter the schools based on the user
-    schools = School.objects.filter(users=user).order_by('-id')
-    context = { 
-        'records': schools,
-        'title': 'Manage Schools',
-        'page_title': 'Manage Schools',
-        'nav_bar': 'for_manage_schools',
-        'db_tool_bar': 'for_manage_schools',
-        'model_url': 'schools',
-        'card': 'card_school',
-    }
-    return render(request, 'pages/single_page.html', context)
+
 
 
 # DATABASE MANAGEMENT VIEWS
 #------------------------------
-class BaseViewSet(viewsets.ModelViewSet):
-    queryset = None
-    serializer_class = None
-    permission_classes = [IsAuthenticated]
+class BaseViewSet(LoginRequiredMixin, View):
     model_class = None
     form_class = None
-
+    title =  None
+    page = None
+    base_url = None
     modal = None
-    card = None
-    model_url =None
-    page_title =  None
-    db_tool_bar = None
 
-    def process_form(self, request, instance=None):
-        form = self.form_class(request.POST, request.FILES, instance=instance)
-        if form.is_valid():
-            if self.model_class == School:
-                print('>>>>>>>>>> school')
-                instance_form = form.save(commit=False)
-                instance_form.save()
-                if not instance:
-                    school_user = SchoolUser(school=instance_form, user=request.user)
-                    school_user.save()
- 
-            else:
-                print('>>>>>>>>>> data POST', request.POST)
-                school = School.objects.filter(pk=request.POST.get('school_id')).first()
-                school_user = SchoolUser.objects.filter(school=school, user=request.user).first()
-                if school_user:
-                    print('>>>>>>>>>> other model success')
-                    instance_form = form.save(commit=False)
-                    if not instance:
-                        instance_form.school = school
-                    instance_form.save()
-                    if  self.model_class == Class:
-                        form.save_m2m()      
+    def get_base_url(self, school_id=None):
+        if self.model_class==School:
+            return '/schools/'
+        elif self.model_class==Student:
+            return f'/schools/{school_id}/students/'
+        elif self.model_class==Class:
+            return f'/schools/{school_id}/classes/'
 
-                        # Data from the client
-                        student_ids = request.POST.getlist('students')
-                        payment_required_ids = request.POST.getlist('payment_required')
+    def dispatch(self, request, *args, **kwargs):
+        # Custom dispatch method to route to different actions
+        if 'forms' in request.path:
+            return self.create_form(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
-                        # Convert payment_required_ids to a set for faster lookup
-                        payment_required_set = set(map(int, payment_required_ids))
-
-                        # Update or create StudentClass instances
-                        for student_id in student_ids:
-                            student_id = int(student_id)
-                            payment_required = student_id in payment_required_set
-
-                            StudentClass.objects.update_or_create(
-                                student_id=student_id,
-                                _class=instance_form,
-                                defaults={'payment_required': payment_required}
-                            )
-
-
-                else:
-                    print('>>>>>>>>>> other model failed')
-                    # school not found or school does not belongs to user
-                    return 'failed', instance, form
-
-            return 'success', instance_form, form
-        else:
-            return 'failed', instance_form, form
-
-    @action(detail=True, methods=['get'], url_path='form')
-    def create_form(self, request, pk=None):
-        # Get the instance if pk is provided, use None otherwise
-        record = self.model_class.objects.filter(pk=pk).first() if pk!='new' else None
-        form = self.form_class(instance=record) if record else self.form_class()
-        html_modal = html_render('form', request, form=form, modal=self.modal,record_id=record.pk if record else None, model_url=self.model_url)
-        return HttpResponse(html_modal)
-
-    def create(self, request):
-        result, instance, form = self.process_form(request)
-        if result=='success':
-            html_card = html_render('card', request, card=self.card, record=instance, model_url=self.model_url,swap_oob=False)
-            html_message = html_render('message', request, message='create successfully')
-            return HttpResponse(html_card + html_message)
-        else:
-            html_modal = html_render('form', request, form=form, modal=self.modal, model_url=self.model_url)
-            return HttpResponse(html_modal)
-
-    def update(self, request, **kwargs):
-        instance_id = kwargs.get('pk')
-        instance = get_object_or_404(self.model_class, id=instance_id)
-        result, instance, form = self.process_form(request, instance)
-        if result=='success':
-            html_card = html_render('card', request, card=self.card, record=instance, model_url=self.model_url, swap_oob=True)
-            html_message = html_render('message', request, message='update successfully')
-            return HttpResponse(html_card + html_message)
-        else:
-            html_modal = html_render('form', request, form=form, modal=self.modal, record_id=instance.pk, model_url=self.model_url)
-            return HttpResponse(html_modal)
-
-    def list(self, request):
+    def create_display(self, request, school_id=None):
         if self.model_class==School:
             user = request.user
             records = self.model_class.objects.filter(users=user)
         elif self.model_class in [Student, Class]:
-            school_id = request.GET.get('school_id')
             records = self.model_class.objects.filter(school_id=school_id)
         else:
             records = self.model_class.objects.all()
@@ -237,31 +112,103 @@ class BaseViewSet(viewsets.ModelViewSet):
         if sort_option and hasattr(self.model_class, sort_option):
             records = records.order_by(sort_option)
 
-        # Render the results
-        html_display_cards = html_render('display_cards', request, card=self.card, model_url=self.model_url,records=records)
-        html_title_bar = html_render('title_bar', request, page_title=self.page_title, model_url=self.model_url)
-        html_db_tool_bar = html_render('db_tool_bar', request, db_tool_bar=self.db_tool_bar, model_url=self.model_url)
-        return HttpResponse(html_display_cards + html_title_bar + html_db_tool_bar)
+        context = {
+            'select': self.page, 
+            'title': self.title, 
+            'records': records,
+            'base_url': self.get_base_url(school_id),
+            'school': School.objects.filter(pk=school_id).first() if school_id else None
+        }
+        return render(request, 'pages/single_page.html', context)
+
+    def create_form(self, request, school_id=None, pk=None):
+        # Get the instance if pk is provided, use None otherwise
+        record = self.model_class.objects.filter(pk=pk).first() if pk!='new' else None
+        form = self.form_class(instance=record) if record else self.form_class()
+        record_id = record.pk if record else None
+        html_modal = html_render('form', request, form=form, 
+                                 modal=self.modal, record_id=record_id, 
+                                 base_url=self.get_base_url(school_id), school_id=school_id)
+        return  HttpResponse(html_modal)
+
+    def process_form(self, request, instance=None):
+        form = self.form_class(request.POST, request.FILES, instance=instance)
+        if form.is_valid():
+            if self.model_class == School:
+                instance_form = form.save(commit=False)
+                instance_form.save()
+                if not instance:
+                    school_user = SchoolUser(school=instance_form, user=request.user)
+                    school_user.save()
+            else:
+                school = School.objects.filter(pk=request.POST.get('school_id')).first()
+                school_user = SchoolUser.objects.filter(school=school, user=request.user).first()
+                if school_user:
+                    instance_form = form.save(commit=False)
+                    if not instance:
+                        instance_form.school = school
+                    instance_form.save()
+                    if  self.model_class == Class:
+                        form.save_m2m()      
+
+                        # Data from the client
+                        student_ids = request.POST.getlist('students')
+                        payment_required_ids = request.POST.getlist('payment_required')
+
+                        # Convert payment_required_ids to a set for faster lookup
+                        payment_required_set = set(map(int, payment_required_ids))
+
+                        # Update or create StudentClass instances
+                        for student_id in student_ids:
+                            student_id = int(student_id)
+                            payment_required = student_id in payment_required_set
+                            
+                            StudentClass.objects.update_or_create(
+                                student_id=student_id,
+                                _class=instance_form,
+                                defaults={'payment_required': payment_required}
+                            )
+                else:
+                    # school not found or school does not belongs to user
+                    return 'failed', instance, form
+
+            return 'success', instance_form, form
+        else:
+            return 'failed', instance, form
+
+    def get(self, request, school_id=None, pk=None):
+        get_query = request.GET.get('get')
+        if get_query=='form':
+            return self.create_form(request, school_id, pk)
+        else:
+            return self.create_display(request, school_id)
+
+    def post(self, request, school_id=None, pk=None):
+        print('>>> post request:', request.POST)
+        school = School.objects.filter(pk=school_id).first()
+        if pk:
+            instance = get_object_or_404(self.model_class, id=pk)
+        result, instance, form = self.process_form(request, instance if pk else None)
+
+        if result=='success':
+            html_display_cards = html_render('display_cards', request, select=self.page, records=[instance], base_url=self.get_base_url(school_id), school=school)
+            html_message = html_render('message', request, message='create successfully')
+            return HttpResponse(html_display_cards + html_message)
+        else:
+            record_id=instance.pk if instance else None
+            html_modal = html_render('form', request, form=form, modal=self.modal, record_id=record_id, base_url=self.get_base_url(school_id), school=school)
+            return HttpResponse(html_modal)
 
 
 
-
-class SchoolSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = School
-        fields = ['id', 'name', 'abbreviation', 'description']
 
 class SchoolViewSet(BaseViewSet):
-    queryset = School.objects.all()
-    serializer_class = SchoolSerializer
     model_class = School
     form_class = SchoolForm
+    title =  'Manage Schools'
+    page = 'schools'
+    base_url = '/schools/'
     modal = 'modal_school'
-    card = 'card_school'
-    model_url = 'schools'
-    page_title =  'Manage Schools'
-    db_tool_bar = 'for_manage_schools'
-
     def share_school(request, school_id):
         if request.method == 'POST':
             email = request.POST.get('email')
@@ -281,24 +228,15 @@ class SchoolViewSet(BaseViewSet):
             return JsonResponse({'status': 'error', 'message': 'Invalid request.'})
 
 
-
-class StudentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Student
-        fields = ['id', 'name', 'school', 'money', 'status', 'create_date', 'update_date']
-
 class StudentViewSet(BaseViewSet):
-    queryset = Student.objects.all()
-    serializer_class = StudentSerializer
     model_class = Student
     form_class = StudentForm
+    title =  'Manage Students'
     modal = 'modal_student'
-    card = 'card_student'
-    model_url = 'students'
-    page_title =  'Manage Students'
-    db_tool_bar = 'for_manage_students'
+    page = 'students'
+    base_url = '/students/'
 
-    @action(detail=False, methods=['post'], url_path='reward')
+    #@action(detail=False, methods=['post'], url_path='reward')
     def update_reward_points(self, request):
         if request.method == 'POST':
             # Get the parameters from the URL
@@ -317,7 +255,7 @@ class StudentViewSet(BaseViewSet):
                     student = Student.objects.filter(pk=int(student_id), school=school).first()
                     student.reward_points += int(reward_points)
                     student.save()
-                    html += html_render('card', request, card='card_student_classroom', record=student, model_url=self.model_url,swap_oob=True)
+                    html += html_render('card', request, card='classroom', record=student, model_url=self.model_url,swap_oob=True)
                 except Exception as e:
                     print(e)
 
@@ -331,29 +269,16 @@ class StudentViewSet(BaseViewSet):
             html_message = html_render('message', request, message='update reward failed')
             return HttpResponse(html_message)
 
-    
-
-class ClassSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Class
-        fields = ['id', 'name']
 
 class ClassViewSet(BaseViewSet):
-    queryset = Class.objects.all()
-    serializer_class = ClassSerializer
     model_class = Class
     form_class = ClassForm
+    title =  'Manage Classes'
+    page = 'classes'
     modal = 'modal_class'
-    card = 'card_class'
-    model_url = 'classes'
-    page_title =  'Manage Classes'
-    db_tool_bar = 'for_manage_classes'
+    base_url = '/classes/'
 
-class AttendanceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Attendance
-        fields = ['student']
-
+'''
 class AttendanceViewSet(BaseViewSet):
     queryset = Attendance.objects.all()
     serializer_class = AttendanceSerializer
@@ -362,7 +287,7 @@ class AttendanceViewSet(BaseViewSet):
     modal = 'modal_attendance'
     card = 'card_attendance'
     model_url = 'attendances'
-    page_title =  'Manage Attendances'
+    title =  'Manage Attendances'
     db_tool_bar = 'for_manage_attendances'
 
     @action(detail=False, methods=['post'], url_path='class')
@@ -472,8 +397,29 @@ class AttendanceViewSet(BaseViewSet):
         print('>>>>>>>>>> attendance_data:', attendance_data)
         return JsonResponse({'status': 'success', 'attendance_data': attendance_data})
 
+'''
+
+
+
+
 
 '''
+@login_required
+def classroom(request):
+    #class_instance = Class.objects.get(pk=pk)
+    # Retrieve students for the class
+    #students_in_class = Student.objects.filter(studentclass___class=class_instance)
+    inputs = { 
+        'model': Student,
+        'title': 'Manage Classroom',
+        'select': 'classroom',
+    }
+    return list_records(request, **inputs)
+
+
+
+
+
 # MANAGEMENT =================================================================
 @login_required
 def manage_other_models(request, model_name_plural):
