@@ -124,7 +124,12 @@ class BaseViewSet(LoginRequiredMixin, View):
     def create_form(self, request, school_id=None, pk=None):
         # Get the instance if pk is provided, use None otherwise
         record = self.model_class.objects.filter(pk=pk).first() if pk!='new' else None
-        form = self.form_class(instance=record) if record else self.form_class()
+        
+        # Pass school_id to the form of classes
+        if self.model_class==Class:
+            form = self.form_class(instance=record, school_id=school_id) if record else self.form_class(school_id=school_id)
+        else:
+            form = self.form_class(instance=record) if record else self.form_class()
         record_id = record.pk if record else None
         html_modal = html_render('form', request, form=form, 
                                  modal=self.modal, record_id=record_id, 
@@ -155,22 +160,29 @@ class BaseViewSet(LoginRequiredMixin, View):
                         student_ids = request.POST.getlist('students')
                         payment_required_ids = request.POST.getlist('payment_required')
 
-                        # Convert payment_required_ids to a set for faster lookup
-                        payment_required_set = set(map(int, payment_required_ids))
+                        # Existing student-class relationships
+                        existing_student_classes = StudentClass.objects.filter(_class=instance_form)
 
-                        # Update or create StudentClass instances
+                        # Update existing relationships
+                        for student_class in existing_student_classes:
+                            if str(student_class.student.id) in student_ids:
+                                student_class.is_payment_required = str(student_class.student.id) in payment_required_ids
+                                student_class.save()
+                                student_ids.remove(str(student_class.student.id))
+                            else:
+                                # Remove the student from the class if they're no longer included
+                                student_class.delete()
+
+                        # Add new students to the class
                         for student_id in student_ids:
-                            student_id = int(student_id)
-                            payment_required = student_id in payment_required_set
-                            
-                            StudentClass.objects.update_or_create(
-                                student_id=student_id,
+                            student = Student.objects.get(id=student_id)
+                            StudentClass.objects.create(
+                                student=student,
                                 _class=instance_form,
-                                defaults={'payment_required': payment_required}
+                                is_payment_required=student_id in payment_required_ids,
                             )
-                else:
-                    # school not found or school does not belongs to user
-                    return 'failed', instance, form
+
+                        return 'success', instance_form, form
 
             return 'success', instance_form, form
         else:
@@ -207,7 +219,7 @@ class SchoolViewSet(BaseViewSet):
     form_class = SchoolForm
     title =  'Manage Schools'
     page = 'schools'
-    base_url = '/schools/'
+    base_url = None
     modal = 'modal_school'
     def share_school(request, school_id):
         if request.method == 'POST':
@@ -234,7 +246,7 @@ class StudentViewSet(BaseViewSet):
     title =  'Manage Students'
     modal = 'modal_student'
     page = 'students'
-    base_url = '/students/'
+    base_url = None
 
     #@action(detail=False, methods=['post'], url_path='reward')
     def update_reward_points(self, request):
@@ -276,8 +288,8 @@ class ClassViewSet(BaseViewSet):
     title =  'Manage Classes'
     page = 'classes'
     modal = 'modal_class'
-    base_url = '/classes/'
-
+    base_url = None
+    
 '''
 class AttendanceViewSet(BaseViewSet):
     queryset = Attendance.objects.all()

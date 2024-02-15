@@ -2,9 +2,11 @@
 from django import forms
 
 from django.shortcuts import get_object_or_404
-from django.forms import Widget
 
-from .models import School, Student, Class
+
+from django.db.models import Exists, OuterRef, Case, When, Value, BooleanField
+
+from .models import School, Student, Class, StudentClass
 
 class SchoolForm(forms.ModelForm):
     class Meta:
@@ -81,16 +83,54 @@ class ClassForm(forms.ModelForm):
                 'required': 'required',
                 'class': 'form-input'
             }),
-            'students': forms.SelectMultiple(attrs={
-                'class': 'form-input'
-            }),
             'image': forms.FileInput(attrs={
                 'class': 'form-input-file'
             }),
         }
 
+    def __init__(self, *args, **kwargs):
+        school_id = kwargs.pop('school_id', None)
+        super().__init__(*args, **kwargs)
+        if school_id is not None:
+            self.school_id = school_id
+        else:
+            self.school_id = None
+
     def get_students(self):
-        return Student.objects.all()
+        class_instance = self.instance
+
+        # Check if the class instance exists
+        if not class_instance.pk:
+            # The class isn't saved yet; return all students from the specified school without extra processing
+            return Student.objects.filter(school_id=self.school_id).order_by('name')
+
+        # Annotate each student with a flag indicating if they are in this class
+        student_in_class_subquery = StudentClass.objects.filter(
+            student=OuterRef('pk'), _class=class_instance
+        )
+        students = Student.objects.filter(school_id=self.school_id).annotate(
+            in_class=Exists(student_in_class_subquery)
+        ).order_by('-in_class', '-pk')
+
+        # Convert the QuerySet to a list to avoid duplicate queries on iteration
+        students_list = list(students)
+
+        # Fetch all StudentClass instances for the current class to reduce query count
+        student_classes = {sc.student_id: sc for sc in StudentClass.objects.filter(_class=class_instance)}
+
+        # Set `is_payment_required` on each student object
+        for student in students_list:
+            # Check if there's a StudentClass instance for this student and class
+            student_class = student_classes.get(student.id)
+            if student_class:
+                # Directly attach the is_payment_required attribute from StudentClass
+                student.is_payment_required = student_class.is_payment_required
+            else:
+                # Default to False if no StudentClass instance exists
+                student.is_payment_required = False
+
+        return students_list
+
 
 
 '''

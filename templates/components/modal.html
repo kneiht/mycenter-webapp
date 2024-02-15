@@ -84,10 +84,14 @@
                                 </div>
                                 {% for student in form.get_students %}
                                     <div class="border-b pb-0.5 flex justify-between w-full">
-                                        <span class="w-4/6"> {{ student}} </span>
-                                        <span class="w-1/6 text-center"><input type="checkbox" class="checkbox" name="students" value="{{ student.id }}"></span>
-
-                                        <span class="w-1/6 text-center"><input type="checkbox" class="checkbox" name="payment_required" value="{{ student.id }}"></span>
+                                        <span class="w-4/6"> {{ student.name }} </span>
+                                        <span class="w-1/6 text-center">
+                                            <input type="checkbox" class="checkbox" name="students" value="{{ student.id }}" {% if student.in_class %} checked {% endif %}>
+                                        </span>
+                    
+                                        <span class="w-1/6 text-center">
+                                            <input type="checkbox" class="checkbox" name="payment_required" value="{{ student.id }}" {% if student.is_payment_required %} checked {% endif %}>
+                                        </span>
                                     </div>
                                 {% endfor %}
                             </div>
