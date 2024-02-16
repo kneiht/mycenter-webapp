@@ -6,6 +6,22 @@ function changeUrl(newUrl) {
     history.pushState(stateObj, "page title", newUrl);
 }
 
+// CSRF TOKEN =========================================
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
 
 // ADD, REMOVE, TOGGLE, CLICK ELSEWHERE =========================================
 function modifyClass(selectorOrElement, classNames, operation) {
@@ -52,7 +68,7 @@ function toggleClass(selectorOrElement, classNames) {
 
 
 // THEME CHANGE =========================================
-document.addEventListener('DOMContentLoaded', () => {
+up.compiler('body', function(element) {
     const themeToggles = document.querySelectorAll('#theme-toggle');
     const storedTheme = localStorage.getItem('theme'); 
     console.log(storedTheme);
@@ -199,11 +215,28 @@ class CardStyler {
 
 
 // CHECK ATTTENDANCE STUDENTS =========================================
-document.addEventListener('DOMContentLoaded', function() {
+up.compiler('#attendance-controls', function() {
+    let checkDate = document.querySelector('#check_date');
+    // check if there is check_date in params, if yes, set the value of checkDate to it
+    let urlParams = new URLSearchParams(window.location.search);
+    let check_date = urlParams.get('check_date');
+    if (check_date) {
+        checkDate.value = check_date;
+    }
+    else {
+        checkDate.value = new Date().toISOString().slice(0, 10);
+    }
+
+    checkDate.addEventListener('change', function() {
+        let url = window.location.href.split('?')[0] + `?check_date=${checkDate.value}`;
+        up.render({url: url, method: 'get', target: ':main', history: 'true', })
+    });
+    
     // Function to fetch attendance data
     async function fetchAndApplyAttendanceData(classId, checkDate) {
         try {
-            const response = await fetch(`/attendances/by-class/?class_id=${classId}&check_date=${checkDate}`);
+            const url = window.location.href.split('?')[0] + `?get=attendance&check_date=${checkDate}`;
+            const response = await fetch(url);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -238,11 +271,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function sendAttendance() {
         // Correcting the typo in the selector from 'current-school-infor' to 'current-school-info'
-        let schoolId = document.querySelector('#current-school-infor').getAttribute('school-id');
         let classId = document.querySelector('#class-infor').getAttribute('class-id');
-        let checkDate = document.querySelector('#attendance-check-date').value;
+        let checkDate = document.querySelector('#check_date').value;
 
-        console.log('schoolId:', schoolId, 'classId:', classId, 'checkDate:', checkDate);
+        console.log('classId:', classId, 'checkDate:', checkDate);
         // A helper function to collect student IDs based on attendance status
         function collectStudentIds(status) {
             return Array.from(document.querySelectorAll(`#display_cards .${status}`))
@@ -259,25 +291,25 @@ document.addEventListener('DOMContentLoaded', function() {
         // Creating FormData object to send data
         let formData = {
             'check_date': checkDate,
-            'school_id':schoolId,
-            'class_id':classId,
             'present': present_students,
             'absent': absent_students,
             'late': late_students,
             'left_early': left_early_students
         };
         console.log('formData:', formData);
-        // Sending the request with FormData using HTMX
-        htmx.ajax('POST', '/attendances/class/', {
-            values: formData,
-            swap: 'afterbegin'
+        const url = window.location.href.split('?')[0] + `?post=attendance&check_date=${checkDate}`;
+        up.render({
+            url: url,
+            method: 'post',
+            headers: {'X-CSRFToken': csrftoken,},
+            params: formData,
+            target: ':none',
         });
     }
     
     let confirmAttendanceButton = document.querySelector('#button-confirm-attendance');
     confirmAttendanceButton.addEventListener('click', function() {
         sendAttendance();
-
     });
 
     const cardStyler = new CardStyler();
@@ -291,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function() {
             attendanceControls.classList.remove('hidden');
             // Fetch attendance data
             let classId = document.querySelector('#class-infor').getAttribute('class-id');
-            let checkDate = document.querySelector('#attendance-check-date').value;
+            let checkDate = document.querySelector('#check_date').value;
             
             if (checkDate === '') {
                 checkDate = new Date().toISOString().split('T')[0];
@@ -308,20 +340,20 @@ document.addEventListener('DOMContentLoaded', function() {
             attendanceControls.classList.add('hidden');
         }
     });
-    document.querySelectorAll('#display_cards .card').forEach(card => {
-        card.addEventListener('click', function() {
-            if (attendanceControls.getAttribute('active') === 'true') {
-                cardStyler.circleAttendanceState(card);
-            }
-        })
-    });
 
+    document.querySelector('#display_cards').addEventListener('click', function(event) {
+        // Select card
+        const card = event.target.closest('.card');
+        if (attendanceControls.getAttribute('active') === 'true') {
+            cardStyler.circleAttendanceState(card);
+        }
+    });
 });
 
 
 
 // REWARD STUDENTS =========================================
-document.addEventListener('DOMContentLoaded', function() {
+up.compiler('#reward-controls', function() {
     function selectStudents(selectorOrElement, action) {
         if (document.querySelector('#reward-controls').getAttribute("active") === "true") {
             if (typeof selectorOrElement === 'string') {
@@ -349,9 +381,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function reward(upOrDown) {
         // Assuming `schoolId` is available as a data attribute on an element with the ID `current-school-info`
         let schoolId = document.querySelector('#current-school-infor').getAttribute("school-id");
-        
-        // Getting the value of the stars input
-        let rewardPoints = document.querySelector('#stars').value;
+
+        // Getting the value of the reward_points input
+        let rewardPoints = document.querySelector('#reward_points').value;
         
         if (upOrDown === 'down') {
             rewardPoints = rewardPoints * -1;
@@ -361,10 +393,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         .map(card => card.getAttribute('record-id'))
                         .join('-');
         
-        let url = `/students/reward/?school_id=${schoolId}&reward_points=${rewardPoints}&students=${students}`;
-        
-        // Using HTMX to make the POST request
-        htmx.ajax('POST', url, {swap: 'afterbegin'});
+        let url = `/schools/${schoolId}/students/?post=reward&reward_points=${rewardPoints}&students=${students}`;
+        up.render({
+            url: url, 
+            method: 'post', 
+            headers: {'X-CSRFToken': csrftoken,},
+            target: ':none',
+        })
+
     }
 
     let rewardControls = document.querySelector('#reward-controls');
@@ -383,13 +419,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Add event listener to each card
-    document.querySelectorAll('#display_cards .card').forEach(card => {
-        card.addEventListener('click', function() {
-            // Select the card
-            selectStudents(card, "toggle");
-        });
-    });
     document.querySelector('#select-all').addEventListener('click', function() {
         // Select all cards
         selectStudents('#display_cards .card', "select");
@@ -401,6 +430,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('#select-reverse').addEventListener('click', function() {
         // Select reserve cards
         selectStudents('#display_cards .card', "toggle");
+    });
+
+    document.querySelector('#display_cards').addEventListener('click', function(event) {
+        // Select card
+        const card = event.target.closest('.card');
+        if (card) {
+            selectStudents(card, "toggle");
+        }
     });
 
     document.querySelector('#wow').addEventListener('click', function() {

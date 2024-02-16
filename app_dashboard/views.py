@@ -19,7 +19,7 @@ from django.db.models import Q, Count, Sum  # 'Sum' is imported here
 
 # Import forms
 from .forms import (
-    SchoolForm, StudentForm, ClassForm,
+    SchoolForm, StudentForm, ClassForm, AttendanceForm
 )
 # Import models
 from django.contrib.auth.models import User
@@ -69,11 +69,6 @@ class BaseViewSet(LoginRequiredMixin, View):
         elif self.model_class==Class:
             return f'/schools/{school_id}/classes/'
 
-    def dispatch(self, request, *args, **kwargs):
-        # Custom dispatch method to route to different actions
-        if 'forms' in request.path:
-            return self.create_form(request, *args, **kwargs)
-        return super().dispatch(request, *args, **kwargs)
 
     def create_display(self, request, school_id=None):
         if self.model_class==School:
@@ -248,38 +243,38 @@ class StudentViewSet(BaseViewSet):
     page = 'students'
     base_url = None
 
-    #@action(detail=False, methods=['post'], url_path='reward')
-    def update_reward_points(self, request):
-        if request.method == 'POST':
-            # Get the parameters from the URL
-            school_id = request.GET.get('school_id')
-            reward_points = request.GET.get('reward_points')
-            student_ids = request.GET.get('students')
-            # Split student_ids by "-" to get a list of individual student IDs
-            student_id_list = student_ids.split('-')
-
-            # Find the school (assuming you have a School model)
-            school = get_object_or_404(School, pk=int(school_id))
-            html = ''
-            # Update reward points for selected students
-            for student_id in student_id_list:
-                try:
-                    student = Student.objects.filter(pk=int(student_id), school=school).first()
-                    student.reward_points += int(reward_points)
-                    student.save()
-                    html += html_render('card', request, card='classroom', record=student, model_url=self.model_url,swap_oob=True)
-                except Exception as e:
-                    print(e)
-
-            html_message = html_render('message', request, message='update reward points successfully')
-
-            
-            return HttpResponse(html + html_message)
-
+    def post(self, request, school_id=None, pk=None):
+        post_query = request.GET.get('post')
+        if post_query=='reward':
+            return  self.update_reward_points(request, school_id)
         else:
-            # Handle other HTTP methods if needed
-            html_message = html_render('message', request, message='update reward failed')
-            return HttpResponse(html_message)
+            return super().get(request, school_id, pk)
+
+
+    def update_reward_points(self, request, school_id=None):
+        # Get the parameters from the URL
+        reward_points = request.GET.get('reward_points')
+        student_ids = request.GET.get('students')
+        # Split student_ids by "-" to get a list of individual student IDs
+        student_id_list = student_ids.split('-')
+
+        # Find the school (assuming you have a School model)
+        school = get_object_or_404(School, pk=int(school_id))
+        # Update reward points for selected students
+        html = ''
+        for student_id in student_id_list:
+            try:
+                student = Student.objects.filter(pk=int(student_id), school=school).first()
+                student.reward_points += int(reward_points)
+                student.save()
+            except Exception as e:
+                print(e)
+        students = Student.objects.filter(pk__in=student_id_list, school=school)
+        html += html_render('display_cards', request, select='classroom', records=students, base_url=self.get_base_url(school_id), school=school)
+        html += html_render('message', request, message='update reward points successfully')
+        return HttpResponse(html)
+
+
 
 
 class ClassViewSet(BaseViewSet):
@@ -290,85 +285,42 @@ class ClassViewSet(BaseViewSet):
     modal = 'modal_class'
     base_url = None
     
-'''
-class AttendanceViewSet(BaseViewSet):
-    queryset = Attendance.objects.all()
-    serializer_class = AttendanceSerializer
-    model_class = Attendance
-    form_class = None
-    modal = 'modal_attendance'
-    card = 'card_attendance'
-    model_url = 'attendances'
-    title =  'Manage Attendances'
-    db_tool_bar = 'for_manage_attendances'
+    def get(self, request, school_id=None, pk=None):
+        get_query = request.GET.get('get')
+        if get_query=='attendance':
+            return self.get_attendance_by_class(request, school_id, pk)
+        else:
+            if get_query or not pk:
+                return super().get(request, school_id, pk)
+            else:
+                return self.create_display_classroom(request, school_id, pk)
 
-    @action(detail=False, methods=['post'], url_path='class')
-    def class_check_attendance(self, request):
-        # Parsing the JSON data sent from HTMX
-        data = request.POST
-        school_id = data.get('school_id')
-        class_id = data.get('class_id')
-        check_date_str = data.get('check_date')  # Assuming 'checkDate' is sent in the format 'YYYY-MM-DD HH:MM'
-        print('>>>>>>>>>> class_check_attendance data:', data)
-        # Assuming 'school_id' can be directly used to find a class, adjust as needed
-        check_class = get_object_or_404(Class, id=class_id)
-        if not check_class:
-            html_message = html_render('message', request, message='update attendance failed')
-            return HttpResponse(html_message)
-
-        # Function to process students by status
-        def process_students(status, student_ids_str):
-            if student_ids_str:
-                student_ids = student_ids_str.split('-')
-                for student_id in student_ids:
-                    student = Student.objects.filter(id=student_id).first()
-                    if student:
-                        print('>>>>>>>>>> student:', student)
-                        # Parse the check_date_str to a datetime object
-                        try:
-                            # If parsing with '%Y-%m-%d' fails, try parsing with '%Y-%m-%dT%H:%M'
-                            check_datetime = datetime.strptime(check_date_str, '%Y-%m-%dT%H:%M')
-                        except ValueError:
-                            # Handle invalid date formats here
-                            check_datetime = timezone.now()
-                                
-                        # Filter Attendance objects based on student and check_date
-                        attendance = Attendance.objects.filter(
-                            student=student,
-                            check_class=check_class,
-                            check_date__date=check_datetime.date()
-                        ).first()
-
-                        # If an attendance record exists for the same date, update it
-                        if attendance:
-                            attendance.status = status
-                            attendance.is_payment_required = True
-                            attendance.check_date = check_datetime  # Update check_datetime if needed
-                            attendance.save()
-                        else:
-                            # Create a new Attendance record if none exists for the same date
-                            attendance = Attendance.objects.create(
-                                student=student,
-                                check_class=check_class,
-                                check_date=check_datetime,  # Use the parsed check_datetime here
-                                status=status,
-                                is_payment_required=True
-                            )
-
-        # Process each status
-        process_students('present', data.get('present', ''))
-        process_students('absent', data.get('absent', ''))
-        process_students('late', data.get('late', ''))
-        process_students('left_early', data.get('left_early', ''))
-
-        html_message = html_render('message', request, message='update attendance successfully')
-        return HttpResponse(html_message)
+    def post(self, request, school_id=None, pk=None):
+        post_query = request.GET.get('post')
+        if post_query=='attendance':
+            return self.update_class_attendance(request, school_id, pk)
+        else:
+            return super().post(request, school_id, pk)
 
 
-    @action(detail=False, methods=['get'], url_path='by-class')
-    def get_attendance_by_class(self, request):
+    def create_display_classroom(self, request, school_id, pk):
+        class_instance = get_object_or_404(Class, pk=pk)
+        check_date = request.GET.get('check_date')
+        students_in_class = Student.objects.filter(studentclass___class=class_instance)
+        context = {
+            'class_instance': class_instance,
+            'records': students_in_class,
+            'select': 'classroom',
+            'title': f'{class_instance.name}',
+            'school': School.objects.filter(pk=school_id).first(),
+            'base_url': self.get_base_url(school_id),
+        }
+        return render(request, 'pages/single_page.html', context)
+
+
+    def get_attendance_by_class(self, request, school_id, pk):
         # Get class_id and checkDate from request parameters
-        class_id = request.GET.get('class_id')
+        class_id = pk
         check_date_str = request.GET.get('check_date')  # 'YYYY-MM-DD'
         print('>>>>>>>>>> request.GET:', request.GET)
         
@@ -409,7 +361,82 @@ class AttendanceViewSet(BaseViewSet):
         print('>>>>>>>>>> attendance_data:', attendance_data)
         return JsonResponse({'status': 'success', 'attendance_data': attendance_data})
 
-'''
+
+    def update_class_attendance(self, request, school_id, pk):
+        # Parsing the JSON data
+        class_id = pk
+        data = request.POST
+        check_date_str = data.get('check_date')  # Assuming 'checkDate' is sent in the format 'YYYY-MM-DD HH:MM'
+        print('>>>>>>>>>> class_check_attendance data:', data)
+        # Assuming 'school_id' can be directly used to find a class, adjust as needed
+        check_class = get_object_or_404(Class, id=class_id)
+        if not check_class:
+            html_message = html_render('message', request, message='update attendance failed')
+            return HttpResponse(html_message)
+
+        # Function to process students by status
+        def process_students(status, student_ids_str):
+            if student_ids_str:
+                student_ids = student_ids_str.split('-')
+                for student_id in student_ids:
+                    student = Student.objects.filter(id=student_id).first()
+                    if student:
+                        print('>>>>>>>>>> student:', student)
+                        # Parse the check_date_str to a datetime object
+                        try:
+                            # If parsing with '%Y-%m-%d' fails, try parsing with '%Y-%m-%dT%H:%M'
+                            check_datetime = datetime.strptime(check_date_str, '%Y-%m-%d')
+                        except ValueError:
+                            # Handle invalid date formats here
+                            check_datetime = timezone.now()
+                                
+                        # Filter Attendance objects based on student and check_date
+                        attendance = Attendance.objects.filter(
+                            student=student,
+                            check_class=check_class,
+                            check_date__date=check_datetime.date()
+                        ).first()
+                        print('>>>>>>>>>> attendance:', attendance)
+
+                        # If an attendance record exists for the same date, update it
+                        if attendance:
+                            attendance.status = status
+                            attendance.is_payment_required = True
+                            attendance.check_date = check_datetime  # Update check_datetime if needed
+                            attendance.save()
+                        else:
+                            # Create a new Attendance record if none exists for the same date
+                            attendance = Attendance.objects.create(
+                                student=student,
+                                check_class=check_class,
+                                check_date=check_datetime,  # Use the parsed check_datetime here
+                                status=status,
+                                is_payment_required=True
+                            )
+
+        # Process each status
+        process_students('present', data.get('present', ''))
+        process_students('absent', data.get('absent', ''))
+        process_students('late', data.get('late', ''))
+        process_students('left_early', data.get('left_early', ''))
+
+        html_message = html_render('message', request, message='update attendance successfully')
+        return HttpResponse(html_message)
+
+
+
+class AttendanceViewSet(BaseViewSet):
+    model_class = Attendance
+    form_class = AttendanceForm
+    title =  'Manage Attendance'
+    modal = 'modal_attendance'
+    page = 'attendance'
+    base_url = None
+
+
+
+
+
 
 
 

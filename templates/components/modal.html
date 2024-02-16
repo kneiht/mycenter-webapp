@@ -1,6 +1,6 @@
 
 {% if modal == 'modal_message' %}
-    <div id="modal-message">
+    <div id="modal_message" up-hungry>
         <div class="modal z-50 fixed inset-0 bg-slate-600 bg-opacity-80 overflow-y-auto h-full w-full flex justify-center">
 
             <!-- Modal Content -->
@@ -21,7 +21,7 @@
         </div>
     </div>
 {% elif modal != 'modal_message' %}  
-    <div id="modal-form">
+    <div id="modal_form" up-hungry>
         <div class="modal z-50 fixed inset-0 bg-slate-600 bg-opacity-80 overflow-y-auto h-full w-full flex justify-center">
 
             <!-- Modal Content -->
@@ -32,10 +32,10 @@
                 <form enctype="multipart/form-data" method="post"
                     {% if record_id %}
                         action="{{ base_url }}{{ record_id }}"
-                        up-target="#modal-form:maybe, #modal-message:maybe, #record_{{ record_id }}:maybe"
+                        up-target="#modal_form:maybe, #modal_message:maybe, #record_{{ record_id }}:maybe"
                     {% else %}]
                         action="{{ base_url }}"
-                        up-target="#modal-form:maybe, #modal-message:maybe, #display_cards:before:maybe"
+                        up-target="#modal_form:maybe, #modal_message:maybe, #display_cards:before:maybe"
                     {% endif %} >
 
 

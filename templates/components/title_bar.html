@@ -5,7 +5,7 @@
         {% if select == 'classroom' %}
             <div id='class-infor' class="hidden" class-id="{{ class.pk }}"></div>
             <div class="flex gap-4">
-                <input id="attendance-check-date" type="datetime-local" name="attendance_check_date" class="form-input"> 
+                <input id="check_date" type="date" name="check_date" class="form-input"> 
                 <button id="attendance-button" class="max-sm:hidden btn btn-primary text-nowrap">
 
                     <i class="fas fa-plus me-3" style="font-size: 16px;"></i>
@@ -14,7 +14,7 @@
             </div>
         {% else %}
             <a href="{{ base_url }}?get=form" class="max-sm:hidden btn btn-primary"
-                    up-target="#modal-form" up-history="false">
+                    up-target="#modal_form" up-history="false">
                 <i class="fas fa-plus me-3" style="font-size: 16px;"></i>
                 <span class="max-sm:hidden me-3"> Add new </span>
             </a>

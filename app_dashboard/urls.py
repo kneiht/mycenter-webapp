@@ -22,6 +22,8 @@ urlpatterns = [
     re_path(r'^schools/(?P<school_id>\d+)/students/?$', StudentViewSet.as_view(), name='students'),
     re_path(r'^schools/(?P<school_id>\d+)/students/(?P<pk>\d+)/?$', StudentViewSet.as_view(), name='students_pk'),
 
+    re_path(r'^schools/(?P<school_id>\d+)/attendances/?$', StudentViewSet.as_view(), name='attendances'),
+    re_path(r'^schools/(?P<school_id>\d+)/attendances/(?P<pk>\d+)/?$', StudentViewSet.as_view(), name='attendances_pk'),
 
 
     

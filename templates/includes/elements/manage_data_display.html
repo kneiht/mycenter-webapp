@@ -33,7 +33,7 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end px-2 py-1" aria-labelledby="dropdownMenuButton">
                   <li>
-                    <a class="create-modal-form dropdown-item border-radius-md" data-id-record="{{ record.id }}" data-model-name="{{ model_name }}">
+                    <a class="create-modal_form dropdown-item border-radius-md" data-id-record="{{ record.id }}" data-model-name="{{ model_name }}">
                       <div class="d-flex py-1">
                         <div class="my-auto">
                           <img src="{% static 'img/icons/edit.png' %}" class="avatar avatar-xs me-3">
@@ -47,7 +47,7 @@
 
                   {% if model_name == "student" %}
                   <li>
-                    <a class="create-modal-form dropdown-item border-radius-md" data-id-record="" data-model-name="pay_tuition" data-student-id="{{ record.id }}">
+                    <a class="create-modal_form dropdown-item border-radius-md" data-id-record="" data-model-name="pay_tuition" data-student-id="{{ record.id }}">
                       <div class="d-flex py-1">
                         <div class="my-auto">
                           <img src="{% static 'img/icons/money.png' %}" class="avatar avatar-xs me-3">
@@ -62,7 +62,7 @@
                   </li>
 
                   <li>
-                    <a href="{% url 'student_attendance_calendar' record.id %}" class="create-modal-form dropdown-item border-radius-md" target="_blank" rel="noopener noreferrer">
+                    <a href="{% url 'student_attendance_calendar' record.id %}" class="create-modal_form dropdown-item border-radius-md" target="_blank" rel="noopener noreferrer">
                       <div class="d-flex py-1">
                         <div class="my-auto">
                           <img src="{% static 'img/icons/calendar.png' %}" class="avatar avatar-xs me-3">
@@ -490,7 +490,7 @@
                       </a>
                         <ul class="dropdown-menu px-2 py-1" aria-labelledby="dropdownTable" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate3d(0px, 25.5px, 0px);" data-popper-placement="bottom-start">
                           <li>
-                            <a class="create-modal-form dropdown-item border-radius-md" data-id-record="{{ record.id }}" data-model-name="{{ model_name }}">
+                            <a class="create-modal_form dropdown-item border-radius-md" data-id-record="{{ record.id }}" data-model-name="{{ model_name }}">
                               <div class="d-flex py-1">
                                 <div class="my-auto">
                                   <img src="{% static 'img/icons/edit.png' %}" class="avatar avatar-xs me-3">
@@ -504,7 +504,7 @@
 
                           {% if model_name == "student" %}
                           <li>
-                            <a class="create-modal-form dropdown-item border-radius-md" data-id-record="" data-model-name="pay_tuition" data-student-id="{{ record.id }}">
+                            <a class="create-modal_form dropdown-item border-radius-md" data-id-record="" data-model-name="pay_tuition" data-student-id="{{ record.id }}">
                               <div class="d-flex py-1">
                                 <div class="my-auto">
                                   <img src="{% static 'img/icons/money.png' %}" class="avatar avatar-xs me-3">
@@ -519,7 +519,7 @@
                           </li>
 
                           <li>
-                            <a href="{% url 'student_attendance_calendar' record.id %}" class="create-modal-form dropdown-item border-radius-md" target="_blank" rel="noopener noreferrer">
+                            <a href="{% url 'student_attendance_calendar' record.id %}" class="create-modal_form dropdown-item border-radius-md" target="_blank" rel="noopener noreferrer">
                               <div class="d-flex py-1">
                                 <div class="my-auto">
                                   <img src="{% static 'img/icons/calendar.png' %}" class="avatar avatar-xs me-3">

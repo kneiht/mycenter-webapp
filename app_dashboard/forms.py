@@ -4,7 +4,7 @@ from django import forms
 from django.shortcuts import get_object_or_404
 
 
-from django.db.models import Exists, OuterRef, Case, When, Value, BooleanField
+from django.db.models import Exists, OuterRef
 
 from .models import School, Student, Class, StudentClass
 
@@ -130,6 +130,11 @@ class ClassForm(forms.ModelForm):
                 student.is_payment_required = False
 
         return students_list
+
+
+
+class AttendanceForm(forms.ModelForm):
+    pass
 
 
 

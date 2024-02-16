@@ -1,6 +1,6 @@
     
 <script>
-    $(document).on('click', '.create-modal-form', function() {
+    $(document).on('click', '.create-modal_form', function() {
         // Get the values of the data attributes
         var idRecord = $(this).data("id-record");
         var modelName = $(this).data("model-name");

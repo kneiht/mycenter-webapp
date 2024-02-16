@@ -1,3 +1,6 @@
+ý tưởng dùng cách này để lưu điểm danh để đỡ số lượng dòng
+{'check_date': ['2024-02-15'], 'present': ['4-5-3-6'], 'absent': [''], 'late': [''], 'left_early': ['']}
+xóa time ra khỏi check date
 
 tailwind
 https://stackoverflow.com/questions/63392426/how-to-use-tailwindcss-with-django
