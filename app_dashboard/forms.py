@@ -6,16 +6,17 @@ from django.shortcuts import get_object_or_404
 
 from django.db.models import Exists, OuterRef
 
-from .models import School, Student, Class, StudentClass
+from .models import (School, Student, Class, 
+                     StudentClass, FinancialTransaction, Attendance)
 
 class SchoolForm(forms.ModelForm):
     class Meta:
         model = School
-        fields = ['name', 'abbreviation', 'description', 'image']
+        fields = ['name', 'description', 'image']
         help_texts = {
             'abbreviation': 'This is used as a prefix to student ID',
         }
-
+    
         widgets = {
             'name': forms.TextInput(attrs={
                     'placeholder': 'Your school name',
@@ -35,7 +36,7 @@ class SchoolForm(forms.ModelForm):
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
-        fields = ['name', 'status', 'gender', 'date_of_birth', 'parents', 'phones', 'reward_points', 'image']
+        fields = ['name', 'status', 'gender', 'date_of_birth', 'parents', 'phones', 'reward_points', 'balance', 'note', 'image']
         widgets = {
             'name': forms.TextInput(attrs={
                 'placeholder': 'Student name',
@@ -57,7 +58,7 @@ class StudentForm(forms.ModelForm):
                 'placeholder': 'Student phones',
                 'class': 'form-input'
             }),
-            'status': forms.Select(attrs={
+            'status': forms.TextInput(attrs={
                 'class': 'form-input'
             }),
             'note': forms.Textarea(attrs={
@@ -65,6 +66,9 @@ class StudentForm(forms.ModelForm):
                 'rows': 2
             }),
             'reward_points': forms.NumberInput(attrs={
+                'class': 'form-input'
+            }),
+            'balance': forms.NumberInput(attrs={
                 'class': 'form-input'
             }),
             'image': forms.FileInput(attrs={
@@ -76,7 +80,7 @@ class StudentForm(forms.ModelForm):
 class ClassForm(forms.ModelForm):
     class Meta:
         model = Class
-        fields = ['name', 'image', 'students']
+        fields = ['name', 'image', 'students', 'price_per_hour',  'note']
         widgets = {
             'name': forms.TextInput(attrs={
                 'placeholder': 'Class name',
@@ -85,6 +89,13 @@ class ClassForm(forms.ModelForm):
             }),
             'image': forms.FileInput(attrs={
                 'class': 'form-input-file'
+            }),
+            'price_per_hour': forms.NumberInput(attrs={
+                'class': 'form-input'
+            }),
+            'note': forms.Textarea(attrs={
+                'class': 'form-input',
+                'rows': 2
             }),
         }
 
@@ -134,10 +145,73 @@ class ClassForm(forms.ModelForm):
 
 
 class AttendanceForm(forms.ModelForm):
-    pass
+    # form for attendance
+    class Meta:
+        model = Attendance
+        fields = ['check_date', 'status', 'learning_hours', 'note', 'price_per_hour', 'is_payment_required']
+        widgets = {
+            'check_date': forms.DateTimeInput(attrs={
+                'class': 'form-input',
+                'type': 'datetime-local'
+            }),
+            'status': forms.TextInput(attrs={
+                'class': 'form-input'
+            }),
+            'learning_hours': forms.NumberInput(attrs={
+                'class': 'form-input'
+            }),
+            'note': forms.Textarea(attrs={
+                'class': 'form-input',
+                'rows': 2
+            }),
+            'price_per_hour': forms.NumberInput(attrs={
+                'class': 'form-input'
+            }),
+            'is_payment_required': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+        }
 
 
 
+class FinancialTransactionForm(forms.ModelForm):
+    class Meta:
+        model = FinancialTransaction
+        fields = ['income_or_expense', 'transaction_type', 'giver', 'receiver', 'amount', 'student', 
+                  'student_balance_increase', 'legacy_discount', 'legacy_tuition_plan', 'note']
+        widgets = {
+            'income_or_expense': forms.Select(attrs={
+                'class': 'form-input'
+            }),
+            'transaction_type': forms.TextInput(attrs={
+                'class': 'form-input'
+            }),
+            'giver': forms.TextInput(attrs={
+                'class': 'form-input'
+            }),
+            'receiver': forms.TextInput(attrs={
+                'class': 'form-input'
+            }),
+            'amount': forms.NumberInput(attrs={
+                'class': 'form-input'
+            }),
+            'student': forms.Select(attrs={
+                'class': 'form-input'
+            }),
+            'student_balance_increase': forms.NumberInput(attrs={
+                'class': 'form-input'
+            }),
+            'legacy_discount': forms.TextInput(attrs={
+                'class': 'form-input'
+            }),
+            'legacy_tuition_plan': forms.TextInput(attrs={
+                'class': 'form-input'
+            }),
+            'note': forms.Textarea(attrs={
+                'class': 'form-input',
+                'rows': 2
+            }),
+        }
 '''
 
 # CourseForm

@@ -1,12 +1,19 @@
+# security issues
+# https://chat.openai.com/share/16295269-0f56-4c6a-8cd7-7ea903fdaf86
+# cần check truy cập trang cần đúng school_id and user
+
 # Python Standard Library Imports
 import json
-from datetime import datetime
+
+from datetime import datetime, timedelta
+from collections import defaultdict 
 import time
+from calendar import monthrange
 
 # Django and Other Third-Party Imports
 from django.apps import apps
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render, redirect
 
 from django.urls import reverse
@@ -15,16 +22,17 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from django.core.paginator import Paginator
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q, Count, Sum  # 'Sum' is imported here
 
 # Import forms
 from .forms import (
-    SchoolForm, StudentForm, ClassForm, AttendanceForm
+    SchoolForm, StudentForm, ClassForm, AttendanceForm, FinancialTransactionForm
 )
 # Import models
 from django.contrib.auth.models import User
 from .models import (
-    School, Student, SchoolUser, Class, StudentClass, Attendance
+    School, Student, SchoolUser, Class, StudentClass, Attendance, FinancialTransaction
 )
 
 from .html_render import html_render
@@ -49,8 +57,6 @@ def dashboard(request, school_id):
 
 
 
-
-
 # DATABASE MANAGEMENT VIEWS
 #------------------------------
 class BaseViewSet(LoginRequiredMixin, View):
@@ -58,47 +64,68 @@ class BaseViewSet(LoginRequiredMixin, View):
     form_class = None
     title =  None
     page = None
-    base_url = None
     modal = None
 
-    def get_base_url(self, school_id=None):
-        if self.model_class==School:
-            return '/schools/'
-        elif self.model_class==Student:
-            return f'/schools/{school_id}/students/'
-        elif self.model_class==Class:
-            return f'/schools/{school_id}/classes/'
-
+    def check_school_user(self, request, school_id):
+        school = School.objects.filter(pk=school_id).first()
+        school_user = SchoolUser.objects.filter(school=school, user=request.user).first()
+        if school_user:
+            return True
+        else:
+            return False
 
     def create_display(self, request, school_id=None):
         if self.model_class==School:
             user = request.user
             records = self.model_class.objects.filter(users=user)
-        elif self.model_class in [Student, Class]:
-            records = self.model_class.objects.filter(school_id=school_id)
-        else:
-            records = self.model_class.objects.all()
+        elif self.model_class in [Student, Class, FinancialTransaction, Attendance]:
+            if self.check_school_user(request, school_id):
+                records = self.model_class.objects.filter(school_id=school_id)
+            else:
+                return HttpResponseForbidden("Access restricted to users of the school.")
 
         # Get the and sort option from the request
         sort_option = request.GET.get('sort', 'default')
+
+        # Determine the fields to be used as filter options based on the selected page
+        if self.page == 'schools':
+            fields = ['all', 'name', 'description']
+        elif self.page == 'students':
+            fields = ['all', 'name','status', 'gender', 'parents', 'phones']
+        elif self.page == 'classes':
+            fields = ['all', 'name']
+        elif self.page == 'financial_transactions':
+            fields = ['all', 'amount']
+        else:
+            fields = ['all']
 
         # Get all query parameters except 'sort' as they are assumed to be field filters
         query_params = {k: v for k, v in request.GET.lists() if k != 'sort'}
         print('>>>>>>>>>> query_params:', query_params)
         # Construct Q objects for filtering
         combined_query = Q()
-        for field, values in query_params.items():
-            # Check if the model has the field to avoid invalid queries
-            if field == 'school_id':
-                continue
-            try:
-                self.model_class._meta.get_field(field)
-                field_query = Q()
-                for value in values:
-                    field_query |= Q(**{f"{field}__icontains": value})
-                combined_query &= field_query
-            except FieldDoesNotExist:
-                print(f"Ignoring invalid field: {field}")
+        if 'all' in query_params:
+            specified_fields = fields[1:]  # Exclude 'all' to get the specified fields
+            all_fields_query = Q()
+            for value in query_params['all']:
+                for specified_field in specified_fields:
+                    if specified_field in [field.name for field in self.model_class._meta.get_fields()]:
+                        all_fields_query |= Q(**{f"{specified_field}__icontains": value})
+            combined_query &= all_fields_query
+        else:
+            for field, values in query_params.items():
+                if field in fields:
+                    try:
+                        self.model_class._meta.get_field(field)
+                        field_query = Q()
+                        for value in values:
+                            field_query |= Q(**{f"{field}__icontains": value})
+                        combined_query &= field_query
+                    except FieldDoesNotExist:
+                        print(f"Ignoring invalid field: {field}")
+
+        # Filter records based on the query
+        records = records.filter(combined_query)
 
         # Filter records based on the query
         records = records.filter(combined_query)
@@ -107,13 +134,34 @@ class BaseViewSet(LoginRequiredMixin, View):
         if sort_option and hasattr(self.model_class, sort_option):
             records = records.order_by(sort_option)
 
+
+        if self.model_class == Student:
+            for student in records:
+                # Summarize all balance increase from financialtransactions
+                balance_increase = FinancialTransaction.objects.filter(student=student).aggregate(Sum('student_balance_increase'))['student_balance_increase__sum'] or 0
+                
+                # Calculate total price from attendances
+                total_price = 0
+                attendances = Attendance.objects.filter(student=student)
+                for attendance in attendances:
+                    if attendance.price_per_hour and attendance.learning_hours and attendance.is_payment_required:
+                        total_price += attendance.price_per_hour * attendance.learning_hours
+                
+                # Calculate final balance
+                student.balance = balance_increase - total_price
+
+
+
         context = {
             'select': self.page, 
             'title': self.title, 
             'records': records,
-            'base_url': self.get_base_url(school_id),
+            'fields':  fields,
             'school': School.objects.filter(pk=school_id).first() if school_id else None
         }
+
+
+
         return render(request, 'pages/single_page.html', context)
 
     def create_form(self, request, school_id=None, pk=None):
@@ -128,7 +176,7 @@ class BaseViewSet(LoginRequiredMixin, View):
         record_id = record.pk if record else None
         html_modal = html_render('form', request, form=form, 
                                  modal=self.modal, record_id=record_id, 
-                                 base_url=self.get_base_url(school_id), school_id=school_id)
+                                 school_id=school_id)
         return  HttpResponse(html_modal)
 
     def process_form(self, request, instance=None):
@@ -198,12 +246,12 @@ class BaseViewSet(LoginRequiredMixin, View):
         result, instance, form = self.process_form(request, instance if pk else None)
 
         if result=='success':
-            html_display_cards = html_render('display_cards', request, select=self.page, records=[instance], base_url=self.get_base_url(school_id), school=school)
+            html_display_cards = html_render('display_cards', request, select=self.page, records=[instance], school=school)
             html_message = html_render('message', request, message='create successfully')
             return HttpResponse(html_display_cards + html_message)
         else:
             record_id=instance.pk if instance else None
-            html_modal = html_render('form', request, form=form, modal=self.modal, record_id=record_id, base_url=self.get_base_url(school_id), school=school)
+            html_modal = html_render('form', request, form=form, modal=self.modal, record_id=record_id, school=school)
             return HttpResponse(html_modal)
 
 
@@ -214,7 +262,6 @@ class SchoolViewSet(BaseViewSet):
     form_class = SchoolForm
     title =  'Manage Schools'
     page = 'schools'
-    base_url = None
     modal = 'modal_school'
     def share_school(request, school_id):
         if request.method == 'POST':
@@ -241,14 +288,13 @@ class StudentViewSet(BaseViewSet):
     title =  'Manage Students'
     modal = 'modal_student'
     page = 'students'
-    base_url = None
 
     def post(self, request, school_id=None, pk=None):
         post_query = request.GET.get('post')
         if post_query=='reward':
             return  self.update_reward_points(request, school_id)
         else:
-            return super().get(request, school_id, pk)
+            return super().post(request, school_id, pk)
 
 
     def update_reward_points(self, request, school_id=None):
@@ -270,7 +316,7 @@ class StudentViewSet(BaseViewSet):
             except Exception as e:
                 print(e)
         students = Student.objects.filter(pk__in=student_id_list, school=school)
-        html += html_render('display_cards', request, select='classroom', records=students, base_url=self.get_base_url(school_id), school=school)
+        html += html_render('display_cards', request, select='classroom', records=students, school=school)
         html += html_render('message', request, message='update reward points successfully')
         return HttpResponse(html)
 
@@ -283,7 +329,6 @@ class ClassViewSet(BaseViewSet):
     title =  'Manage Classes'
     page = 'classes'
     modal = 'modal_class'
-    base_url = None
     
     def get(self, request, school_id=None, pk=None):
         get_query = request.GET.get('get')
@@ -297,6 +342,7 @@ class ClassViewSet(BaseViewSet):
 
     def post(self, request, school_id=None, pk=None):
         post_query = request.GET.get('post')
+        print('>>>>>>>>>> post_query:', post_query)
         if post_query=='attendance':
             return self.update_class_attendance(request, school_id, pk)
         else:
@@ -313,7 +359,6 @@ class ClassViewSet(BaseViewSet):
             'select': 'classroom',
             'title': f'{class_instance.name}',
             'school': School.objects.filter(pk=school_id).first(),
-            'base_url': self.get_base_url(school_id),
         }
         return render(request, 'pages/single_page.html', context)
 
@@ -401,7 +446,6 @@ class ClassViewSet(BaseViewSet):
                         # If an attendance record exists for the same date, update it
                         if attendance:
                             attendance.status = status
-                            attendance.is_payment_required = True
                             attendance.check_date = check_datetime  # Update check_datetime if needed
                             attendance.save()
                         else:
@@ -411,7 +455,6 @@ class ClassViewSet(BaseViewSet):
                                 check_class=check_class,
                                 check_date=check_datetime,  # Use the parsed check_datetime here
                                 status=status,
-                                is_payment_required=True
                             )
 
         # Process each status
@@ -431,9 +474,148 @@ class AttendanceViewSet(BaseViewSet):
     title =  'Manage Attendance'
     modal = 'modal_attendance'
     page = 'attendance'
-    base_url = None
+
+    def get(self, request, school_id=None, pk=None):
+        if request.GET.get('get')=='calendar':
+            return self.student_attendance_calendar(request, school_id)
+        else:
+            return super().get(request, school_id, pk)
+
+    def zstudent_attendance_calendar(self,request, school_id):
+        student_id = request.GET.get('student_id')
+        student = get_object_or_404(Student, pk=student_id)
+        payments = FinancialTransaction.objects.filter(student=student).order_by('created_at')
+        payment_id = request.GET.get('payment_id')
+
+        attendances = Attendance.objects.filter(student=student).order_by('check_date')
+
+        if payment_id and (payment_id !="unpaid"):
+            selected_payment = get_object_or_404(FinancialTransaction, pk=payment_id)
+
+            # Calculate the sum of learning hours up to and not including the selected payment
+            paid_hours_before_payment = 0
+            for payment in payments:
+                if payment.create_date < selected_payment.create_date:
+                    paid_hours_before_payment += payment.tuition_plan.number_of_hours
+                    if payment == selected_payment:
+                        break
+            # Calculate the sum of learning hours up to and including the selected payment
+            paid_hours_up_to_payment = paid_hours_before_payment + selected_payment.tuition_plan.number_of_hours
+
+            # Filter attendances based on the cumulative hours
+            cumulative_attendance_hours = 0
+            filtered_attendance_ids = []
+            for attendance in attendances:
+                if attendance.is_paid_class:
+                    cumulative_attendance_hours += attendance.learning_hours
+
+                if (cumulative_attendance_hours > paid_hours_before_payment) and (cumulative_attendance_hours <= paid_hours_up_to_payment):
+                    filtered_attendance_ids.append(attendance.id)
+                elif cumulative_attendance_hours > paid_hours_up_to_payment:
+                    break
+            attendances = Attendance.objects.filter(id__in=filtered_attendance_ids)
+
+        elif payment_id == "unpaid":
+            # Calculate the sum of learning hours up to and not including the selected payment
+            total_paid_hours = 0
+            for payment in payments:
+                total_paid_hours += payment.tuition_plan.number_of_hours
+
+            # Filter attendances based on the cumulative hours
+            cumulative_attendance_hours = 0
+            filtered_attendance_ids = []
+            for attendance in attendances:
+                if attendance.is_paid_class:
+                    cumulative_attendance_hours += attendance.learning_hours
+                if cumulative_attendance_hours > total_paid_hours:
+                    filtered_attendance_ids.append(attendance.id)
+            attendances = Attendance.objects.filter(id__in=filtered_attendance_ids)
 
 
+        # Query your attendances and select_related or prefetch_related if needed
+        attendances = attendances.order_by('check_date')
+        #attendances_json = serialize('json', attendances.order_by('check_date'))
+
+        # Use 'values' to get a dictionary with the fields you need
+        attendances_list = list(attendances.values(
+            # get the list of fields you need from model
+            'id', 'check_class', 'check_date', 'status', 
+            'learning_hours', 'price_per_hour', 'is_payment_required'
+
+        ))
+        
+        # Convert the dictionary list to JSON
+        attendances_json = json.dumps(attendances_list, cls=DjangoJSONEncoder)
+
+        context = {
+            'page': 'attendance',
+            'title': 'Manage Attendance',
+            'attendances_json': attendances_json,
+            'student': student,
+            'payments': payments,
+            'selected_payment_id': payment_id,
+            'school': School.objects.filter(pk=school_id).first(),
+        }
+        print('>>>>>>>>>> context:', context)
+        return render(request, 'pages/single_page.html', context)
+
+    def student_attendance_calendar(self, request, school_id):
+        student_id = request.GET.get('student_id')
+        student = get_object_or_404(Student, pk=student_id)
+
+        # Assume we fetch the earliest and latest attendance dates for the student to define the range
+        # For demonstration, replace these with actual queries if available
+        earliest_attendance_date = Attendance.objects.filter(student=student).earliest('check_date').check_date
+        latest_attendance_date = Attendance.objects.filter(student=student).latest('check_date').check_date
+
+        # Adjust start_day and end_day to cover all attendance records
+        start_day = earliest_attendance_date - timedelta(days=earliest_attendance_date.weekday())
+        end_day = latest_attendance_date + timedelta(days=6 - latest_attendance_date.weekday())
+
+        # Fetch attendances within the expanded date range
+        attendances = Attendance.objects.filter(
+            student=student,
+            check_date__range=(start_day, end_day)
+        ).order_by('check_date')
+        
+        # Organize attendances by date
+        attendances_by_date = defaultdict(list)
+        for attendance in attendances:
+            attendances_by_date[attendance.check_date.date()].append(attendance)
+
+        # Initialize data structure for months
+        months = defaultdict(lambda: {'days': []})
+        current_day = start_day
+        while current_day <= end_day:
+            day_data = {
+                'date': current_day,
+                'attendances': attendances_by_date.get(current_day.date(), [])
+            }
+            months[current_day.strftime("%Y-%m")]['days'].append(day_data)
+            current_day += timedelta(days=1)
+
+        # Convert months to a list if you want a sorted result
+        months_list = [{'month': month, 'days': data['days']} for month, data in sorted(months.items())]
+
+        context = {
+            'page': 'attendance',
+            'title': 'Manage Attendance',
+            'school': School.objects.filter(pk=school_id).first(),
+            'student': student,
+            'months': months_list,
+            'today': datetime.today(),
+        }
+
+        return render(request, 'pages/single_page.html', context)
+
+
+
+class FinancialTransactionViewSet(BaseViewSet):
+    model_class = FinancialTransaction
+    form_class = FinancialTransactionForm
+    title =  'Manage Financial Transactions'
+    modal = 'modal_financial_transaction'
+    page = 'financial_transactions'
 
 
 

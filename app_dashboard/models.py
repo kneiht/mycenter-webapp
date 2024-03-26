@@ -10,8 +10,6 @@ from PIL import Image
 import io
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
-
-
 from django.db.models.fields.files import ImageFieldFile
 from datetime import datetime, date
 import json
@@ -20,10 +18,34 @@ import json
 from django.db import models
 from django.contrib.auth.models import User
 
+from django.db.models import Max
+from django.db import transaction
 
-class School(models.Model):
+class BaseModel(models.Model):
+    def some_common_method(self):
+        # Some common behavior
+        pass
+
+    class Meta:
+        abstract = True
+
+class SecondaryIDMixin(models.Model):
+    secondary_id = models.IntegerField(blank=True, null=True)
+    class Meta:
+        abstract = True  # This makes it a mixin, not a standalone model
+
+    def save(self, *args, **kwargs):
+        if self._state.adding and hasattr(self, 'school'):
+            with transaction.atomic():
+                highest_id = self.__class__.objects.filter(
+                    school=self.school
+                ).aggregate(max_secondary_id=Max('secondary_id'))['max_secondary_id'] or 0
+                self.secondary_id = highest_id + 1
+        super().save(*args, **kwargs)
+
+
+class School(BaseModel):
     name = models.CharField(max_length=100)
-    abbreviation = models.CharField(max_length=20, blank=True, null=True, default='')
     description = models.TextField(blank=True, null=True, default='')
     image = models.ImageField(upload_to='images/schools/', blank=True, null=True, default='images/default/default_school.webp')
     users = models.ManyToManyField(User, through='SchoolUser')
@@ -57,7 +79,7 @@ class Values(models.Model):
     def __str__(self):
         return self.key
 
-class Student(models.Model):
+class Student(SecondaryIDMixin, BaseModel):
     GENDER_CHOICES = (("male", "Male"), ("female", "Female"), ("other", "Other"))
     school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)
     classes = models.ManyToManyField('Class', through='StudentClass', blank=True)
@@ -68,18 +90,23 @@ class Student(models.Model):
     phones = models.CharField(max_length=50, default="", blank=True, null=True)
     status =  models.CharField(max_length=50, default="New", blank=True, null=True)
     reward_points = models.IntegerField(default=0, blank=True)
+    balance = models.IntegerField(default=0, blank=True)
     image = models.ImageField(upload_to='images/profiles/', blank=True, null=True, default='images/default/default_profile.webp')
+    note = models.TextField(default="", blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     def __str__(self):
         return str(self.name)
 
 
-class Class(models.Model):
+class Class(SecondaryIDMixin, BaseModel):
     school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=255, default="New class")
     students = models.ManyToManyField('Student', through='StudentClass', blank=True)
     image = models.ImageField(upload_to='images/classes/', blank=True, null=True, default='images/default/default_class.webp')
+    price_per_hour =  models.IntegerField(default=0, null=True, blank=True)
+    note = models.TextField(default="", blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
+
     def __str__(self):
         return f"{str(self.name)}"
 
@@ -95,22 +122,44 @@ class StudentClass(models.Model):
         return f"{self.student.name} - {self._class.name}"
 
 
-class Attendance(models.Model):
-
+class Attendance(SecondaryIDMixin, BaseModel):
+    school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True)
     check_class = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True)
     check_date = models.DateTimeField(default=timezone.now)
     status = models.CharField(max_length=20)
     learning_hours = models.FloatField(default=1.5, null=True, blank=True)
-    payment_mount = models.FloatField(default=0, null=True, blank=True)
-
+    price_per_hour = models.IntegerField(default=0, null=True, blank=True)
     is_payment_required = models.BooleanField(default=True)
+    note = models.TextField(default="", blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
 
     def save(self, *args, **kwargs):
         # Set the microsecond part to zero before saving
         if self.check_date:
             self.check_date = self.check_date.replace(microsecond=0)
+        
+        self.price_per_hour = self.check_class.price_per_hour
+        # get is_payment_required from the StudentClass
+        if self.student and self.check_class:
+            try:
+                student_class = StudentClass.objects.get(student=self.student, _class=self.check_class)
+                self.is_payment_required = student_class.is_payment_required
+            except StudentClass.DoesNotExist:
+                self.is_payment_required = True
+        
+        # If the attendance is being created, update the student's balance
+        if self._state.adding and self.student and self.is_payment_required:
+            self.student.balance = self.student.balance - self.price_per_hour * self.learning_hours
+            self.student.save()
+        # If the attendance is being updated, update the student's balance
+        elif not self._state.adding and self.student and self.is_payment_required:
+            # Fetch the old learning hours and old_price_per_hour
+            old_learning_hours = Attendance.objects.get(pk=self.pk).learning_hours
+            old_price_per_hour = Attendance.objects.get(pk=self.pk).price_per_hour
+            # Update the balance
+            self.student.balance = self.student.balance + old_price_per_hour * old_learning_hours - self.price_per_hour * self.learning_hours
+            self.student.save()
         super(Attendance, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -119,6 +168,76 @@ class Attendance(models.Model):
 
 
 
+class FinancialTransaction(SecondaryIDMixin, BaseModel):
+    school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)
+    IN_OR_OUT_CHOICES = (
+        ('income', 'Income'),
+        ('expense', 'Expense'),
+    )
+    income_or_expense = models.CharField(max_length=20, choices=IN_OR_OUT_CHOICES)
+    transaction_type = models.CharField(max_length=255)
+    giver = models.CharField(max_length=100, default="Unspecified", null=True, blank=True)
+    receiver = models.CharField(max_length=100, default="Unspecified", null=True, blank=True)
+    amount = models.IntegerField(default=0, null=True, blank=True)
+
+    # fields for tuition payments
+    student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True, blank=True)
+    student_balance_increase = models.IntegerField(default=0, null=True, blank=True)
+    #tuition_plan = models.ForeignKey(TuitionPlan, on_delete=models.SET_NULL, null=True, blank=True)
+    #discount = models.ForeignKey(Discount, on_delete=models.SET_NULL, null=True)
+    note = models.TextField(default="", blank=True, null=True)
+    legacy_discount = models.TextField(default="", blank=True, null=True)
+    legacy_tuition_plan = models.TextField(default="", blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.transaction_type}"
+    
+    def save(self, *args, **kwargs):
+        # The balance is calculated based on the transaction type
+        if self.student and self.amount: 
+            if self._state.adding: # If the transaction is being created
+                self.student.balance = self.student.balance + self.amount
+                self.student.save()
+            else: # If the transaction is being updated
+                # Fetch the old amount
+                old_amount = FinancialTransaction.objects.get(pk=self.pk).amount
+                # Update the balance
+                self.student.balance = self.student.balance - old_amount + self.amount
+            self.student.save()
+
+        super().save(*args, **kwargs)
+
+
+
+'''    def save(self, *args, **kwargs):
+        if self.student and self.tuition_plan:
+            self.transaction_type = "income_tuition_fee"
+            self.receiver = "GEN8 English School"
+            self.giver = self.student.name
+
+            percent = self.discount.discount_value
+            self.final_fee = int(self.tuition_plan.price * (1 - percent))
+
+            self.amount = int(self.final_fee)
+            
+        self.final_fee = int(self.final_fee)
+        self.amount = int(self.amount)
+
+        if self.transaction_type.startswith('income'):
+            self.income_or_expense = 'income'
+        else:
+            self.income_or_expense = 'expense'
+
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        if self.student and self.tuition_plan:
+            return f"{str(self.tuition_plan.plan)} - {str(self.student)} - {format_vnd(self.amount)} - {self.create_date}"
+        else:
+            return f"{str(self.transaction_type)} - {format_vnd(self.amount)} - {self.create_date}"
+
+'''
 
 
 
@@ -130,7 +249,7 @@ class Attendance(models.Model):
 
 
 
-
+'''
 
 class Course(models.Model):
     name = models.CharField(max_length=255, default="")
@@ -194,7 +313,7 @@ def format_vnd(amount):
     return formatted_str[::-1] + " VNĐ"
 
 
-class BaseModel(models.Model):
+class zBaseModel(models.Model):
     class Meta:
         abstract = True  # Specify this model as Abstract
 
@@ -358,71 +477,6 @@ class Discount(BaseModel):
         return self.name
 
 
-class FinancialTransaction(BaseModel):
-    IN_OR_OUT_CHOICES = (
-        ('income', 'Income'),
-        ('expense', 'Expense'),
-    )
-
-    TRANSACTION_TYPES = (
-        ('income_tuition_fee', 'INCOME - Tuition Fee'),
-        ('income_capital_contribution', 'INCOME - Capital Contribution'),
-        ('income_product_sales', 'INCOME - Product Sales'),
-        ('income_other_income', 'INCOME - Other Income'),
-        ('expense_operational_expenses', 'EXPENSE - Operational Expenses'),
-        ('expense_asset_expenditure', 'EXPENSE - Asset Expenditure'),
-        ('expense_marketing_expenses', 'EXPENSE - Marketing Expenses'),
-        ('expense_salary_expenses', 'EXPENSE - Salary Expenses'),
-        ('expense_dividend_distribution', 'EXPENSE - Dividend Distribution'),
-        ('expense_event_organization_expenses', 'EXPENSE - Event Organization Expenses'),
-        ('expense_human_resources_expenses', 'EXPENSE - Human Resources Expenses'),
-        ('expense_other_expenses', 'EXPENSE - Other Expenses'),
-    )
-    income_or_expense = models.CharField(max_length=20, choices=IN_OR_OUT_CHOICES)
-    transaction_type = models.CharField(max_length=255, choices=TRANSACTION_TYPES)
-    permission_giver = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='given_transactions', blank=True)
-    giver = models.CharField(max_length=100, default="Unspecified", null=True, blank=True)
-    receiver = models.CharField(max_length=100, default="Unspecified", null=True, blank=True)
-    amount = models.IntegerField(default=0, null=True, blank=True)
-
-    # fields for tuition payments
-    student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True, blank=True)
-    tuition_plan = models.ForeignKey(TuitionPlan, on_delete=models.SET_NULL, null=True, blank=True)
-    discount = models.ForeignKey(Discount, on_delete=models.SET_NULL, null=True)
-    final_fee = models.IntegerField(default=0, null=True, blank=True)
-
-    create_date = models.DateTimeField(default=timezone.now)
-    note = models.TextField(default="", blank=True, null=True)
-
-
-    def save(self, *args, **kwargs):
-        if self.student and self.tuition_plan:
-            self.transaction_type = "income_tuition_fee"
-            self.receiver = "GEN8 English School"
-            self.giver = self.student.name
-
-            percent = self.discount.discount_value
-            self.final_fee = int(self.tuition_plan.price * (1 - percent))
-
-            self.amount = int(self.final_fee)
-            
-        self.final_fee = int(self.final_fee)
-        self.amount = int(self.amount)
-
-        if self.transaction_type.startswith('income'):
-            self.income_or_expense = 'income'
-        else:
-            self.income_or_expense = 'expense'
-
-        return super().save(*args, **kwargs)
-
-    def __str__(self):
-        if self.student and self.tuition_plan:
-            return f"{str(self.tuition_plan.plan)} - {str(self.student)} - {format_vnd(self.amount)} - {self.create_date}"
-        else:
-            return f"{str(self.transaction_type)} - {format_vnd(self.amount)} - {self.create_date}"
-
-
 from django.utils.deconstruct import deconstructible
 from uuid import uuid4
 import os
@@ -444,3 +498,4 @@ class TransactionImage(BaseModel):
     image = models.ImageField(upload_to=PathAndRename('images/finance_images/'))
 
 
+'''

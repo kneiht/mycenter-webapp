@@ -11,10 +11,114 @@
 
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
 
     <!-- CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/unpoly@3.7.3/unpoly.min.css">
     <link id="style" href="{% static 'css/styles.css' %}" rel="stylesheet" />
+    <style>
+        body {
+          background-color: #f8f8f8; /* Soft UI often uses light, neutral backgrounds */
+        }
+      
+        #calendar-container {
+          background-color: #ffffff;
+          border-radius: 15px; /* Soft UI typically has rounded corners */
+          box-shadow: 0 8px 30px rgba(0,0,0,0.12); /* Soft UI uses subtle shadows for depth */
+          overflow: hidden; /* Ensures the child elements adhere to the container's border radius */
+          border: 1px solid #e0e0e0; /* Optional: adds a subtle border */
+        }
+      
+        #weekdays, .week {
+          display: flex;
+          background: #ecf0f3; /* A light grey background for the weekdays header */
+        }
+        #weekdays .day, .week .day {
+          flex: 1; /* Each cell will take up an equal amount of space */
+          text-align: center;
+          padding: 12px 0; /* Uniform padding for vertical alignment */
+          color: #333;
+          font-weight: 600; /* Slightly bolder font for better readability */
+        }
+        #weekdays .day {
+          border-bottom: 1px solid #dcdcdc; /* A light border to separate header from the calendar body */
+        }
+        .week .day {
+          position: relative;
+          background-color: #fff; /* Soft UI elements often have a flat, light color */
+          border-right: 1px solid #dcdcdc; /* Separators between days */
+          border-bottom: 1px solid #dcdcdc; /* Separators between weeks */
+        }
+        .week .day:last-child {
+          border-right: none; /* Remove the right border for the last day of the week */
+        }
+        .week:last-child .day {
+          border-bottom: none; /* Remove the bottom border for the last week */
+        }
+        .week .day .date {
+          margin-top: 0px; /* Space from the top of the cell */
+          font-size: 0.8em;
+        }
+        .week .day .status {
+          display: inline-block; /* Inline-block for automatic width */
+          padding: 4px 7px;
+          border-radius: 10px; /* Rounded corners for status labels */
+          font-size: 0.8em;
+          bottom: 10px;
+          left: 50%;
+          text-align: center;
+           margin-top: 0.5em;
+          font-weight: 500;
+          cursor: pointer;
+        }
+        .week .day .status.present {
+          margin: 5px; /* Space from the top of the cell */
+          background-color: lightgreen; /* A soft green for presence */
+        }
+        .week .day .status.absent {
+          margin: 5px; /* Space from the top of the cell */
+          background-color: tomato; /* A soft red for absence */
+        }
+      
+        .week .day .status.late {
+          margin: 5px; /* Space from the top of the cell */
+          background-color: lightblue; /* A soft red for absence */
+        }
+        .week .day .status.left_early {
+          margin: 5px; /* Space from the top of the cell */
+          background-color: plum; /* A soft red for absence */
+        }
+      
+      
+        /* Hover effect for days */
+        .week .day:hover {
+          background-color: #f6f6f6; /* A light hover state */
+        }
+
+        /* Custom CSS for text stroke */
+        .text-stroke {
+        text-shadow: 
+            -1px -1px 0 #fff,  
+            1px -1px 0 #fff,
+            -1px  1px 0 #fff,
+            1px  1px 0 #fff; /* Stroke effect */
+        }
+
+      </style>
+
+      <style>
+        .truncate-start {
+          direction: rtl; /* Reverse the direction of the text */
+          text-overflow: ellipsis; /* Apply ellipsis when overflow occurs */
+          overflow: hidden; /* Ensure overflow content is not visible */
+          white-space: nowrap; /* Prevent text from wrapping to the next line */
+        }
+
+        .truncate-start > * {
+          direction: ltr; /* Correct the direction of the content inside */
+        }
+
+      </style>
 
     <!-- JS -->
 
@@ -24,7 +128,7 @@
 
 
 <!-- Add CSRF token for htmx -->
-<body class="px-4 bg-slate-100 dark:bg-slate-900 min-h-full" style="font-family: 'Roboto';">
+<body class="px-4 bg-[#F0F2F5] dark:bg-slate-900 min-h-full" style="font-family: 'Open Sans';">
     
     <!-- A place holder for displaying modal -->
     <div id="modal_form" up-hungry></div>
@@ -34,25 +138,30 @@
     {% include 'components/nav_bar.html' %}
 
     <!-- The main display -->
-    <main class="flex mt-4 gap-3">
+    {% if page == 'attendance' %}
+        <main class="flex mt-4 gap-3">
+            <div class="overflow-y-scroll w-full pr-2" style="height: 89vh;">
+                {% include 'components/title_bar.html' %}
+                {% include 'components/display_attendance_calendar.html' %}
+            </div>
+        </main>
+        
+    {% else %}
+        <main class="flex mt-4 gap-3">
+            <!-- Keep the display fit the screen, only content inside can be scrolled -->
+            <div class="overflow-y-scroll w-full pr-2 pb-10" style="height: 89vh;">
+                <!-- The title bar -->
+                {% include 'components/title_bar.html' %}
+                <!-- The tool bar for database filter, sort and more -->
+                {% include 'components/db_tool_bar.html' %}
+                <!-- The cards display -->
+                {% include 'components/display_cards.html' %}
+            </div>
+            <!-- The information panel -->
+            <!-- {% include 'components/infor_bar.html' %} -->
+        </main>
 
-        <!-- Keep the display fit the screen, only content inside can be scrolled -->
-        <div class="overflow-y-scroll w-full pr-2" style="height: 89vh;">
-
-            <!-- The title bar -->
-            {% include 'components/title_bar.html' %}
-
-            <!-- The tool bar for database filter, sort and more -->
-            {% include 'components/db_tool_bar.html' %}
-    
-            <!-- The cards display -->
-            {% include 'components/display_cards.html' %}
-        </div>
-    
-        <!-- The information panel -->
-        <!-- {% include 'components/infor_bar.html' %} -->
-
-    </main>
+    {% endif %}
     
    
     <!-- js libs -->
@@ -63,9 +172,6 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/unpoly@3.7.3/unpoly.min.js"></script>
-    <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/htmx.org/dist/ext/multi-swap.js"></script>
     <script src="/static/js/main.js"></script>
     
 

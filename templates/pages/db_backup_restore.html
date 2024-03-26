@@ -1,18 +1,5 @@
-{% extends "layouts/base.html" %}
-{% load static %}
 
-{% block title %}
-Datbase backup and restore
-{% endblock %}
 
-{% block extra_style %}
-{% endblock %}
-
-{% block title %}
-Datbase backup and restore
-{% endblock %}
-
-{% block content %}
     <div class="container-fluid">
         <div class="flex flex-col py-4">
             <h3 class='mb-4'>Upload excel file to batch update mysql</h3>
@@ -40,13 +27,8 @@ Datbase backup and restore
 
 
 
-{% endblock content %}
-
-
-{% block extra_script %}
     <script>
         function unlockUploadButton() {
             document.getElementById("upload-button").disabled = false;
         }
     </script>
-{% endblock extra_script %}

@@ -1,25 +1,42 @@
+{% load custom_tags %}
 
 
-<div up-hungry id="record_{{ record.pk }}" record-id="{{ record.pk }}" class="card p-2">
+<div up-hungry id="record_{{ record.pk }}" record-id="{{ record.pk }}" class="relative card">
     
     {% if select == 'schools' %}
         <a href="{% url 'dashboard' record.pk %}">
-            <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-lg border border-slate-200 dark:border-slate-900" />
+            {% if record.image %}
+                <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50" />
+            {% else %}
+                <img src="/media/images/default/default_class.webp" alt="Default School Image" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50" />
+            {% endif %}
         </a>
     {% elif select == 'classes' %}
-        <a href="{% url 'classroom' school.pk record.pk %}"
-                    up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
-            <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-lg border border-slate-200 dark:border-slate-900" />
+        <a href="{% url 'classroom' school.pk record.pk %}" up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
+            {% if record.image %}
+                <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50" />
+            {% else %}
+                <img src="/media/images/default/default_class.webp" alt="Default Class Image" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50" />
+            {% endif %}
         </a>
     {% elif select == 'classroom' %}
-    <a>
-        <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-lg border border-slate-200 dark:border-slate-900"/>
-    </a>
+        <a>
+            {% if record.image %}
+                <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
+            {% else %}
+                <img src="/media/images/default/default_class.webp" alt="Default Classroom Image" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
+            {% endif %}
+        </a>
     {% endif %}
 
-    <div class="flex justify-between items-start py-2">
+    <div class="flex justify-between items-start pt-3 px-2">
         <div class="w-11/12">
-            <h3 class="text-lg font-bold text-theme text-center pl-1 truncate">{{ record.name }}</h3>
+            <h3 class="text-md font-semibold text-theme text-center pl-1 truncate">
+                {% if select != 'schools' %}
+                    {{ record.secondary_id}} - 
+                {% endif %}
+                {{ record }}
+            </h3>
         </div>
         <div class="menu relative">
 
@@ -31,72 +48,106 @@
             {% if is_first %}
                 <!-- Dropdown Context Menu For Record-->
                 <ul  id="menu-card-context" class="dropdown-menu right-0 hidden">
-                    <li>
-                        <!-- Add record id by js -->
-                        <a id="record-edit" class="menu-item menu-item-border menu-item-top" 
-                            href="{{ base_url }}" 
-                            up-target="#modal_form" up-history="false">
-                            <i class="fa fa-school ml-3 mr-5 me-3"></i> 
-                            Edit information
-                        </a>
-                    </li>
+                    <!-- Add record id by js -->
+                    <a id="record-edit" class="" 
+                        href="{{ request.path }}" 
+                        up-target="#modal_form" up-history="false">
+                        <i class="fa fa-school ml-3 mr-5"></i> 
+                        Edit information
+                    </a>
 
-                    <li id="record-share" class="menu-item menu-item-bot">
-                        <button>
-                            <i class="fa fa-school ml-3 mr-5 me-3"></i> 
+                    {% if select == 'students' %}
+                        <a id="attendance-calendar" class="menu-item menu-item-border"
+                            href="{% url 'attendances' school.pk %}"
+                            up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
+                            <i class="fa fa-calendar ml-3 mr-5"></i> 
+                            Attendance calendar
+                        </a>
+                    {% endif %}
+
+                    {% if select == 'schools' %}
+                        <a id="record-share" class="menu-item menu-item-bot">
+                            <i class="fa fa-school ml-3 mr-5 w-5"></i> 
                             Share your school
-                        </button>
-                    </li>
+                        </a>
+                    {% endif %}
                 </ul>
             {% endif %}
         </div>
     </div>
-    <div class="flex flex-col px-3 pt-3">
+    
+    <div class="flex flex-col text-theme text-sm px-4 pt-3 pb-3">
         {% if select == 'schools' %}
-            <p class="text-theme whitespace-pre-line"> {{ record.description }} <p>
+            <!-- Keep <p> for paragraphs of text -->
+            <div class="whitespace-pre-line"> {{ record.description }} </div>
+    
         {% elif select == 'students' %}
+            <!-- Use div for flex container, span for inline text elements -->
+            <div class="flex">
+                <div class="flex-1 mr-2 h-10 truncate flex items-center">
+                    <i class="fas fa-user-check w-6"></i>
+                    <span>{{ record.status }}</span>
+                </div>
+                <div class="flex-1 mr-2 h-10 truncate flex items-center">
+                    <i class="fas fa-venus-mars w-6"></i>
+                    <span>{{ record.get_gender_display }}</span>
+                </div>
+            </div>
             
-            <p class="text-theme h-10 truncate">
-                <i class="fas fa-user-check me-3"></i> {{ record.status }}
-            </p>
-            <p class="text-theme h-10 truncate">
-                <i class="fas fa-venus-mars me-3"></i> {{ record.get_gender_display }}
-            </p>
-            <p class="text-theme h-10 truncate">
-                <i class="fas fa-birthday-cake me-3"></i> {{ record.date_of_birth|date:"d-m-Y" }}
-            </p>
-            <p class="text-theme h-10 truncate">
-                <i class="fas fa-users me-3"></i> {{ record.parents }}
-            </p>
-            <p class="text-theme h-10 truncate">
-                <i class="fas fa-phone me-3"></i> {{ record.phones }}
-            </p>
-
-            <p class="text-theme h-10 truncate">
-                <i class="fas fa-star me-3"></i> {{ record.reward_points }}
-            </p>
-            <p class="text-theme h-10 truncate">
-                <i class="fas fa-clock me-3"></i> {{ record.created_at|date:"d-m-Y H:i" }}
-            </p>
-
+            <div class="flex">
+                <div class="flex-1 mr-2 h-10 truncate flex items-center">
+                    <i class="fas fa-birthday-cake w-6"></i>
+                    <span>{{ record.date_of_birth|date:"d-m-Y" }}</span>
+                </div>
+                <div class="flex-1 mr-2 h-10 truncate flex items-center">
+                    <i class="fas fa-clock w-6"></i> 
+                    <span>{{ record.created_at|date:"d-m-Y" }}</span>
+                </div>
+            </div>
+    
+            <div class="flex">
+                <div class="flex-1 mr-2 h-10 truncate flex items-center">
+                    <i class="fas fa-users w-6"></i>
+                    <span class="truncate-start">{{ record.parents }}</span>
+                </div>
+                <div class="flex-1 mr-2 h-10 truncate flex items-center">
+                    <i class="fas fa-phone w-6"></i>
+                    <span>{{ record.phones }}</span>
+                </div>
+            </div>
+    
+            <div class="flex">
+                <div class="flex-1 mr-2 h-10 truncate flex items-center">
+                    <i class="fas fa-dollar-sign w-6"></i>
+                    <span>{{ record.balance|format_vnd }}</span>
+                </div>
+                <div class="flex-1 mr-2 h-10 truncate flex items-center">
+                    <i class="fas fa-star w-6"></i>
+                    <span>{{ record.reward_points }}</span>
+                </div>
+            </div>
+    
         {% elif select == 'classess' %}
-            
-            <p class="text-theme h-10 truncate">
-                <i class="fas fa-user-check me-3"></i> {{ record.name }}
-            </p>
-            <p class="text-theme h-10 truncate">
-                <i class="fas fa-venus-mars me-3"></i> {{ student }}
-            </p>
-
-        {% elif select == 'classroom' %}
-        
-            <p class="text-theme h-10 truncate">
-                <i class="fas fa-star me-3"></i> {{ record.reward_points }}
-            </p>
-
+            <!-- Use div for consistency; span for text -->
+            <div class="h-10 truncate flex items-center">
+                <i class="fas fa-user-check w-5"></i>
+                <span>{{ record.name }}</span>
+            </div>
+            <div class="h-10 truncate flex items-center">
+                <i class="fas fa-venus-mars w-5"></i>
+                <span>{{ student }}</span>
+            </div>
+    
+        {% elif select == 'financial_transactions' %}
+            <!-- Use div for consistency; span for text -->
+            <div class="h-10 truncate flex items-center">
+                <i class="fas fa-dollar-sign w-5"></i>
+                <span>{{ record.amount|format_vnd }}</span>
+            </div>
         {% endif %}
     </div>
-
+    
+    
 </div>
 
 

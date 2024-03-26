@@ -1,6 +1,22 @@
+
 from django import template
+from django.urls import reverse
+
+
 
 register = template.Library()
+
+@register.filter(name='format_vnd')
+def format_vnd(amount):
+    # Convert the number to a string and reverse it
+    amount_str = str(int(amount))[::-1]
+    
+    # Insert a dot every 3 digits
+    formatted_str = '.'.join(amount_str[i:i+3] for i in range(0, len(amount_str), 3))
+    # Reverse the string back and append the VND symbol
+    return formatted_str[::-1].replace('-.','-') + " VNĐ"
+
+
 
 
 @register.inclusion_tag('components/display_cards.html')

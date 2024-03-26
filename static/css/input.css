@@ -104,27 +104,32 @@
             border-theme-900 dark:border-theme-100;
     }
 
-    .card {
+    .bg-theme {
         @apply 
-            rounded-xl shadow-lg bg-white dark:bg-slate-800
-            border border-slate-100 dark:border-slate-900 border-opacity-50;
+            bg-theme-900 dark:bg-theme-100;
     }
 
+    .card {
+        @apply 
+            rounded-2xl shadow-md bg-white dark:bg-slate-800
+            border border-slate-300 dark:border-slate-900 border-opacity-50;
+    }
 
     .dropdown-menu {
         @apply 
-            card absolute z-20 mt-3 text-theme
-            border-gray-100 dark:border-gray-700;
+            bg-gray-50 dark:bg-slate-700
+            border border-gray-300 dark:border-gray-900 border-opacity-50 
+            rounded-xl shadow-xl absolute z-20 mt-1 text-theme;
     }
 
     .menu-item {
         @apply 
             flex cursor-pointer items-center 
-            whitespace-nowrap p-3 hover:bg-gray-50 dark:hover:bg-gray-700
+            whitespace-nowrap p-3 hover:bg-gray-200 dark:hover:bg-gray-800 hover:bg-opacity-50 dark:hover:bg-opacity-30;
     }
     .menu-border {
         @apply 
-            border-b border-gray-100 dark:border-gray-700;
+            border-b border-gray-200 dark:border-gray-800 border-opacity-50  dark:border-opacity-40;
     }
 }
 

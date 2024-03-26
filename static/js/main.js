@@ -103,45 +103,6 @@ up.compiler('body', function(element) {
 
 
 
-// CHANNGE QUICK SETTINGS POSITION ON RESIZE =========================================
-up.compiler('#quick-settings', function(element) {
-    // Get a reference to the quick-settings element
-    var quickSettings = element;
-
-    function changePosition() {
-        console.log('changePosition');
-        // Measure the #nav-bar element
-        var navBar = document.querySelector('#nav_bar');
-        var navBarWidth = navBar.offsetWidth;
-
-        // Get references to the elements
-        var profileMenu = document.querySelector('#menu-profile');
-        var profile = document.querySelector('#profile');
-        var item1 = document.querySelector('#item-1');
-        var item2 = document.querySelector('#item-2');
-
-        // Check the width of #nav-bar and apply the logic accordingly
-        if (navBarWidth > 639) {
-            quickSettings.classList.remove('w-full');
-            var parent = profile.parentNode;
-            parent.insertBefore(quickSettings, profile);
-            item2.classList.add('rounded-t-xl');
-            item1.classList.add('hidden');
-        } else {
-            quickSettings.classList.add('w-full');
-            item1.appendChild(quickSettings);
-            item2.classList.remove('rounded-t-xl');
-            item1.classList.remove('hidden');
-        }
-
-        // Remove the 'hidden' class from me
-        quickSettings.classList.remove('hidden');
-    }
-
-    // Initial adjustment
-    changePosition();
-    window.addEventListener('resize', changePosition);
-});
 
 
 
@@ -242,7 +203,7 @@ up.compiler('#attendance-controls', function() {
             }
             const data = await response.json();
             if (data.status === 'success') {
-                console.log('got data:', data.attendance_data);
+                //console.log('got data:', data.attendance_data);
                 applyAttendanceStyles(data.attendance_data);
             } else {
                 console.error('Failed to fetch data:', data.message);
@@ -255,10 +216,10 @@ up.compiler('#attendance-controls', function() {
     // Function to apply attendance styles
     function applyAttendanceStyles(attendanceData) {
         const cardStyler = new CardStyler();
-        console.log('attendanceData:', attendanceData);
+        //console.log('attendanceData:', attendanceData);
         attendanceData.forEach(student => {
             let card = document.querySelector(`#record_${student.id}`);
-            console.log(`#record_${student.student_id}`);
+            //console.log(`#record_${student.student_id}`);
             if (card) {
                 cardStyler.clearAttendanceClasses(card);
                 if (student.status) {
@@ -274,7 +235,7 @@ up.compiler('#attendance-controls', function() {
         let classId = document.querySelector('#class-infor').getAttribute('class-id');
         let checkDate = document.querySelector('#check_date').value;
 
-        console.log('classId:', classId, 'checkDate:', checkDate);
+        //console.log('classId:', classId, 'checkDate:', checkDate);
         // A helper function to collect student IDs based on attendance status
         function collectStudentIds(status) {
             return Array.from(document.querySelectorAll(`#display_cards .${status}`))
@@ -296,7 +257,7 @@ up.compiler('#attendance-controls', function() {
             'late': late_students,
             'left_early': left_early_students
         };
-        console.log('formData:', formData);
+        //console.log('formData:', formData);
         const url = window.location.href.split('?')[0] + `?post=attendance&check_date=${checkDate}`;
         up.render({
             url: url,
@@ -328,7 +289,7 @@ up.compiler('#attendance-controls', function() {
             if (checkDate === '') {
                 checkDate = new Date().toISOString().split('T')[0];
             }
-            console.log('classId:', classId, 'checkDate:', checkDate);
+            //console.log('classId:', classId, 'checkDate:', checkDate);
             fetchAndApplyAttendanceData(classId, checkDate);
 
         }
@@ -455,43 +416,7 @@ up.compiler('#reward-controls', function() {
 
 
 
-// NAVIGATION BAR ITEMS =========================================
-up.compiler('#nav_bar', function(element) {
-    function activeMenuItem(item) {
-        console.log('activeMenuItem');
-        // Remove specific classes from all <a> elements within #nav_bar_left
-        document.querySelectorAll('#nav_bar_left a').forEach(link => {
-            link.classList.remove('border');
-            link.classList.remove('bg-gray-200');
-            link.classList.remove('border-gray-300');
-            link.classList.remove('dark:bg-gray-800');
-            link.classList.remove('dark:border-gray-700');
-        });
 
-        // Add classes to the clicked element (referred to as 'item')
-        item.classList.add('bg-gray-200');
-        item.classList.add('border');
-        item.classList.add('border-gray-300');
-        item.classList.add('dark:bg-gray-800');
-        item.classList.add('dark:border-gray-700');
-
-        // Get the school-id attribute from #current-school-info
-        const schoolId = document.querySelector('#current-school-info').getAttribute('school-id');
-
-        // Construct the URL
-        const url = '/school/' + schoolId;
-
-        // Function to change the URL (assuming changeUrl is defined elsewhere)
-        changeUrl(url);
-    }
-
-    // Add event listener to each navigation item
-    document.querySelectorAll('#nav_bar_left a').forEach(item => {
-        item.addEventListener('click', function() {
-            activeMenuItem(item);
-        });
-    });
-});
 
 
 
@@ -550,23 +475,37 @@ up.compiler('.card', function(element) {
             var menuCardContext = document.getElementById('menu-card-context');
             if (menuCardContext) {
                 let recordId = card.getAttribute('record-id');
-                let recordEdit = document.getElementById('record-edit');
-                let href = recordEdit.getAttribute('href');
-                // Remove the number from the URL
-                let parts = href.replace('/?get=form','').split('/');
-                parts.pop();
-                href = parts.join('/');
 
-                href = href + '/' + recordId + '/?get=form';
-                console.log('href:', href);
-                recordEdit.setAttribute('href', href);
+                // Update the URL for the edit link
+                let recordEdit = document.getElementById('record-edit');
+                if (recordEdit) {
+                    let href = recordEdit.getAttribute('href');
+                    let parts = href.replace('/?get=form','').split('/'); // Remove the number from the URL
+                    parts.pop();
+                    href = parts.join('/');
+                    href = href + '/' + recordId + '/?get=form';
+                    //console.log('href:', href);
+                    recordEdit.setAttribute('href', href);
+                }
+
+                // Update the URL for attendance link
+                let attendanceCalendar = document.getElementById('attendance-calendar');
+                if (attendanceCalendar) {
+                    href = attendanceCalendar.getAttribute('href');
+                    //console.log('href:', href);
+                    //=> remove all query form href
+                    href = href.split('?')[0];
+                    href = href + '?get=calendar&student_id=' + recordId;
+                    //console.log('href:', href);
+                    attendanceCalendar.setAttribute('href', href);
+                }
             }
             if (menuCardContext && !card.contains(menuCardContext)) {
                 // Move #menu-card-context to be after the clicked element
                 // Check if menuCardContext exists before trying to move it
                     menuButton.insertAdjacentElement('afterend', menuCardContext);
                     menuCardContext.classList.add('hidden');
-                }
+            }
 
         });
     }
@@ -604,3 +543,259 @@ up.compiler('.menu', function(element) {
 });
 
 
+
+// NAVIGATION BAR ITEMS =========================================
+up.compiler('#nav_bar', function(element) {
+
+    function activeMenuItem(item) {
+        // Remove specific classes from all <a> elements within #nav_bar_left
+        document.querySelectorAll('#nav_bar_left a').forEach(link => {
+            link.classList.remove('border');
+            link.classList.remove('bg-gray-200');
+            link.classList.remove('border-gray-300');
+            link.classList.remove('dark:bg-gray-800');
+            link.classList.remove('dark:border-gray-700');
+        });
+
+        // Add classes to the clicked element (referred to as 'item')
+        item.classList.add('bg-gray-200');
+        item.classList.add('border');
+        item.classList.add('border-gray-300');
+        item.classList.add('dark:bg-gray-800');
+        item.classList.add('dark:border-gray-700');
+    }
+
+    // Add event listener to each navigation item
+    document.querySelectorAll('#nav_bar_left a').forEach(item => {
+        item.addEventListener('click', function() {
+            activeMenuItem(item);
+        });
+    });
+});
+
+
+function formatDropdownItem(dropdown) {
+    const items = dropdown.children;
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+ 
+        if (i === 0) {
+            // First item
+            item.classList.add('menu-item', 'menu-border', 'rounded-t-xl');
+            if (items.length === 1) {
+                item.classList.add('rounded-b-xl');
+            }
+        } else if (i === items.length - 1) {
+            // Last item
+            item.classList.add('menu-item', 'rounded-b-xl');
+        } else {
+            // Middle items
+            item.classList.add('menu-item', 'menu-border');
+        }
+    }
+}
+// FORMAT DROPDOWN-MENU =========================================
+up.compiler('.dropdown-menu', function(element) {
+    const dropdown = element;
+    formatDropdownItem(dropdown);
+ });
+
+
+// RESPONSIVE NAV BAR =========================================
+up.compiler('#nav_bar', function(element) {
+    const navbar = element;
+    const navMenu = document.getElementById('nav_menu');
+    const moreMenu = document.getElementById('nav_menu_more'); // Ensure this is the correct container within nav_menu_more
+    const moreMenuDropdown = navbar.querySelector('.dropdown-menu'); // Ensure this is the correct container within nav_menu_more
+    const menuSchool = document.getElementById('menu-school');
+    const spaceAtLeast = 100; // Minimum space required to keep an item on the navbar
+    
+    // Function to calculate the space left on the navbar
+    function calculateSpaceLeft() {
+        const navbarWidth = navbar.offsetWidth; // Get the navbar's total width
+        let totalItemsWidth = 0;
+        const items = navbar.children; // Get all child elements (links) in the navbar
+    
+        for (let item of items) {
+            totalItemsWidth += item.offsetWidth; // Sum up the width of each item
+            totalItemsWidth += parseInt(window.getComputedStyle(item).marginRight, 10); // Add marginRight to the total
+        }
+        let spaceLeft = navbarWidth - totalItemsWidth; // Calculate the space left
+        return spaceLeft;
+    }
+
+    function moveItemToMoreMenu() {
+        // Check if there are at least two children to ensure the "More" menu isn't moved
+        if (navMenu.children.length > 1) {
+            const secondLastChild = navMenu.children[navMenu.children.length - 2];
+            moreMenuDropdown.insertBefore(secondLastChild, moreMenuDropdown.firstChild); // Move the second-last nav item into the More menu
+            
+        }
+    }
+    
+    function calculateSpaceWithItem(item) {
+        const spaceLeft = calculateSpaceLeft();
+        const itemWidth = item.offsetWidth + parseInt(window.getComputedStyle(item).marginRight, 10);
+        return spaceLeft - itemWidth; // Calculate space left after adding the item
+    }
+    
+    function restoreItemFromMoreMenu() {
+        if (moreMenuDropdown.children.length > 0) {
+            const firstMoreMenuItem = moreMenuDropdown.children[0];
+            // Pre-calculate space with the item that will be restored
+            const spaceLeftWithItem = calculateSpaceWithItem(firstMoreMenuItem);
+    
+            // Only move the item back if there's enough space
+            if (spaceLeftWithItem >= 0) {
+                navMenu.insertBefore(firstMoreMenuItem, navMenu.children[navMenu.children.length - 1]); // Insert before the More menu
+            }
+        }
+    }
+    
+
+    function adjustNavbarItems() {
+        let spaceLeft = calculateSpaceLeft();
+        //console.log('Space left:', spaceLeft, 'px');
+        
+        // Attempt to restore items from the More menu if there's enough space
+        // Check if there's an item to restore and if the space with the item would be sufficient
+        while (moreMenuDropdown.children.length > 0 && spaceLeft >= spaceAtLeast) {
+            const firstMoreMenuItem = moreMenuDropdown.children[0]; // Get the first item from More menu for calculation
+            const spaceLeftWithItem = calculateSpaceWithItem(firstMoreMenuItem); // Calculate space if the item were restored
+            //console.log('Space left with item:', spaceLeftWithItem, 'px');
+            // Only restore the item if there's enough space for it
+            if (spaceLeftWithItem >= 0) {
+                restoreItemFromMoreMenu();
+                spaceLeft = calculateSpaceLeft(); // Recalculate space left after restoring an item
+            } else {
+                break; // If not enough space for this item, stop trying to restore more
+            }
+        }
+
+        // Continuously move items to the More menu if there's not enough space
+        while (spaceLeft < spaceAtLeast && navMenu.children.length > 1) { // Ensure at least 2 children to keep the More menu
+            //console.log('Space left on navbar:', spaceLeft, 'px');
+            moveItemToMoreMenu();
+            spaceLeft = calculateSpaceLeft(); // Recalculate space left after moving an item
+        }
+
+        // If the spaceLeft is less than 40px, change width of the menu-schools
+        if (navbar.offsetWidth < 800) {
+            //remove  width style from the menu-school
+            menuSchool.style.width = 'auto';
+            // Move the menu-school after nav_bar in the parent
+            navbar.parentNode.insertBefore(menuSchool, navbar.nextSibling);
+        }
+        else {
+            //restore the width style of the menu-school
+            menuSchool.style.width = '400px';
+            // Move the menu-school after nav_bar_left
+            const narBarLeft = navbar.querySelector('#nav_bar_left')
+            navbar.insertBefore(menuSchool, narBarLeft.nextSibling);
+
+            
+            
+        }
+
+        // If nav_menu_more is empty, hide the More menu
+        if (moreMenuDropdown.children.length === 0) {
+            moreMenu.classList.add('hidden');
+        } else {
+            moreMenu.classList.remove('hidden');
+        }
+    }
+    
+
+    // Initial adjustment
+    if (menuSchool) {  
+        adjustNavbarItems();
+        window.addEventListener('resize', adjustNavbarItems);
+    }
+    navbar.classList.remove("opacity-0")
+    navbar.classList.add("opacity-100")
+    
+
+});
+
+
+
+
+
+// FILTER  BAR =========================================
+// Hide search bar when clicking ouside
+document.addEventListener('click', function(event) {
+    const toolBar = document.getElementById('db-tool-bar')
+    if (!toolBar.contains(event.target)) {
+        document.getElementById('filter-list').classList.add('hidden');
+        document.getElementById('search-bar').classList.add('max-sm:hidden');
+        document.getElementById('toggle-search').classList.remove('hidden');
+        document.getElementById('sort-button').classList.remove('hidden');
+        document.getElementById('right-controls').classList.remove('hidden');
+    }
+});
+up.compiler('#db-tool-bar', function(element) {
+    const toolBar = element
+    // Toggle search bar visibility on small screens
+    document.getElementById('toggle-search').addEventListener('click', function() {
+        document.getElementById('filter-list').classList.remove('hidden');
+        document.getElementById('search-bar').classList.remove('max-sm:hidden');
+        document.getElementById('toggle-search').classList.add('hidden');
+        document.getElementById('sort-button').classList.add('hidden');
+        document.getElementById('right-controls').classList.add('hidden');
+    });
+    
+    // Toggle information bar visibility
+    document.getElementById('toggle-infor-bar').addEventListener('click', function() {
+        const infoBar = document.getElementById('infor-bar');
+        if (infoBar) {
+            infoBar.classList.toggle('hidden');
+        }
+    });
+
+    // Show filter list when clicking to filter input
+    document.getElementById('filter-input').addEventListener('click', function() {
+        document.getElementById('filter-list').classList.remove('hidden');
+    });
+
+    document.getElementById('filter-select').addEventListener('change', function() {
+        const filterSelectValue = this.value;
+        document.getElementById('filter-input').setAttribute('name', filterSelectValue);
+    });
+
+    // Add filter button functionality
+    document.getElementById('add-filter-button').addEventListener('click', function() {
+        const filterInput = document.getElementById('filter-input');
+        const filterList = document.getElementById('filter-list');
+        const filterSelect = document.getElementById('filter-select');
+        const filterValue = filterInput.value.trim();
+        const filterField = filterSelect.value;
+
+        if (filterValue !== '') {
+            const filterTag = document.createElement('span');
+            filterTag.className = 'filter-tag bg-green-500 text-white rounded-lg px-2 py-1 mr-2 hover:bg-red-600 cursor-pointer';
+            filterTag.textContent = `${filterField}:${filterValue}`;
+            filterTag.addEventListener('click', function() {
+                filterList.removeChild(filterTag);
+            });
+
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.value = filterValue;
+            hiddenInput.name = filterField;
+
+            filterTag.appendChild(hiddenInput);
+            filterList.appendChild(filterTag);
+            filterList.classList.remove('hidden');
+
+            filterInput.value = ''; // Clear the input after adding the tag
+        }
+    });
+
+    // Clear all filter tags only
+    document.getElementById('clear-filter-button').addEventListener('click', function() {
+        const filterTags = document.querySelectorAll('#filter-list .filter-tag');
+        filterTags.forEach(filterTag => {
+            filterTag.remove();
+        });
+    });
+});
