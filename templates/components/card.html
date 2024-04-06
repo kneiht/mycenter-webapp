@@ -5,27 +5,33 @@
     
     {% if select == 'schools' %}
         <a href="{% url 'dashboard' record.pk %}">
-            {% if record.image %}
-                <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50" />
-            {% else %}
-                <img src="/media/images/default/default_class.webp" alt="Default School Image" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50" />
-            {% endif %}
+            <div class="card-image-container">
+                {% if record.image %}
+                    <img src="{{ record.image.url }}" alt="{{ record.name }}" class="rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50" />
+                {% else %}
+                    <img src="/media/images/default/default_class.webp" alt="Default School Image" class="rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50" />
+                {% endif %}
+            </div>
         </a>
     {% elif select == 'classes' %}
         <a href="{% url 'classroom' school.pk record.pk %}" up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
-            {% if record.image %}
-                <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50" />
-            {% else %}
-                <img src="/media/images/default/default_class.webp" alt="Default Class Image" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50" />
-            {% endif %}
+            <div class="card-image-container">
+                {% if record.image %}
+                    <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50" />
+                {% else %}
+                    <img src="/media/images/default/default_class.webp" alt="Default Class Image" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50" />
+                {% endif %}
+            </div>
         </a>
     {% elif select == 'classroom' %}
         <a>
-            {% if record.image %}
-                <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
-            {% else %}
-                <img src="/media/images/default/default_class.webp" alt="Default Classroom Image" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
-            {% endif %}
+            <div class="card-image-container">
+                {% if record.image %}
+                    <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
+                {% else %}
+                    <img src="/media/images/default/default_class.webp" alt="Default Classroom Image" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
+                {% endif %}
+            </div>
         </a>
     {% endif %}
 
@@ -51,7 +57,7 @@
                     <!-- Add record id by js -->
                     <a id="record-edit" class="" 
                         href="{{ request.path }}" 
-                        up-target="#modal_form" up-history="false">
+                        up-target="#modal" up-history="false">
                         <i class="fa fa-school ml-3 mr-5"></i> 
                         Edit information
                     </a>

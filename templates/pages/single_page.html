@@ -120,6 +120,23 @@
 
       </style>
 
+      <style>
+          .card-image-container {
+            width: 100%;
+            display: inline-block; /* Needed for aspect-ratio property */
+          }
+
+          .card-image-container img {
+            width: 100%;
+            aspect-ratio: 16 / 9; /* Sets the aspect ratio */
+            object-fit: cover; /* Ensures image covers the entire container */
+          }
+      </style>
+
+
+
+
+
     <!-- JS -->
 
     {% block extra_head %}
@@ -131,8 +148,7 @@
 <body class="px-4 bg-[#F0F2F5] dark:bg-slate-900 min-h-full" style="font-family: 'Open Sans';">
     
     <!-- A place holder for displaying modal -->
-    <div id="modal_form" up-hungry></div>
-    <div id="modal_message" up-hungry></div>
+    <div id="modal" up-hungry></div>
 
     <!-- Navigation bar -->
     {% include 'components/nav_bar.html' %}
