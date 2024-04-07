@@ -481,92 +481,45 @@ class AttendanceViewSet(BaseViewSet):
         else:
             return super().get(request, school_id, pk)
 
-    def zstudent_attendance_calendar(self,request, school_id):
+    def student_attendance_calendar(self, request, school_id):
         student_id = request.GET.get('student_id')
         student = get_object_or_404(Student, pk=student_id)
         payments = FinancialTransaction.objects.filter(student=student).order_by('created_at')
         payment_id = request.GET.get('payment_id')
-
         attendances = Attendance.objects.filter(student=student).order_by('check_date')
 
-        if payment_id and (payment_id !="unpaid"):
-            selected_payment = get_object_or_404(FinancialTransaction, pk=payment_id)
+        if not payment_id or payment_id=="all":
+            # Assume we fetch the earliest and latest attendance dates for the student to define the range
+            # For demonstration, replace these with actual queries if available
+            earliest_attendance_date = Attendance.objects.filter(student=student).earliest('check_date').check_date
+            latest_attendance_date = Attendance.objects.filter(student=student).latest('check_date').check_date
 
-            # Calculate the sum of learning hours up to and not including the selected payment
-            paid_hours_before_payment = 0
+        elif payment_id and (payment_id !="unpaid"):
+            selected_payment = get_object_or_404(FinancialTransaction, pk=payment_id)
+            # Calculate the balance before the selected payment
+            balance_before_payment = 0
             for payment in payments:
-                if payment.create_date < selected_payment.create_date:
-                    paid_hours_before_payment += payment.tuition_plan.number_of_hours
+                if payment.created_at < selected_payment.created_at:
+                    balance_before_payment += payment.student_balance_increase
                     if payment == selected_payment:
                         break
-            # Calculate the sum of learning hours up to and including the selected payment
-            paid_hours_up_to_payment = paid_hours_before_payment + selected_payment.tuition_plan.number_of_hours
+            # Calculate the balance up to and including the selected payment
+            balance_up_to_payment = balance_before_payment + selected_payment.student_balance_increase
 
-            # Filter attendances based on the cumulative hours
-            cumulative_attendance_hours = 0
+            # Filter attendances based on the balance
+            cumulative_balance = 0
             filtered_attendance_ids = []
             for attendance in attendances:
-                if attendance.is_paid_class:
-                    cumulative_attendance_hours += attendance.learning_hours
+                if attendance.is_payment_required:
+                    cumulative_balance += attendance.price_per_hour * attendance.learning_hours
 
-                if (cumulative_attendance_hours > paid_hours_before_payment) and (cumulative_attendance_hours <= paid_hours_up_to_payment):
+                if (cumulative_balance > balance_before_payment) and (cumulative_balance <= balance_up_to_payment):
                     filtered_attendance_ids.append(attendance.id)
-                elif cumulative_attendance_hours > paid_hours_up_to_payment:
+                elif cumulative_balance > balance_up_to_payment:
                     break
             attendances = Attendance.objects.filter(id__in=filtered_attendance_ids)
-
-        elif payment_id == "unpaid":
-            # Calculate the sum of learning hours up to and not including the selected payment
-            total_paid_hours = 0
-            for payment in payments:
-                total_paid_hours += payment.tuition_plan.number_of_hours
-
-            # Filter attendances based on the cumulative hours
-            cumulative_attendance_hours = 0
-            filtered_attendance_ids = []
-            for attendance in attendances:
-                if attendance.is_paid_class:
-                    cumulative_attendance_hours += attendance.learning_hours
-                if cumulative_attendance_hours > total_paid_hours:
-                    filtered_attendance_ids.append(attendance.id)
-            attendances = Attendance.objects.filter(id__in=filtered_attendance_ids)
-
-
-        # Query your attendances and select_related or prefetch_related if needed
-        attendances = attendances.order_by('check_date')
-        #attendances_json = serialize('json', attendances.order_by('check_date'))
-
-        # Use 'values' to get a dictionary with the fields you need
-        attendances_list = list(attendances.values(
-            # get the list of fields you need from model
-            'id', 'check_class', 'check_date', 'status', 
-            'learning_hours', 'price_per_hour', 'is_payment_required'
-
-        ))
-        
-        # Convert the dictionary list to JSON
-        attendances_json = json.dumps(attendances_list, cls=DjangoJSONEncoder)
-
-        context = {
-            'page': 'attendance',
-            'title': 'Manage Attendance',
-            'attendances_json': attendances_json,
-            'student': student,
-            'payments': payments,
-            'selected_payment_id': payment_id,
-            'school': School.objects.filter(pk=school_id).first(),
-        }
-        print('>>>>>>>>>> context:', context)
-        return render(request, 'pages/single_page.html', context)
-
-    def student_attendance_calendar(self, request, school_id):
-        student_id = request.GET.get('student_id')
-        student = get_object_or_404(Student, pk=student_id)
-
-        # Assume we fetch the earliest and latest attendance dates for the student to define the range
-        # For demonstration, replace these with actual queries if available
-        earliest_attendance_date = Attendance.objects.filter(student=student).earliest('check_date').check_date
-        latest_attendance_date = Attendance.objects.filter(student=student).latest('check_date').check_date
+            earliest_attendance_date = attendances.earliest('check_date').check_date
+            latest_attendance_date = attendances.filter(student=student).latest('check_date').check_date
 
         # Adjust start_day and end_day to cover all attendance records
         start_day = earliest_attendance_date - timedelta(days=earliest_attendance_date.weekday())
@@ -604,6 +557,8 @@ class AttendanceViewSet(BaseViewSet):
             'student': student,
             'months': months_list,
             'today': datetime.today(),
+            'payments': payments,
+            'selected_payment_id': payment_id,
         }
 
         return render(request, 'pages/single_page.html', context)

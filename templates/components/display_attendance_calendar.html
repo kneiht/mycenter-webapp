@@ -1,12 +1,12 @@
-
+{% load custom_tags %}
 
 <!-- Payment Selection Dropdown -->
 <div class="col-xl-4 col-lg-5 col-md-6 d-flex align-items-center">
-    <select id="paymentFilter" class="form-input">
-        <option value="">Select Payment to Filter</option>
+    <select id="paymentFilter" class="form-input" onchange="window.location.href = '{{ request.path }}?get=calendar&student_id=' + {{ student.id }} + '&payment_id=' + this.value;">
+        <option value="all">Select Payment to Filter</option>
         {% for payment in payments %}
         <option value="{{ payment.id }}" {% if payment.id|stringformat:"s" == selected_payment_id %}selected{% endif %}>
-            {{ payment }}
+            {{ payment.created_at|date:"d-m-Y" }} - {{ payment.student.name }} - Đóng {{ payment.amount|format_vnd }} - HP tăng thêm {{ payment.student_balance_increase|format_vnd }}
         </option>
 
         {% endfor %}

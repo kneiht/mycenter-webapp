@@ -193,6 +193,7 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
     def __str__(self):
         return f"{self.transaction_type}"
     
+    
     def save(self, *args, **kwargs):
         # The balance is calculated based on the transaction type
         if self.student and self.amount: 

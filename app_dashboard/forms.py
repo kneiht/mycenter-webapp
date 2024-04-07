@@ -36,7 +36,7 @@ class SchoolForm(forms.ModelForm):
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
-        fields = ['name', 'status', 'gender', 'date_of_birth', 'parents', 'phones', 'reward_points', 'balance', 'note', 'image']
+        fields = ['name', 'status', 'gender', 'date_of_birth', 'parents', 'phones', 'reward_points', 'note', 'image']
         widgets = {
             'name': forms.TextInput(attrs={
                 'placeholder': 'Student name',
@@ -80,7 +80,7 @@ class StudentForm(forms.ModelForm):
 class ClassForm(forms.ModelForm):
     class Meta:
         model = Class
-        fields = ['name', 'image', 'students', 'price_per_hour',  'note']
+        fields = ['name', 'price_per_hour', 'image',  'note', 'students']
         widgets = {
             'name': forms.TextInput(attrs={
                 'placeholder': 'Class name',
