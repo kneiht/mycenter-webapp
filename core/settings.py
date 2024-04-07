@@ -100,7 +100,7 @@ if computer_name not in ["Kay-Macbook", 'DESKTOP-3VQ6KPP']:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'minhthienk$gen8db_restructure_v3_2023_12_07',
+            'NAME': 'minhthienk$mycenter',
             'USER': 'minhthienk',
             'PASSWORD': 'Thislove123',
             'HOST': 'minhthienk.mysql.pythonanywhere-services.com',
