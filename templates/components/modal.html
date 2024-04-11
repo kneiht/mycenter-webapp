@@ -1,4 +1,4 @@
-
+{% load custom_tags %}
 {% if modal == 'modal_message' %}
     <div id="modal" up-hungry>
         <div class="modal z-50 fixed inset-0 bg-slate-600 bg-opacity-60 overflow-y-auto h-full w-full flex justify-center">
@@ -94,6 +94,31 @@
                                         </span>
                                     </div>
                                 {% endfor %}
+                            </div>
+                        </div>
+                    {% elif modal == 'modal_pay_tuition' %}
+                        <div class="sm:w-[600px] pt-4 px-6">
+                            <label for="tuitions" class="text-theme">Tuition payment history</label>
+                            <div class="form-input flex flex-col h-52 gap-4 pt-4 pb-6 overflow-scroll">
+                                <div class="w-[600px]">
+                                    <div class="border-b pb-0.5 flex justify-between w-full">
+                                        <span class="w-2/12"> Date </span>
+                                        <span class="w-3/12"> Amount </span>
+                                        <span class="w-2/12"> Bonus </span>
+                                        <span class="w-3/12"> Balance increase </span>
+                                        <span class="w-3/12"> Note </span>
+                                    </div>
+                                    {% for payment in form.get_payments %}
+                                        <div class="border-b pb-0.5 flex justify-between w-full">
+                                            <span class="w-2/12"> {{ payment.created_at|date:"d-m-Y" }} </span>
+                                            <span class="w-3/12"> {{ payment.amount|format_vnd }} </span>
+                                            <span class="w-2/12"> {{ payment.bonus }} </span>
+                                            <span class="w-3/12"> {{ payment.balance_increase|format_vnd }}</span>
+
+                                            <span class="w-3/12"> {{ payment.note }} </span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
                     {% endif %}

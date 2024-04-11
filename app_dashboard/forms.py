@@ -58,7 +58,7 @@ class StudentForm(forms.ModelForm):
                 'placeholder': 'Student phones',
                 'class': 'form-input'
             }),
-            'status': forms.TextInput(attrs={
+            'status': forms.Select(attrs={
                 'class': 'form-input'
             }),
             'note': forms.Textarea(attrs={
@@ -66,9 +66,6 @@ class StudentForm(forms.ModelForm):
                 'rows': 2
             }),
             'reward_points': forms.NumberInput(attrs={
-                'class': 'form-input'
-            }),
-            'balance': forms.NumberInput(attrs={
                 'class': 'form-input'
             }),
             'image': forms.FileInput(attrs={
@@ -177,13 +174,12 @@ class AttendanceForm(forms.ModelForm):
 class FinancialTransactionForm(forms.ModelForm):
     class Meta:
         model = FinancialTransaction
-        fields = ['income_or_expense', 'transaction_type', 'giver', 'receiver', 'amount', 'student', 
-                  'student_balance_increase', 'legacy_discount', 'legacy_tuition_plan', 'note']
+        fields = ['income_or_expense', 'transaction_type', 'giver', 'receiver', 'amount', 'note']
         widgets = {
             'income_or_expense': forms.Select(attrs={
                 'class': 'form-input'
             }),
-            'transaction_type': forms.TextInput(attrs={
+            'transaction_type': forms.Select(attrs={
                 'class': 'form-input'
             }),
             'giver': forms.TextInput(attrs={
@@ -195,23 +191,71 @@ class FinancialTransactionForm(forms.ModelForm):
             'amount': forms.NumberInput(attrs={
                 'class': 'form-input'
             }),
-            'student': forms.Select(attrs={
-                'class': 'form-input'
-            }),
-            'student_balance_increase': forms.NumberInput(attrs={
-                'class': 'form-input'
-            }),
-            'legacy_discount': forms.TextInput(attrs={
-                'class': 'form-input'
-            }),
-            'legacy_tuition_plan': forms.TextInput(attrs={
-                'class': 'form-input'
+            'created_at': forms.DateInput(attrs={
+                'class': 'form-input',
+                'type': 'date'
             }),
             'note': forms.Textarea(attrs={
                 'class': 'form-input',
                 'rows': 2
             }),
         }
+
+class TuitionPaymentForm(forms.ModelForm):
+    class Meta:
+        model = FinancialTransaction
+        fields = ['income_or_expense', 'transaction_type', 'student', 'receiver', 'amount', 'bonus', 'note']
+        widgets = {
+            'income_or_expense': forms.Select(attrs={
+                'class': 'form-input disabled',
+            }),
+            'transaction_type': forms.Select(attrs={
+                'class': 'form-input',
+            }),
+            'student': forms.Select(attrs={
+                'class': 'form-input',
+            }),
+            'receiver': forms.TextInput(attrs={
+                'class': 'form-input',
+            }),
+            'amount': forms.NumberInput(attrs={
+                'class': 'form-input'
+            }),
+            'bonus': forms.Select(attrs={
+                'class': 'form-input',
+            }),
+
+            'student_balance_increase': forms.NumberInput(attrs={
+                'class': 'form-input',
+            }),
+            'created_at': forms.DateInput(attrs={
+                'class': 'form-input',
+                'type': 'date'
+            }),
+
+            'note': forms.Textarea(attrs={
+                'class': 'form-input',
+                'rows': 2
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        school_id = kwargs.pop('school_id', None)
+        student_id = kwargs.pop('student_id', None)
+        super().__init__(*args, **kwargs)
+        if school_id is not None:
+            self.school_id = school_id
+            self.student_id = student_id
+        else:
+            self.school_id = None
+            self.student_id = None
+
+    def get_payments(self):
+        payments = FinancialTransaction.objects.filter(school_id=self.school_id,student_id=self.student_id).order_by('created_at')
+        for payment in payments:
+            payment.balance_increase = payment.amount*payment.bonus
+        return payments
+
 '''
 
 # CourseForm

@@ -24,18 +24,21 @@
             </div>
         </a>
     {% elif select == 'classroom' %}
-        <a>
-            <div class="card-image-container">
-                {% if record.image %}
-                    <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
-                {% else %}
-                    <img src="/media/images/default/default_class.webp" alt="Default Classroom Image" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
-                {% endif %}
+        <div class="card-image-container relative">
+            {% if record.image %}
+                <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
+            {% else %}
+                <img src="/media/images/default/default_class.webp" alt="Default Classroom Image" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
+            {% endif %}
+            <div class="absolute top-0 right-0 text-red-500 dark:text-red-600 m-2 px-2 py-1 font-bold text-4xl glow">
+                {{ record.reward_points }}
             </div>
-        </a>
+        </div>
+    {% else %}
+        <div class="pt-3"></div>
     {% endif %}
-
-    <div class="flex justify-between items-start pt-3 px-2">
+    
+    <div class="flex justify-between items-start px-2">
         <div class="w-11/12">
             <h3 class="text-md font-semibold text-theme text-center pl-1 truncate">
                 {% if select != 'schools' %}
@@ -56,15 +59,22 @@
                 <ul  id="menu-card-context" class="dropdown-menu right-0 hidden">
                     <!-- Add record id by js -->
                     <a id="record-edit" class="" 
-                        href="{{ request.path }}" 
+                        href="" 
                         up-target="#modal" up-history="false">
                         <i class="fa fa-school ml-3 mr-5"></i> 
                         Edit information
                     </a>
 
                     {% if select == 'students' %}
+                        <a id="pay_tuition" class="menu-item menu-item-border"
+                            href="" 
+                            up-target="#modal" up-history="false">
+                            <i class="fa fa-money ml-3 mr-5"></i> 
+                            Pay tuition
+                        </a>
+
                         <a id="attendance-calendar" class="menu-item menu-item-border"
-                            href="{% url 'attendances' school.pk %}"
+                            href=""
                             up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
                             <i class="fa fa-calendar ml-3 mr-5"></i> 
                             Attendance calendar
@@ -82,11 +92,15 @@
         </div>
     </div>
     
-    <div class="flex flex-col text-theme text-sm px-4 pt-3 pb-3">
+    <div class="flex flex-col text-theme text-sm px-4 pb-3">
         {% if select == 'schools' %}
             <!-- Keep <p> for paragraphs of text -->
             <div class="whitespace-pre-line"> {{ record.description }} </div>
-    
+
+        {% elif select == 'classes' %}
+            <!-- Keep <p> for paragraphs of text -->
+            <div class="whitespace-pre-line"> {{ record.note }} </div>
+
         {% elif select == 'students' %}
             <!-- Use div for flex container, span for inline text elements -->
             <div class="flex">

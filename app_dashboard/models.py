@@ -22,12 +22,63 @@ from django.db.models import Max
 from django.db import transaction
 
 class BaseModel(models.Model):
-    def some_common_method(self):
-        # Some common behavior
-        pass
-
     class Meta:
-        abstract = True
+        abstract = True  # Specify this model as Abstract
+
+    def compress_image(self, image_field):
+        try:
+            # Open the uploaded image using PIL
+            image_temp = Image.open(image_field)
+        except FileNotFoundError:
+            return  # Return from the method if the file is not found
+
+        if 'zwebp' in image_field.name:
+            return image_field
+
+        # Resize the image if it is wider than 600px
+        MAX_WIDTH = 500
+        if image_temp.width > MAX_WIDTH:
+            # Calculate the height with the same aspect ratio
+            height = int((image_temp.height / image_temp.width) * MAX_WIDTH)
+            image_temp = image_temp.resize((MAX_WIDTH, height), Image.Resampling.LANCZOS)
+
+        # Define the output stream for the compressed image
+        output_io_stream = io.BytesIO()
+
+        # Save the image to the output stream with desired quality
+        image_temp.save(output_io_stream, format='WEBP', quality=40)
+        output_io_stream.seek(0)
+
+        # Create a Django InMemoryUploadedFile from the compressed image
+        file_name = "%s.zwebp" % image_field.name.split('.')[0]
+        print(file_name)
+        output_imagefield = InMemoryUploadedFile(output_io_stream, 'ImageField', 
+                                                 file_name, 
+                                                 'image/webp', output_io_stream.getbuffer().nbytes, None)
+        
+        return output_imagefield
+
+
+    def save(self, *args, **kwargs):
+        # refine fields
+        for field in self._meta.fields:
+            value = getattr(self, field.name)
+            if isinstance(value, ImageFieldFile):
+                if value:  # If there's an image to compress
+                    print('\n\ncompressed')
+                    compressed_image = self.compress_image(value)
+                    setattr(self, field.name, compressed_image)
+            elif isinstance(value, str):
+                # Remove leading and trailing whitespaces
+                value = value.strip()
+                # Replace multiple spaces with a single space
+                value = re.sub(r'\s+', ' ', value)
+                setattr(self, field.name, value)
+
+        # Save the current instance
+        super().save(*args, **kwargs)
+
+
 
 class SecondaryIDMixin(models.Model):
     secondary_id = models.IntegerField(blank=True, null=True)
@@ -81,6 +132,17 @@ class Values(models.Model):
 
 class Student(SecondaryIDMixin, BaseModel):
     GENDER_CHOICES = (("male", "Male"), ("female", "Female"), ("other", "Other"))
+    STUDENT_STATUS = (
+        ('enrolled', 'Enrolled'),                 # Student is currently enrolled
+        ('on_hold', 'On Hold'),                   # Student is on hold
+        ('discontinued', 'Discontinued'),         # Student has discontinued
+        ('potential_customer', 'Potential'),  # Potential customer with potential interest
+        ('not_contacted_customer', 'Not Contacted'), # Customer not contacted yet
+        ('not_potential_customer', 'Not Potential'), # Not a potential customer
+        ('just_added', 'Just Added'), # Not a potential customer
+    )
+    
+    
     school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)
     classes = models.ManyToManyField('Class', through='StudentClass', blank=True)
     name = models.CharField(max_length=255, default="")
@@ -88,9 +150,9 @@ class Student(SecondaryIDMixin, BaseModel):
     date_of_birth = models.DateField(null=True, blank=True)
     parents = models.CharField(max_length=255, default="", blank=True, null=True)
     phones = models.CharField(max_length=50, default="", blank=True, null=True)
-    status =  models.CharField(max_length=50, default="New", blank=True, null=True)
+    status =  models.CharField(max_length=50, choices=STUDENT_STATUS, default="just_added")
     reward_points = models.IntegerField(default=0, blank=True)
-    balance = models.IntegerField(default=0, blank=True)
+    balance = models.FloatField(default=0, blank=True)
     image = models.ImageField(upload_to='images/profiles/', blank=True, null=True, default='images/default/default_profile.webp')
     note = models.TextField(default="", blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
@@ -174,20 +236,40 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
         ('income', 'Income'),
         ('expense', 'Expense'),
     )
+    TRANSACTION_TYPES = (
+        ('income_tuition_fee', 'INCOME - Tuition Fee'),
+        ('income_capital_contribution', 'INCOME - Capital Contribution'),
+        ('income_product_sales', 'INCOME - Product Sales'),
+        ('income_other_income', 'INCOME - Other Income'),
+        ('expense_operational_expenses', 'EXPENSE - Operational Expenses'),
+        ('expense_asset_expenditure', 'EXPENSE - Asset Expenditure'),
+        ('expense_marketing_expenses', 'EXPENSE - Marketing Expenses'),
+        ('expense_salary_expenses', 'EXPENSE - Salary Expenses'),
+        ('expense_dividend_distribution', 'EXPENSE - Dividend Distribution'),
+        ('expense_event_organization_expenses', 'EXPENSE - Event Organization Expenses'),
+        ('expense_human_resources_expenses', 'EXPENSE - Human Resources Expenses'),
+        ('expense_other_expenses', 'EXPENSE - Other Expenses'),
+    )
+    BONUSES = (
+        (1.0, 'No bonus'),
+        (1.1, 'Extra 10%'),
+        (1.2, 'Extra 20%'),
+        (1.3, 'Extra 30%'),
+    )
     income_or_expense = models.CharField(max_length=20, choices=IN_OR_OUT_CHOICES)
-    transaction_type = models.CharField(max_length=255)
-    giver = models.CharField(max_length=100, default="Unspecified", null=True, blank=True)
-    receiver = models.CharField(max_length=100, default="Unspecified", null=True, blank=True)
+    transaction_type = models.CharField(max_length=255, choices=TRANSACTION_TYPES)
+    giver = models.CharField(max_length=100, default="Undefined", null=True, blank=True)
+    receiver = models.CharField(max_length=100, default="Undefined", null=True, blank=True)
     amount = models.IntegerField(default=0, null=True, blank=True)
+
 
     # fields for tuition payments
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True, blank=True)
-    student_balance_increase = models.IntegerField(default=0, null=True, blank=True)
-    #tuition_plan = models.ForeignKey(TuitionPlan, on_delete=models.SET_NULL, null=True, blank=True)
-    #discount = models.ForeignKey(Discount, on_delete=models.SET_NULL, null=True)
-    note = models.TextField(default="", blank=True, null=True)
+    bonus = models.FloatField(default=0.0, choices=BONUSES)
     legacy_discount = models.TextField(default="", blank=True, null=True)
     legacy_tuition_plan = models.TextField(default="", blank=True, null=True)
+    
+    note = models.TextField(default="", blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -196,17 +278,23 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
     
     def save(self, *args, **kwargs):
         # The balance is calculated based on the transaction type
-        if self.student and self.amount: 
+        if self.transaction_type=='income_tuition_fee' and self.student and self.amount: 
             if self._state.adding: # If the transaction is being created
-                self.student.balance = self.student.balance + self.amount
-                self.student.save()
+                self.income_or_expense = 'income'
+                self.giver = self.student.name
+                self.receiver = self.school.name
+                self.student.balance = self.student.balance + float(self.amount)*float(self.bonus)
+                print('float(self.amount)*float(self.bonus)', float(self.amount)*float(self.bonus))
             else: # If the transaction is being updated
                 # Fetch the old amount
                 old_amount = FinancialTransaction.objects.get(pk=self.pk).amount
+                old_bonus = FinancialTransaction.objects.get(pk=self.pk).bonus
                 # Update the balance
-                self.student.balance = self.student.balance - old_amount + self.amount
+                self.student.balance = self.student.balance - float(old_amount)*float(old_bonus) + float(self.amount)*float(self.bonus)
+            
+            print(self.student)
+            print(self.student.balance)
             self.student.save()
-
         super().save(*args, **kwargs)
 
 

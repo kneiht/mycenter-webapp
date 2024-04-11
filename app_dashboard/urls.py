@@ -1,15 +1,15 @@
 
 from . import views, views_db
 from .views import (
-    SchoolViewSet, ClassViewSet, StudentViewSet, 
-    FinancialTransactionViewSet, AttendanceViewSet
+    SchoolViewSet, ClassViewSet, StudentViewSet, TuitionPaymentViewSet, ClassRoomViewSet,
+    FinancialTransactionViewSet, AttendanceViewSet, StudentAttendanceCalendarViewSet,home
 )
 
 from django.urls import re_path, path
 
 
 urlpatterns = [
-    path('', SchoolViewSet.as_view(), name='schools'),
+    path('', home, name='dashboard'),
 
     path('schools/', SchoolViewSet.as_view(), name='schools'),
     path('schools/<int:pk>/', SchoolViewSet.as_view(), name='school_detail'),
@@ -18,15 +18,20 @@ urlpatterns = [
 
     path('schools/<int:school_id>/classes/', ClassViewSet.as_view(), name='classes'),
     path('schools/<int:school_id>/classes/<int:pk>/', ClassViewSet.as_view(), name='classroom'),
+    path('schools/<int:school_id>/classes/<int:class_id>/<int:pk>/', ClassRoomViewSet.as_view(), name='classroom_student'),
 
     path('schools/<int:school_id>/students/', StudentViewSet.as_view(), name='students'),
     path('schools/<int:school_id>/students/<int:pk>/', StudentViewSet.as_view(), name='student_detail'),
+    path('schools/<int:school_id>/students/<int:student_id>/attendance-calendar/', StudentAttendanceCalendarViewSet.as_view(), name='student_attendance_calendar'),
+    path('schools/<int:school_id>/students/<int:student_id>/pay-tuition/', TuitionPaymentViewSet.as_view(), name='pay_tuition'),
 
     path('schools/<int:school_id>/attendances/', AttendanceViewSet.as_view(), name='attendances'),
     path('schools/<int:school_id>/attendances/<int:pk>/', AttendanceViewSet.as_view(), name='attendance_detail'),
 
+
     path('schools/<int:school_id>/financialtransactions/', FinancialTransactionViewSet.as_view(), name='financialtransactions'),
     path('schools/<int:school_id>/financialtransactions/<int:pk>/', FinancialTransactionViewSet.as_view(), name='financialtransaction_detail'),
+
 
     
     # path('classroom/<int:pk>/', views.classroom, name='classroom'),

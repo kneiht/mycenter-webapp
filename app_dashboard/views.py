@@ -27,7 +27,7 @@ from django.db.models import Q, Count, Sum  # 'Sum' is imported here
 
 # Import forms
 from .forms import (
-    SchoolForm, StudentForm, ClassForm, AttendanceForm, FinancialTransactionForm
+    SchoolForm, StudentForm, ClassForm, AttendanceForm, FinancialTransactionForm, TuitionPaymentForm
 )
 # Import models
 from django.contrib.auth.models import User
@@ -55,6 +55,10 @@ def dashboard(request, school_id):
     context = {'page': 'dashboard', 'title': 'Dashboard', 'school': school}
     return render(request, 'pages/single_page.html', context)
 
+@login_required
+def home(request):
+    return redirect('schools')
+
 
 
 # DATABASE MANAGEMENT VIEWS
@@ -66,6 +70,35 @@ class BaseViewSet(LoginRequiredMixin, View):
     page = None
     modal = None
 
+    def get(self, request, school_id=None, pk=None):
+        get_query = request.GET.get('get')
+        if get_query=='form':
+            return self.create_form(request, school_id=school_id, pk=pk)
+        else:
+            return self.create_display(request, school_id=school_id)
+
+    def post(self, request, school_id=None, pk=None):
+        print('>>> post request:', request.POST)
+        school = School.objects.filter(pk=school_id).first()
+        if pk:
+            instance = get_object_or_404(self.model_class, id=pk)
+        result, instance, form = self.process_form(request, instance if pk else None)
+
+        if result=='success':
+            # add payment in students page
+            if self.page=='students' and type(instance)==FinancialTransaction:
+                instance = instance.student
+
+            html_display_cards = html_render('display_cards', request, select=self.page, records=[instance], school=school)
+            html_message = html_render('message', request, message='create successfully')
+            return HttpResponse(html_display_cards + html_message)
+        else:
+            record_id=instance.pk if instance else None
+            html_modal = html_render('form', request, form=form, modal=self.modal, record_id=record_id, school=school)
+            return HttpResponse(html_modal)
+
+
+
     def check_school_user(self, request, school_id):
         school = School.objects.filter(pk=school_id).first()
         school_user = SchoolUser.objects.filter(school=school, user=request.user).first()
@@ -74,7 +107,9 @@ class BaseViewSet(LoginRequiredMixin, View):
         else:
             return False
 
-    def create_display(self, request, school_id=None):
+    def create_display(self, request, **kwargs):
+        school_id = kwargs.pop('school_id', None)
+
         if self.model_class==School:
             user = request.user
             records = self.model_class.objects.filter(users=user)
@@ -133,24 +168,8 @@ class BaseViewSet(LoginRequiredMixin, View):
         # Sort the results if the sort field exists in the model
         if sort_option and hasattr(self.model_class, sort_option):
             records = records.order_by(sort_option)
-
-
-        if self.model_class == Student:
-            for student in records:
-                # Summarize all balance increase from financialtransactions
-                balance_increase = FinancialTransaction.objects.filter(student=student).aggregate(Sum('student_balance_increase'))['student_balance_increase__sum'] or 0
-                
-                # Calculate total price from attendances
-                total_price = 0
-                attendances = Attendance.objects.filter(student=student)
-                for attendance in attendances:
-                    if attendance.price_per_hour and attendance.learning_hours and attendance.is_payment_required:
-                        total_price += attendance.price_per_hour * attendance.learning_hours
-                
-                # Calculate final balance
-                student.balance = balance_increase - total_price
-
-
+        else:
+            records = records.order_by('-pk')
 
         context = {
             'select': self.page, 
@@ -164,16 +183,35 @@ class BaseViewSet(LoginRequiredMixin, View):
 
         return render(request, 'pages/single_page.html', context)
 
-    def create_form(self, request, school_id=None, pk=None):
+    def create_form(self, request, **kwargs):
+        school_id = kwargs.pop('school_id', None)
+        pk = kwargs.pop('pk', None)
+
+
         # Get the instance if pk is provided, use None otherwise
         record = self.model_class.objects.filter(pk=pk).first() if pk!='new' else None
         
         # Pass school_id to the form of classes
-        if self.model_class==Class:
+        if self.form_class==ClassForm:
             form = self.form_class(instance=record, school_id=school_id) if record else self.form_class(school_id=school_id)
+
+
+        elif self.form_class==TuitionPaymentForm:
+            student_id = kwargs.pop('student_id', None)
+            student = Student.objects.filter(pk=student_id).first()
+            initial_data = {
+                'income_or_expense': 'income',
+                'transaction_type': 'income_tuition_fee',
+                'student': student,
+                'receiver': School.objects.filter(pk=school_id).first(),
+            }
+            form = self.form_class(initial = initial_data, school_id=school_id, student_id=student_id)
+            record_id = student.pk
         else:
             form = self.form_class(instance=record) if record else self.form_class()
-        record_id = record.pk if record else None
+            record_id = record.pk if record else None
+
+
         html_modal = html_render('form', request, form=form, 
                                  modal=self.modal, record_id=record_id, 
                                  school_id=school_id)
@@ -231,28 +269,6 @@ class BaseViewSet(LoginRequiredMixin, View):
         else:
             return 'failed', instance, form
 
-    def get(self, request, school_id=None, pk=None):
-        get_query = request.GET.get('get')
-        if get_query=='form':
-            return self.create_form(request, school_id, pk)
-        else:
-            return self.create_display(request, school_id)
-
-    def post(self, request, school_id=None, pk=None):
-        print('>>> post request:', request.POST)
-        school = School.objects.filter(pk=school_id).first()
-        if pk:
-            instance = get_object_or_404(self.model_class, id=pk)
-        result, instance, form = self.process_form(request, instance if pk else None)
-
-        if result=='success':
-            html_display_cards = html_render('display_cards', request, select=self.page, records=[instance], school=school)
-            html_message = html_render('message', request, message='create successfully')
-            return HttpResponse(html_display_cards + html_message)
-        else:
-            record_id=instance.pk if instance else None
-            html_modal = html_render('form', request, form=form, modal=self.modal, record_id=record_id, school=school)
-            return HttpResponse(html_modal)
 
 
 
@@ -319,6 +335,11 @@ class StudentViewSet(BaseViewSet):
         html += html_render('display_cards', request, select='classroom', records=students, school=school)
         html += html_render('message', request, message='update reward points successfully')
         return HttpResponse(html)
+
+
+
+
+
 
 
 
@@ -466,6 +487,20 @@ class ClassViewSet(BaseViewSet):
         html_message = html_render('message', request, message='update attendance successfully')
         return HttpResponse(html_message)
 
+class ClassRoomViewSet(BaseViewSet):
+    model_class = Student
+    form_class = StudentForm
+    title =  'Manage Student in Classroom'
+    modal = 'modal_student'
+    page = 'classroom'
+
+    def get(self, request, school_id=None, class_id=None, pk=None):
+        get_query = request.GET.get('get')
+        if get_query=='form':
+            return self.create_form(request, school_id=school_id, pk=pk)
+        
+    def post(self, request, school_id=None, class_id=None, pk=None):
+        return super().post(request, school_id, pk)
 
 
 class AttendanceViewSet(BaseViewSet):
@@ -475,18 +510,34 @@ class AttendanceViewSet(BaseViewSet):
     modal = 'modal_attendance'
     page = 'attendance'
 
-    def get(self, request, school_id=None, pk=None):
-        if request.GET.get('get')=='calendar':
-            return self.student_attendance_calendar(request, school_id)
-        else:
-            return super().get(request, school_id, pk)
 
-    def student_attendance_calendar(self, request, school_id):
-        student_id = request.GET.get('student_id')
+
+class StudentAttendanceCalendarViewSet(BaseViewSet):
+    model_class = Attendance
+    form_class = AttendanceForm
+    title =  'Manage Attendance'
+    modal = 'modal_attendance'
+    page = 'attendance'
+
+    def get(self, request, school_id=None, student_id=None):
+        return self.student_attendance_calendar(request, school_id, student_id)
+
+    def student_attendance_calendar(self, request, school_id, student_id):
         student = get_object_or_404(Student, pk=student_id)
-        payments = FinancialTransaction.objects.filter(student=student).order_by('created_at')
         payment_id = request.GET.get('payment_id')
+        payments = FinancialTransaction.objects.filter(student=student).order_by('created_at')
         attendances = Attendance.objects.filter(student=student).order_by('check_date')
+        
+        if len(attendances)==0: #
+            context = {
+                'page': 'attendance',
+                'title': 'Attendance - ' + student.name,
+                'school': School.objects.filter(pk=school_id).first(),
+                'student': student,
+            }
+
+            return render(request, 'pages/single_page.html', context)
+
 
         if not payment_id or payment_id=="all":
             # Assume we fetch the earliest and latest attendance dates for the student to define the range
@@ -552,7 +603,7 @@ class AttendanceViewSet(BaseViewSet):
 
         context = {
             'page': 'attendance',
-            'title': 'Manage Attendance',
+            'title': 'Attendance - ' + student.name,
             'school': School.objects.filter(pk=school_id).first(),
             'student': student,
             'months': months_list,
@@ -565,6 +616,7 @@ class AttendanceViewSet(BaseViewSet):
 
 
 
+
 class FinancialTransactionViewSet(BaseViewSet):
     model_class = FinancialTransaction
     form_class = FinancialTransactionForm
@@ -572,10 +624,19 @@ class FinancialTransactionViewSet(BaseViewSet):
     modal = 'modal_financial_transaction'
     page = 'financial_transactions'
 
+class TuitionPaymentViewSet(BaseViewSet):
+    model_class = FinancialTransaction
+    form_class = TuitionPaymentForm
+    title =  'Manage Tuition Payments'
+    modal = 'modal_pay_tuition'
+    page = 'students'
 
-
-
-
+    def get(self, request, school_id=None, student_id=None, pk=None):
+        get_query = request.GET.get('get')
+        if get_query=='form':
+            return self.create_form(request, school_id=school_id, student_id=student_id, pk=pk)
+    def post(self, request, school_id=None, student_id=None, pk=None):
+        return super().post(request, school_id, pk)
 
 
 

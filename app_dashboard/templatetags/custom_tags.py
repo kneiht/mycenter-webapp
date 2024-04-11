@@ -43,3 +43,4 @@ def my_simple_tag(arg1, arg2):
 def my_filter(value, arg):
     # Your processing here
     return "processed value"
+

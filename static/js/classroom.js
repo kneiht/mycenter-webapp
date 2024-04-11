@@ -1,4 +1,71 @@
 
+// Sounds preloaded
+var successSound = new Audio("/static/sound/success.mp3' %}");
+var failSound = new Audio("/static/sound/fail.mp3' %}");
+
+// Preload all success and fail images
+var successImages = [], failImages = [];
+for (var i = 1; i <= 11; i++) {
+    var img = new Image();
+    img.src = '/static/img/memes/meme_success_' + i + ".png";
+    successImages.push(img);
+}
+for (var i = 1; i <= 20; i++) {
+    var img = new Image();
+    img.src = '/static/img/memes/meme_fail_' + i + ".png";
+    failImages.push(img);
+}
+
+// Function to play the sound
+function playSound(isSuccess) {
+    if (isSuccess) {
+        successSound.play();
+    } else {
+        failSound.play();
+    }
+}
+
+// Function to show notification modal
+function showNotificationModal(message, imageIndex, isSuccess) {
+    const $modal = $('#notificationModal');
+    const $modalContent = $modal.find('.notification-modal-content');
+    const $modalBody = $('#notification-modal-body');
+
+    var image = isSuccess ? successImages[imageIndex] : failImages[imageIndex];
+    $modalBody.html(`<p>${message}</p>`).append(image);
+
+    if (isSuccess) {
+        $modalContent.addClass('modal-success').removeClass('modal-fail');
+    } else {
+        $modalContent.addClass('modal-fail').removeClass('modal-success');
+    }
+
+    playSound(isSuccess);
+
+    $modal.css('display', 'block');
+
+    setTimeout(function() {
+        $modal.css('display', 'none');
+    }, 5000);
+}
+
+function getRandomImageIndex(count) {
+    return Math.floor(Math.random() * count);
+}
+
+function showPopupSuccess(message) {
+    const imageIndex = getRandomImageIndex(successImages.length);
+    showNotificationModal(message, imageIndex, true);
+}
+
+function showPopupFail(message) {
+    const imageIndex = getRandomImageIndex(failImages.length);
+    showNotificationModal(message, imageIndex, false);
+}
+
+
+
+
 // ADD, REMOVE, TOGGLE, CLICK ELSEWHERE =========================================
 function modifyClass(selectorOrElement, classNames, operation) {
     let elements;
@@ -114,7 +181,7 @@ class CardStyler {
 
 
 // CHECK ATTTENDANCE STUDENTS =========================================
-document.addEventListener('DOMContentLoaded', function() {
+up.compiler('#display_cards', function(element) {
     let checkDate = document.querySelector('#check_date');
     // check if there is check_date in params, if yes, set the value of checkDate to it
     let urlParams = new URLSearchParams(window.location.search);
@@ -252,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 // REWARD STUDENTS =========================================
-document.addEventListener('DOMContentLoaded', function() {
+up.compiler('#display_cards', function(element) {
     function selectStudents(selectorOrElement, action) {
         if (document.querySelector('#reward-controls').getAttribute("active") === "true") {
             if (typeof selectorOrElement === 'string') {
@@ -349,4 +416,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 });
+
 

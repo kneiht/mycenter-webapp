@@ -1,4 +1,5 @@
 Nén images
+không cho thay đổi balance bằng cách gửi form
 
 ý tưởng dùng cách này để lưu điểm danh để đỡ số lượng dòng
 {'check_date': ['2024-02-15'], 'present': ['4-5-3-6'], 'absent': [''], 'late': [''], 'left_early': ['']}
