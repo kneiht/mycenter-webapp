@@ -12,8 +12,10 @@ def html_render( component, request, **kwargs):
 
     elif component=='message':
         context = {
-                'modal': 'modal_message', 
+                'modal': 'modal_message',
                 'message': kwargs.get('message'),
+                'message_type': kwargs.get('message_type'),
+                'message_title': kwargs.get('message_title'),
         }
         template = 'components/modal.html'
 

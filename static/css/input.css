@@ -115,6 +115,41 @@
             border border-slate-300 dark:border-slate-900 border-opacity-50;
     }
 
+    .reward {
+        @apply 
+            bg-yellow-300 dark:bg-yellow-700;
+    }
+
+    .present {
+        @apply 
+            bg-green-300 dark:bg-green-700;
+    }
+
+    .absent {
+        @apply
+            bg-red-300 dark:bg-red-700;
+    }
+
+    .late {
+        @apply
+            bg-blue-300 dark:bg-blue-700;
+    }
+
+    .left-early {
+        @apply
+            bg-purple-300 dark:bg-purple-700;
+    }
+
+    .not-checked {
+        @apply
+            bg-gray-300 dark:bg-gray-700;
+    }
+
+    .grayouted {
+        @apply
+            opacity-25;
+    }
+
     .dropdown-menu {
         @apply 
             bg-gray-50 dark:bg-slate-700

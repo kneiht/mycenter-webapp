@@ -158,7 +158,17 @@ class Student(SecondaryIDMixin, BaseModel):
     created_at = models.DateTimeField(default=timezone.now)
     def __str__(self):
         return str(self.name)
-
+    
+    def check_attendance(self, check_class, check_date):
+        attendance = Attendance.objects.filter(student=self, check_class=check_class, check_date=check_date).first()
+        print('>>>>: ', self)
+        print('>>>>: ', check_class)
+        print('>>>>: ', check_date)
+        
+        if attendance and attendance.status in ['present', 'late', 'left_early']:
+            return True
+        else:
+            return False
 
 class Class(SecondaryIDMixin, BaseModel):
     school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)

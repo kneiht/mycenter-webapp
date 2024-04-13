@@ -1,32 +1,48 @@
 {% load custom_tags %}
 {% if modal == 'modal_message' %}
-    <div id="modal" up-hungry>
-        <div class="modal z-50 fixed inset-0 bg-slate-600 bg-opacity-60 overflow-y-auto h-full w-full flex justify-center">
-
-            <!-- Modal Content -->
-            <div class="relative top-20 mx-4 card h-fit w-full sm:w-fit">
-                <h3 class="mt-7 mb-8 text-xl font-extrabold leading-6 text-center text-theme">Message</h3>
-
-                <div class="w-[300px] gap-4 px-6 flex justify-center">
-                    <p class="text-theme"> {{ message }} </p>
+    {% if not message_type %}
+        <div id="modal" up-hungry message-type="{{ message_type }}">
+            <div class="modal z-50 fixed inset-0 bg-slate-600 bg-opacity-60 overflow-y-auto h-full w-full flex justify-center">
+                <!-- Modal Content -->
+                <div class="relative top-20 mx-4 card h-fit w-full sm:w-fit">
+                    <h3 class="mt-7 mb-8 text-xl font-bold leading-6 text-center text-theme">Message</h3>
+                    <div class="w-[300px] gap-4 px-6 flex justify-center">
+                        <p class="text-theme"> {{ message }} </p>
+                    </div>
+                    <div class="flex justify-center items-center gap-5 pt-8 pb-7">
+                        <button id='cancel' type="button" class="btn btn-primary rounded-full w-36">
+                            OK
+                        </button>
+                    </div>
                 </div>
-
-                <div class="flex justify-center items-center gap-5 pt-8 pb-7">
-                    <button id='cancel' type="button" class="btn btn-primary rounded-full w-36">
-                        OK
-                    </button>
-                </div>
-
             </div>
         </div>
-    </div>
+
+    {% elif message_type == 'reward-up' or message_type == 'reward-down' %}
+        <div id="modal" up-hungry message-type="{{ message_type }}">
+            <div class="modal z-50 fixed inset-0 bg-slate-600 bg-opacity-60 overflow-y-auto h-full w-full flex justify-center">
+                <!-- Modal Content -->
+                <div class="relative top-20 mx-4 card {% if message_type == 'reward-up' %} bg-green-500 dark:bg-green-500 {% else %}bg-red-500 dark:bg-green-500 {% endif %} h-fit w-full sm:w-fit">
+                    <h3 class="mt-7 mb-3 text-xl font-bold leading-6 text-center text-white">{{ message_title }}</h3>
+                    <div class="w-[700px] px-6 py-5 flex justify-center">
+                        <p class="text-white"> {{ message }} </p>
+                    </div>
+                    <div class="meme-container px-10 pb-5">
+                        <img src="controlled-by-js" alt="meme" class="rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+
 {% elif modal != 'modal_message' %}  
     <div id="modal" up-hungry>
         <div class="modal z-50 fixed inset-0 bg-slate-600 bg-opacity-60 overflow-y-auto h-full w-full flex justify-center">
 
             <!-- Modal Content -->
             <div class="relative top-16 mb-10 mx-4 card h-fit w-full sm:w-fit">
-                <h3 class="mt-7 mb-8 text-xl font-extrabold leading-6 text-center text-theme">{% if record_id %} Edit Information {% else %} Create New {% endif %}</h3>
+                <h3 class="mt-7 mb-8 text-xl font-bold leading-6 text-center text-theme">{% if record_id %} Edit Information {% else %} Create New {% endif %}</h3>
 
                 <!-- Result could be a html card if success or a new form modal with error if fail, if success, the card will be added right after the div cards, else the form will be the same place but display as fixed -->
                 <form enctype="multipart/form-data" method="post"

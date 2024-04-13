@@ -1,67 +1,51 @@
 
 // Sounds preloaded
-var successSound = new Audio("/static/sound/success.mp3' %}");
-var failSound = new Audio("/static/sound/fail.mp3' %}");
+var successSound = new Audio("/static/sound/success.mp3");
+var failSound = new Audio("/static/sound/fail.mp3");
 
-// Preload all success and fail images
-var successImages = [], failImages = [];
-for (var i = 1; i <= 11; i++) {
-    var img = new Image();
-    img.src = '/static/img/memes/meme_success_' + i + ".png";
-    successImages.push(img);
-}
-for (var i = 1; i <= 20; i++) {
-    var img = new Image();
-    img.src = '/static/img/memes/meme_fail_' + i + ".png";
-    failImages.push(img);
-}
 
-// Function to play the sound
-function playSound(isSuccess) {
-    if (isSuccess) {
-        successSound.play();
-    } else {
-        failSound.play();
-    }
-}
+//up.compiler('body', function(element) {
+//    up.on('up:fragment:inserted', function(event, fragment) {
+//    console.log("Looks like we have a new %o!", fragment)
+//    })
+//})
 
-// Function to show notification modal
-function showNotificationModal(message, imageIndex, isSuccess) {
-    const $modal = $('#notificationModal');
-    const $modalContent = $modal.find('.notification-modal-content');
-    const $modalBody = $('#notification-modal-body');
-
-    var image = isSuccess ? successImages[imageIndex] : failImages[imageIndex];
-    $modalBody.html(`<p>${message}</p>`).append(image);
-
-    if (isSuccess) {
-        $modalContent.addClass('modal-success').removeClass('modal-fail');
-    } else {
-        $modalContent.addClass('modal-fail').removeClass('modal-success');
+up.compiler('#modal', function(element) {
+    let modal = element
+    // if get data-message-type
+    let messageType = modal.getAttribute('message-type');
+    if (messageType!=="reward-up" && messageType!=="reward-down") {
+        return;
     }
 
-    playSound(isSuccess);
+    function playSound(isSuccess) {
+        if (isSuccess) {
+            successSound.play();
+        } else {
+            failSound.play();
+        }
+    }
 
-    $modal.css('display', 'block');
+    if (messageType === "reward-up") {
+        playSound(true);
+        var successImagesList = document.getElementById('success-image-list').getElementsByTagName('img');
+        var randomSuccessImage = successImagesList[Math.floor(Math.random() * successImagesList.length)];
+        // replace the image with the random image by puttingn the image to card-image-container
+        var cardImageContainer = modal.querySelector('.meme-container img');
+        cardImageContainer.src = randomSuccessImage.src;
+    } else if (messageType === "reward-down") {
+        playSound(false);
+        var failImagesList = document.getElementById('fail-image-list').getElementsByTagName('img');
+        var randomFailImage = failImagesList[Math.floor(Math.random() * failImagesList.length)];
+        var cardImageContainer = modal.querySelector('.meme-container img');
+        cardImageContainer.src = randomFailImage.src;
+    }
 
-    setTimeout(function() {
-        $modal.css('display', 'none');
+    setTimeout(() => {
+        modal.querySelector('.modal').remove();
     }, 5000);
-}
+})
 
-function getRandomImageIndex(count) {
-    return Math.floor(Math.random() * count);
-}
-
-function showPopupSuccess(message) {
-    const imageIndex = getRandomImageIndex(successImages.length);
-    showNotificationModal(message, imageIndex, true);
-}
-
-function showPopupFail(message) {
-    const imageIndex = getRandomImageIndex(failImages.length);
-    showNotificationModal(message, imageIndex, false);
-}
 
 
 
@@ -115,23 +99,26 @@ function toggleClass(selectorOrElement, classNames) {
 class CardStyler {
     constructor() {
         // Splitting the class names into an array for easier manipulation
-        this.rewardClasses = 'reward bg-yellow-300 dark:bg-yellow-700';
-        this.presentAttendanceClasses = 'present bg-green-300 dark:bg-green-700';
-        this.absentAttendanceClasses = 'absent bg-red-300 dark:bg-red-700';
-        this.lateAttendanceClasses = 'late bg-blue-300 dark:bg-blue-700';
-        this.leftEarlyAttendanceClasses = 'left-early bg-purple-300 dark:bg-purple-700';
-        this.notCheckedAttendanceClasses = 'not-checked bg-gray-300 dark:bg-gray-700';
+        this.shake = 'shake';
+        this.rewardClasses = 'reward';
+        this.presentAttendanceClasses = 'present';
+        this.absentAttendanceClasses = 'absent';
+        this.lateAttendanceClasses = 'late';
+        this.leftEarlyAttendanceClasses = 'left-early';
+        this.notCheckedAttendanceClasses = 'not-checked';
         this.attendanceClassesSet = this.presentAttendanceClasses + ' ' + 
                                     this.absentAttendanceClasses + ' ' + 
                                     this.lateAttendanceClasses + ' ' + 
                                     this.leftEarlyAttendanceClasses + ' ' +
                                     this.netCheckedAttendanceClasses;
-        
     }
     toggleCard(card) {toggleClass(card, this.rewardClasses);}
     selectCard(card) {addClass(card, this.rewardClasses);}
     deselectCard(card) {removeClass(card, this.rewardClasses);}
     clearAttendanceClasses(card) {removeClass(card, this.attendanceClassesSet);}
+    shakeOnCard(card) {addClass(card, this.shake);}
+    shakeOffCard(card) {removeClass(card, this.shake);}
+
 
     applyStatus(card, status) {
         this.clearAttendanceClasses(card);
@@ -181,7 +168,8 @@ class CardStyler {
 
 
 // CHECK ATTTENDANCE STUDENTS =========================================
-up.compiler('#display_cards', function(element) {
+up.compiler('#attendance-controls', function(element) {
+    
     let checkDate = document.querySelector('#check_date');
     // check if there is check_date in params, if yes, set the value of checkDate to it
     let urlParams = new URLSearchParams(window.location.search);
@@ -319,7 +307,7 @@ up.compiler('#display_cards', function(element) {
 
 
 // REWARD STUDENTS =========================================
-up.compiler('#display_cards', function(element) {
+up.compiler('#reward-controls', function(element) {
     function selectStudents(selectorOrElement, action) {
         if (document.querySelector('#reward-controls').getAttribute("active") === "true") {
             if (typeof selectorOrElement === 'string') {
@@ -350,7 +338,13 @@ up.compiler('#display_cards', function(element) {
 
         // Getting the value of the reward_points input
         let rewardPoints = document.querySelector('#reward_points').value;
-        
+        // if rewardPoints is 0, do nothing
+        if (rewardPoints === '0') {
+            // show browser message "The reward points must not be 0"
+            window.alert("The reward points must not be 0");
+            return;
+        }
+
         if (upOrDown === 'down') {
             rewardPoints = rewardPoints * -1;
         }
@@ -366,7 +360,6 @@ up.compiler('#display_cards', function(element) {
             headers: {'X-CSRFToken': csrftoken,},
             target: ':none',
         })
-
     }
 
     let rewardControls = document.querySelector('#reward-controls');

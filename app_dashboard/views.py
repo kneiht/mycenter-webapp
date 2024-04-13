@@ -5,6 +5,9 @@
 # Python Standard Library Imports
 import json
 
+import os
+from django.conf import settings
+
 from datetime import datetime, timedelta
 from collections import defaultdict 
 import time
@@ -194,7 +197,7 @@ class BaseViewSet(LoginRequiredMixin, View):
         # Pass school_id to the form of classes
         if self.form_class==ClassForm:
             form = self.form_class(instance=record, school_id=school_id) if record else self.form_class(school_id=school_id)
-
+            record_id = record.pk if record else None
 
         elif self.form_class==TuitionPaymentForm:
             student_id = kwargs.pop('student_id', None)
@@ -315,7 +318,7 @@ class StudentViewSet(BaseViewSet):
 
     def update_reward_points(self, request, school_id=None):
         # Get the parameters from the URL
-        reward_points = request.GET.get('reward_points')
+        reward_points = int(request.GET.get('reward_points'))
         student_ids = request.GET.get('students')
         # Split student_ids by "-" to get a list of individual student IDs
         student_id_list = student_ids.split('-')
@@ -332,8 +335,25 @@ class StudentViewSet(BaseViewSet):
             except Exception as e:
                 print(e)
         students = Student.objects.filter(pk__in=student_id_list, school=school)
+
+        # add style for the card
+        for student in students:
+            if not student.check_attendance(class_instance, check_date):
+                student.style = 'reward shake grayouted'
+            else:
+                student.style = 'reward shake'
+
+        if int(reward_points) >= 0:
+            message_type = 'reward-up'
+            message_title = 'Update Reward Points'
+            message = f'CHÚC MỪNG CÁC EM ĐÃ CÓ THÊM {abs(reward_points)} ĐIỂM THƯỞNG'
+        else:
+            message_type = 'reward-down'
+            message_title = 'Update Reward Points'
+            message = f'XIN CHIA BUỒN CÁC EM ĐÃ BỊ TRỪ {abs(reward_points)} ĐIỂM THƯỞNG'
+
         html += html_render('display_cards', request, select='classroom', records=students, school=school)
-        html += html_render('message', request, message='update reward points successfully')
+        html += html_render('message', request,message_title=message_title,message=message, message_type=message_type)
         return HttpResponse(html)
 
 
@@ -343,14 +363,30 @@ class StudentViewSet(BaseViewSet):
 
 
 
+def get_images(path):
+    root_static_url = settings.STATIC_URL
+    static_image_url = root_static_url + path
+    meme_folder_path = os.path.join(settings.STATIC_ROOT, path)
+    images_list = []
+    for root, dirs, files in os.walk(meme_folder_path):
 
+        images_list.extend(
+            static_image_url + '/' + file
+            for file in files
+            if file.lower().endswith(('.png', '.jpg', '.jpeg'))
+        )
+    print(images_list)
+    return images_list
 class ClassViewSet(BaseViewSet):
     model_class = Class
     form_class = ClassForm
-    title =  'Manage Classes'
+    title = 'Manage Classes'
     page = 'classes'
     modal = 'modal_class'
-    
+
+    success_images_list = get_images('images/memes/success')
+    fail_images_list = get_images('images/memes/fail')
+
     def get(self, request, school_id=None, pk=None):
         get_query = request.GET.get('get')
         if get_query=='attendance':
@@ -369,17 +405,26 @@ class ClassViewSet(BaseViewSet):
         else:
             return super().post(request, school_id, pk)
 
-
     def create_display_classroom(self, request, school_id, pk):
         class_instance = get_object_or_404(Class, pk=pk)
         check_date = request.GET.get('check_date')
+        if not check_date:
+            check_date = datetime.now().date()
         students_in_class = Student.objects.filter(studentclass___class=class_instance)
+
+        # style disable absent students
+        for student in students_in_class:
+            if not student.check_attendance(class_instance, check_date):
+                student.style = 'grayouted'
+
         context = {
             'class_instance': class_instance,
             'records': students_in_class,
             'select': 'classroom',
             'title': f'{class_instance.name}',
             'school': School.objects.filter(pk=school_id).first(),
+            'success_images_list': self.success_images_list,
+            'fail_images_list': self.fail_images_list,
         }
         return render(request, 'pages/single_page.html', context)
 

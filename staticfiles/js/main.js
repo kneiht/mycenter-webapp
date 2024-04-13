@@ -26,6 +26,7 @@ const csrftoken = getCookie('csrftoken');
 
 
 
+
 // THEME CHANGE =========================================
 up.compiler('body', function(element) {
     const themeToggles = document.querySelectorAll('#theme-toggle');
@@ -123,15 +124,21 @@ up.compiler('.card', function(element) {
                     recordEdit.setAttribute('href', href);
                 }
 
+                // Update the URL for the tuition payment link
+                let payTuition = document.getElementById('pay_tuition');
+                if (payTuition) {
+                    let href = window.location.pathname
+                    href = href + '/' + recordId + '/pay-tuition/?get=form';
+                    href = href.replace('//', '/');
+                    payTuition.setAttribute('href', href);
+                }
+
                 // Update the URL for attendance link
                 let attendanceCalendar = document.getElementById('attendance-calendar');
                 if (attendanceCalendar) {
-                    href = attendanceCalendar.getAttribute('href');
-                    //console.log('href:', href);
-                    //=> remove all query form href
-                    href = href.split('?')[0];
-                    href = href + '?get=calendar&student_id=' + recordId;
-                    //console.log('href:', href);
+                    href = window.location.pathname;
+                    href = href + '/' + recordId + '/attendance-calendar/'
+                    href = href.replace('//', '/');
                     attendanceCalendar.setAttribute('href', href);
                 }
             }

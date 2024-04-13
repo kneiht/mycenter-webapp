@@ -1,7 +1,7 @@
 {% load custom_tags %}
 
 
-<div up-hungry id="record_{{ record.pk }}" record-id="{{ record.pk }}" class="relative card">
+<div up-hungry id="record_{{ record.pk }}" record-id="{{ record.pk }}" class="relative card {{ record.style }}">
     
     {% if select == 'schools' %}
         <a href="{% url 'dashboard' record.pk %}">
@@ -92,7 +92,7 @@
         </div>
     </div>
     
-    <div class="flex flex-col text-theme text-sm px-4 pb-3">
+    <div class="flex flex-col text-cyan-600 dark:text-cyan-500 text-sm px-4 pb-3">
         {% if select == 'schools' %}
             <!-- Keep <p> for paragraphs of text -->
             <div class="whitespace-pre-line"> {{ record.description }} </div>
@@ -106,7 +106,7 @@
             <div class="flex">
                 <div class="flex-1 mr-2 h-10 truncate flex items-center">
                     <i class="fas fa-user-check w-6"></i>
-                    <span>{{ record.status }}</span>
+                    <span>{{ record.get_status_display }}</span>
                 </div>
                 <div class="flex-1 mr-2 h-10 truncate flex items-center">
                     <i class="fas fa-venus-mars w-6"></i>
