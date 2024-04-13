@@ -352,8 +352,10 @@ up.compiler('#reward-controls', function(element) {
         let students = Array.from(document.querySelectorAll(`#display_cards .reward`))
                         .map(card => card.getAttribute('record-id'))
                         .join('-');
-        
-        let url = `/schools/${schoolId}/students/?post=reward&reward_points=${rewardPoints}&students=${students}`;
+
+        let checkDate = document.querySelector('#check_date');
+        let url = window.location.href.split('?')[0] + `?post=reward&check_date=${checkDate.value}&reward_points=${rewardPoints}&students=${students}`;
+        console.log(url)
         up.render({
             url: url, 
             method: 'post', 

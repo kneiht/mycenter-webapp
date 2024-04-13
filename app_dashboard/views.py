@@ -309,54 +309,7 @@ class StudentViewSet(BaseViewSet):
     page = 'students'
 
     def post(self, request, school_id=None, pk=None):
-        post_query = request.GET.get('post')
-        if post_query=='reward':
-            return  self.update_reward_points(request, school_id)
-        else:
-            return super().post(request, school_id, pk)
-
-
-    def update_reward_points(self, request, school_id=None):
-        # Get the parameters from the URL
-        reward_points = int(request.GET.get('reward_points'))
-        student_ids = request.GET.get('students')
-        # Split student_ids by "-" to get a list of individual student IDs
-        student_id_list = student_ids.split('-')
-
-        # Find the school (assuming you have a School model)
-        school = get_object_or_404(School, pk=int(school_id))
-        # Update reward points for selected students
-        html = ''
-        for student_id in student_id_list:
-            try:
-                student = Student.objects.filter(pk=int(student_id), school=school).first()
-                student.reward_points += int(reward_points)
-                student.save()
-            except Exception as e:
-                print(e)
-        students = Student.objects.filter(pk__in=student_id_list, school=school)
-
-        # add style for the card
-        for student in students:
-            if not student.check_attendance(class_instance, check_date):
-                student.style = 'reward shake grayouted'
-            else:
-                student.style = 'reward shake'
-
-        if int(reward_points) >= 0:
-            message_type = 'reward-up'
-            message_title = 'Update Reward Points'
-            message = f'CHÚC MỪNG CÁC EM ĐÃ CÓ THÊM {abs(reward_points)} ĐIỂM THƯỞNG'
-        else:
-            message_type = 'reward-down'
-            message_title = 'Update Reward Points'
-            message = f'XIN CHIA BUỒN CÁC EM ĐÃ BỊ TRỪ {abs(reward_points)} ĐIỂM THƯỞNG'
-
-        html += html_render('display_cards', request, select='classroom', records=students, school=school)
-        html += html_render('message', request,message_title=message_title,message=message, message_type=message_type)
-        return HttpResponse(html)
-
-
+        return super().post(request, school_id, pk)
 
 
 
@@ -375,7 +328,6 @@ def get_images(path):
             for file in files
             if file.lower().endswith(('.png', '.jpg', '.jpeg'))
         )
-    print(images_list)
     return images_list
 class ClassViewSet(BaseViewSet):
     model_class = Class
@@ -402,8 +354,13 @@ class ClassViewSet(BaseViewSet):
         print('>>>>>>>>>> post_query:', post_query)
         if post_query=='attendance':
             return self.update_class_attendance(request, school_id, pk)
+        
+        elif post_query=='reward':
+            return  self.update_reward_points(request, school_id, pk)
+        
         else:
             return super().post(request, school_id, pk)
+
 
     def create_display_classroom(self, request, school_id, pk):
         class_instance = get_object_or_404(Class, pk=pk)
@@ -532,6 +489,54 @@ class ClassViewSet(BaseViewSet):
         html_message = html_render('message', request, message='update attendance successfully')
         return HttpResponse(html_message)
 
+
+    def update_reward_points(self, request, school_id=None, pk=None):
+        # Get the parameters from the URL
+        reward_points = int(request.GET.get('reward_points'))
+        student_ids = request.GET.get('students')
+        # Split student_ids by "-" to get a list of individual student IDs
+        student_id_list = student_ids.split('-')
+
+        # Find the school (assuming you have a School model)
+        school = get_object_or_404(School, pk=int(school_id))
+        # Update reward points for selected students
+        html = ''
+        for student_id in student_id_list:
+            try:
+                student = Student.objects.filter(pk=int(student_id), school=school).first()
+                student.reward_points += int(reward_points)
+                student.save()
+            except Exception as e:
+                print(e)
+        students = Student.objects.filter(pk__in=student_id_list, school=school)
+
+        # add style for the card
+        check_date = request.GET.get('check_date')
+        class_id = pk
+        class_instance = get_object_or_404(Class, pk=class_id)
+        for student in students:
+            if not student.check_attendance(class_instance, check_date):
+                student.style = 'reward shake grayouted'
+            else:
+                student.style = 'reward shake'
+
+        if int(reward_points) >= 0:
+            message_type = 'reward-up'
+            message_title = 'Update Reward Points'
+            message = f'CHÚC MỪNG CÁC EM ĐÃ CÓ THÊM {abs(reward_points)} ĐIỂM THƯỞNG'
+        else:
+            message_type = 'reward-down'
+            message_title = 'Update Reward Points'
+            message = f'XIN CHIA BUỒN CÁC EM ĐÃ BỊ TRỪ {abs(reward_points)} ĐIỂM THƯỞNG'
+
+        html += html_render('display_cards', request, select='classroom', records=students, school=school)
+        html += html_render('message', request,message_title=message_title,message=message, message_type=message_type)
+        return HttpResponse(html)
+
+
+
+
+
 class ClassRoomViewSet(BaseViewSet):
     model_class = Student
     form_class = StudentForm
@@ -546,6 +551,9 @@ class ClassRoomViewSet(BaseViewSet):
         
     def post(self, request, school_id=None, class_id=None, pk=None):
         return super().post(request, school_id, pk)
+
+
+
 
 
 class AttendanceViewSet(BaseViewSet):
