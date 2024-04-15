@@ -231,6 +231,14 @@ up.compiler('#attendance-controls', function(element) {
                 }
             }
         });
+        // get the cards which are not in the attendance data
+        const cardsInAttendanceData = new Set(attendanceData.map(student => student.id));
+        document.querySelectorAll('#display_cards .card').forEach(card => {
+            if (!cardsInAttendanceData.has(card.getAttribute('record-id'))) {
+                cardStyler.clearAttendanceClasses(card);
+                cardStyler.applyStatus(card, 'not-checked');
+            }
+        })
     }
 
 

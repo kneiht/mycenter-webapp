@@ -385,6 +385,8 @@ class ClassViewSet(BaseViewSet):
 
         # style disable absent students
         for student in students_in_class:
+            print(student)
+            print(student.check_attendance(class_instance, check_date))
             if not student.check_attendance(class_instance, check_date):
                 student.style = 'grayouted'
 

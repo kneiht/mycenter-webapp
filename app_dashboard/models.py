@@ -160,7 +160,13 @@ class Student(SecondaryIDMixin, BaseModel):
         return str(self.name)
     
     def check_attendance(self, check_class, check_date):
-        attendance = Attendance.objects.filter(student=self, check_class=check_class, check_date=check_date).first()        
+        if type(check_date) == str:
+            check_date = datetime.strptime(check_date, '%Y-%m-%d').date()
+        attendance = Attendance.objects.filter(
+            student=self, 
+            check_class=check_class, 
+            check_date__date=check_date  # Extract date part
+        ).first()        
         if attendance and attendance.status in ['present', 'late', 'left_early']:
             return True
         else:
