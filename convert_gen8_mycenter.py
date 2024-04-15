@@ -28,15 +28,36 @@ def import_excel(excel_file):
     return df_dict
 
 # Gen8 db excel file
-excel_file = 'excel_db/gen8db_2024_04_15.xlsx'
-gen8_dict = import_excel(excel_file)
+gen8_excel_file = 'excel_db/gen8db_2024_04_15.xlsx'
+gen8_dict = import_excel(gen8_excel_file)
 
 # Mycennter db excel file
-excel_file = 'excel_db/mycenter_db_2024_02_26.xlsx'
 mycenter_dict = {}
 
 
 # CONVERT EACH TABLE
+
+# SCHOOL
+transformed_data = {
+    'id': [1],
+    'name': ['Gen8 Long Hải'],
+    'description': [''],
+    'image': ['images/default/default_school.webp'],
+    'created_at': ['2024-02-26 15:17:03']
+}
+
+# Create DataFrame
+df_transformed = pd.DataFrame(transformed_data)
+mycenter_dict['school'] = df_transformed
+
+#SCHOOL USER
+transformed_data = {
+    'id': [1, 2, 3, 4, 5, 6],
+    'school_id': [1, 1, 1, 1, 1, 1],
+    'user_id': [1, 2, 3, 4, 5, 6]
+}
+df_transformed = pd.DataFrame(transformed_data)
+mycenter_dict['schooluser'] = df_transformed
 
 # USER
 df_gen8 = gen8_dict['auth_user']
@@ -92,7 +113,6 @@ transformed_data = {
 }
 df_transformed = pd.DataFrame(transformed_data)
 mycenter_dict['student'] = df_transformed
-
 
 
 # STUDENT CLASS
@@ -186,12 +206,15 @@ transformed_data['legacy_tuition_plan'] = df_gen8['tuition_plan_id'].map(plan_di
 # get the student_balance_increase from the balance table, the keys are legacy_tuition_plan
 # Map student_balance_increase using converted_balance_data
 transformed_data['student_balance_increase'] = transformed_data['legacy_tuition_plan'].map(converted_balance_data)
-
+transformed_data['bonus'] = 0
 
 df_transformed = pd.DataFrame(transformed_data)
 mycenter_dict['financialtransaction'] = df_transformed
 
 # Save the transformed data to a new excel file
-with pd.ExcelWriter('excel_db/mycenter_data.xlsx') as writer:
+with pd.ExcelWriter(gen8_excel_file.replace('gen8db', 'mycenter_db')) as writer:
     for sheet_name, df in mycenter_dict.items():
         df.to_excel(writer, sheet_name=sheet_name, index=False)
+
+
+print("all done")

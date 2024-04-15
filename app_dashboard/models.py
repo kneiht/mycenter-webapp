@@ -217,19 +217,27 @@ class Attendance(SecondaryIDMixin, BaseModel):
             except StudentClass.DoesNotExist:
                 self.is_payment_required = True
         
-        # If the attendance is being created, update the student's balance
-        if self._state.adding and self.student and self.is_payment_required:
-            self.student.balance = self.student.balance - self.price_per_hour * self.learning_hours
-            self.student.save()
-        # If the attendance is being updated, update the student's balance
-        elif not self._state.adding and self.student and self.is_payment_required:
-            # Fetch the old learning hours and old_price_per_hour
-            old_learning_hours = Attendance.objects.get(pk=self.pk).learning_hours
-            old_price_per_hour = Attendance.objects.get(pk=self.pk).price_per_hour
-            # Update the balance
-            self.student.balance = self.student.balance + old_price_per_hour * old_learning_hours - self.price_per_hour * self.learning_hours
+        # If the attendance is being created, updated, or deleted, update the student's balance
+        if self.student and self.is_payment_required:
+            if self._state.adding:
+                self.student.balance = self.student.balance - self.price_per_hour * self.learning_hours
+            else:
+                # Fetch the old learning hours and old_price_per_hour
+                old_attendance = Attendance.objects.get(pk=self.pk)
+                old_learning_hours = old_attendance.learning_hours
+                old_price_per_hour = old_attendance.price_per_hour
+                # Update the balance
+                self.student.balance = self.student.balance + old_price_per_hour * old_learning_hours - self.price_per_hour * self.learning_hours
             self.student.save()
         super(Attendance, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.student and self.is_payment_required:
+            self.student.balance = self.student.balance + self.price_per_hour * self.learning_hours
+        super().delete(*args, **kwargs)  # Perform the actual database deletion
+
+        # Custom logic after deletion (optional)
+        # ...
 
     def __str__(self):
         return "{} - {} - {} - {}".format(str(self.student), str(self.check_class), str(self.check_date), str(self.status))
@@ -272,7 +280,7 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
 
     # fields for tuition payments
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True, blank=True)
-    bonus = models.FloatField(default=0.0, choices=BONUSES)
+    bonus = models.FloatField(default=0.0, choices=BONUSES, null=True, blank=True)
     student_balance_increase = models.IntegerField(default=0, null=True, blank=True)
     legacy_discount = models.TextField(default="", blank=True, null=True)
     legacy_tuition_plan = models.TextField(default="", blank=True, null=True)

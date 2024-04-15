@@ -37,6 +37,8 @@ from django.contrib.auth.models import User
 from .models import (
     School, Student, SchoolUser, Class, StudentClass, Attendance, FinancialTransaction
 )
+from django.db.models import F, FloatField
+
 
 from .html_render import html_render
 
@@ -56,6 +58,21 @@ def landing_page(request):
 def dashboard(request, school_id):
     school = School.objects.filter(pk=school_id).first()
     context = {'page': 'dashboard', 'title': 'Dashboard', 'school': school}
+    students = Student.objects.all()
+    for student in students:
+        # Summarize all student_balance_increase from FinancialTransaction
+        total_increase = FinancialTransaction.objects.filter(student=student).aggregate(Sum('student_balance_increase'))['student_balance_increase__sum'] or 0
+        
+        # Calculate total attendance cost
+        total_attendance_cost = Attendance.objects.filter(student=student, is_payment_required=True).annotate(
+            total_cost=Sum(F('learning_hours') * F('price_per_hour'), output_field=FloatField())
+        ).aggregate(Sum('total_cost'))['total_cost__sum'] or 0
+        
+        # Calculate final balance
+        student.balance = total_increase - total_attendance_cost
+        student.save()
+
+
     return render(request, 'pages/single_page.html', context)
 
 @login_required
