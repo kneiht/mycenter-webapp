@@ -16,9 +16,9 @@
 
 <div id="display_attendance_calendar" class="my-5">
     {% for month in months %}
-    <div class="card w-full p-4 my-5">
-        <div  class="text-center text-theme">{{ month.month }}</div>  <!-- Display the month -->
-        <div class="grid grid-cols-7 justify-between gap-4">
+    <div class="card w-full my-5">
+        <div  class="text-center text-theme font-bold text-xl py-2">{{ month.month }}</div>  <!-- Display the month -->
+        <div class="grid grid-cols-7 justify-between gap-4 bg-slate-200 dark:bg-slate-700 font-semibold text-md py-2">
             <div class="text-center text-theme">Mon</div>
             <div class="text-center text-theme">Tue</div>
             <div class="text-center text-theme">Wed</div>
@@ -28,21 +28,27 @@
             <div class="text-center text-theme">Sun</div>
         </div>
         
-        <div class="grid grid-cols-7 justify-between gap-4">
+        <div class="grid grid-cols-7 justify-between divide-x divide-y">
                 {% for day in month.days %}
-                    <div class="text-center p-2 border rounded">
-                        <div>{{ day.date.day }}</div>
+                    <div class="text-center py-2">
+                        <div class="py-2">{{ day.date.day }}</div>
                         {% for attendance in day.attendances %}
-                            {{ attendance.check_class }}
+                            
                             <!-- Example: You might want to customize this based on your attendance model -->
                             {% if attendance.status == 'present' %}
-                                <span class="text-green-500">Present</span>
+                                <span class="py-1 px-2 rounded-lg present">
                             {% elif attendance.status == 'absent' %}
-                                <span class="text-red-500">Absent</span>
-                            {% else %}
-                                <span class="text-yellow-500">{{ attendance.status }}</span>
+                                <span class="py-1 px-2 rounded-lg absent">
+                            {% elif attendance.status == 'late' %}
+                                <span class="py-1 px-2 rounded-lg late">
+                            {% elif attendance.status == 'left_early' %}
+                                <span class="py-1 px-2 rounded-lg left-early">
                             {% endif %}
-                            {{ attendance.is_payment_required }}
+                            {{ attendance.check_class }} 
+                            {% if attendance.is_payment_required %} - Paid {% endif %} - {{ attendance.learning_hours }}h</span>
+
+
+                            
                         {% endfor %}
                     </div>
                 {% endfor %}

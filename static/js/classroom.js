@@ -141,7 +141,11 @@ class CardStyler {
     circleAttendanceState(card) {
         // Get the current class name
         let currentClass = card.classList;
-        if (currentClass.contains('present')) {
+        if (currentClass.contains('not-checked')) {
+            removeClass(card, this.notCheckedAttendanceClasses);
+            addClass(card, this.presentAttendanceClasses);
+        }
+        else if (currentClass.contains('present')) {
             removeClass(card, this.presentAttendanceClasses);
             addClass(card, this.absentAttendanceClasses);
         }
@@ -155,11 +159,11 @@ class CardStyler {
         }
         else if (currentClass.contains('left-early')) {
             removeClass(card, this.leftEarlyAttendanceClasses);
-            addClass(card, this.presentAttendanceClasses);
+            addClass(card, this.notCheckedAttendanceClasses);
         }
         else {
             this.clearAttendanceClasses(card);
-            addClass(card, this.presentAttendanceClasses);
+            addClass(card, this.notCheckedAttendanceClasses);
         }
     }
 }
@@ -311,6 +315,8 @@ up.compiler('#attendance-controls', function(element) {
 
         }
         else {
+            // reload the page
+            up.reload()
             applyGrayoutedClasses();
             document.querySelectorAll('#display_cards .card').forEach(card => {
                 cardStyler.clearAttendanceClasses(card);
