@@ -81,7 +81,6 @@ class BaseViewSet(LoginRequiredMixin, View):
             return self.create_display(request, school_id=school_id)
 
     def post(self, request, school_id=None, pk=None):
-        print('>>> post request:', request.POST)
         school = School.objects.filter(pk=school_id).first()
         if pk:
             instance = get_object_or_404(self.model_class, id=pk)
@@ -139,7 +138,6 @@ class BaseViewSet(LoginRequiredMixin, View):
 
         # Get all query parameters except 'sort' as they are assumed to be field filters
         query_params = {k: v for k, v in request.GET.lists() if k != 'sort'}
-        print('>>>>>>>>>> query_params:', query_params)
         # Construct Q objects for filtering
         combined_query = Q()
         if 'all' in query_params:
@@ -351,7 +349,6 @@ class ClassViewSet(BaseViewSet):
 
     def post(self, request, school_id=None, pk=None):
         post_query = request.GET.get('post')
-        print('>>>>>>>>>> post_query:', post_query)
         if post_query=='attendance':
             return self.update_class_attendance(request, school_id, pk)
         
@@ -390,7 +387,6 @@ class ClassViewSet(BaseViewSet):
         # Get class_id and checkDate from request parameters
         class_id = pk
         check_date_str = request.GET.get('check_date')  # 'YYYY-MM-DD'
-        print('>>>>>>>>>> request.GET:', request.GET)
         
         # Ensure class_id is provided
         if not class_id:
@@ -426,7 +422,6 @@ class ClassViewSet(BaseViewSet):
             'check_date': record.check_date.strftime('%Y-%m-%d'),
             'is_payment_required': record.is_payment_required,
         } for record in attendance_records]
-        print('>>>>>>>>>> attendance_data:', attendance_data)
         return JsonResponse({'status': 'success', 'attendance_data': attendance_data})
 
 
@@ -435,7 +430,7 @@ class ClassViewSet(BaseViewSet):
         class_id = pk
         data = request.POST
         check_date_str = data.get('check_date')  # Assuming 'checkDate' is sent in the format 'YYYY-MM-DD HH:MM'
-        print('>>>>>>>>>> class_check_attendance data:', data)
+        learning_hours = data.get('learning_hours')
         # Assuming 'school_id' can be directly used to find a class, adjust as needed
         check_class = get_object_or_404(Class, id=class_id)
         if not check_class:
@@ -449,7 +444,6 @@ class ClassViewSet(BaseViewSet):
                 for student_id in student_ids:
                     student = Student.objects.filter(id=student_id).first()
                     if student:
-                        print('>>>>>>>>>> student:', student)
                         # Parse the check_date_str to a datetime object
                         try:
                             # If parsing with '%Y-%m-%d' fails, try parsing with '%Y-%m-%dT%H:%M'
@@ -460,23 +454,26 @@ class ClassViewSet(BaseViewSet):
                                 
                         # Filter Attendance objects based on student and check_date
                         attendance = Attendance.objects.filter(
+                            school_id=school_id,
                             student=student,
                             check_class=check_class,
                             check_date__date=check_datetime.date()
                         ).first()
-                        print('>>>>>>>>>> attendance:', attendance)
 
                         # If an attendance record exists for the same date, update it
                         if attendance:
                             attendance.status = status
                             attendance.check_date = check_datetime  # Update check_datetime if needed
+                            attendance.learning_hours = learning_hours
                             attendance.save()
                         else:
                             # Create a new Attendance record if none exists for the same date
                             attendance = Attendance.objects.create(
+                                school_id=school_id,
                                 student=student,
                                 check_class=check_class,
                                 check_date=check_datetime,  # Use the parsed check_datetime here
+                                learning_hours = learning_hours,
                                 status=status,
                             )
 

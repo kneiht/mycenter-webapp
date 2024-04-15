@@ -3,23 +3,17 @@
 var successSound = new Audio("/static/sound/success.mp3");
 var failSound = new Audio("/static/sound/fail.mp3");
 
-// Preload all success and fail images
-var successImages = [], failImages = [];
-for (var i = 1; i <= 11; i++) {
-    var img = new Image();
-    img.src = '/static/images/memes/meme_success_' + i + ".png";
-    successImages.push(img);
-}
-for (var i = 1; i <= 20; i++) {
-    var img = new Image();
-    img.src = '/static/images/memes/meme_fail_' + i + ".png";
-    failImages.push(img);
-}
 
-// Function to play the sound
 
 
 up.compiler('#modal', function(element) {
+    let modal = element
+    // if get data-message-type
+    let messageType = modal.getAttribute('message-type');
+    if (messageType!=="reward-up" && messageType!=="reward-down") {
+        return;
+    }
+
     function playSound(isSuccess) {
         if (isSuccess) {
             successSound.play();
@@ -27,65 +21,26 @@ up.compiler('#modal', function(element) {
             failSound.play();
         }
     }
-    function getRandomImageIndex(count) {
-        return Math.floor(Math.random() * count);
-    }
-    
-    function showPopupSuccess(message) {
-        const imageIndex = getRandomImageIndex(successImages.length);
-        showNotificationModal(message, imageIndex, true);
-    }
-    
-    function showPopupFail(message) {
-        const imageIndex = getRandomImageIndex(failImages.length);
-        showNotificationModal(message, imageIndex, false);
-    }
 
-
-    // if get data-message-type
-    var messageType = element.getAttribute('message-type');
-    console.log("messageType:", messageType);
     if (messageType === "reward-up") {
         playSound(true);
+        var successImagesList = document.getElementById('success-image-list').getElementsByTagName('img');
+        var randomSuccessImage = successImagesList[Math.floor(Math.random() * successImagesList.length)];
+        // replace the image with the random image by puttingn the image to card-image-container
+        var cardImageContainer = modal.querySelector('.meme-container img');
+        cardImageContainer.src = randomSuccessImage.src;
     } else if (messageType === "reward-down") {
         playSound(false);
-    }
-})
-
-
-
-// Function to show notification modal
-function showNotificationModal(message, imageIndex, isSuccess) {
-    const $modal = $('#notificationModal');
-    const $modalContent = $modal.find('.notification-modal-content');
-    const $modalBody = $('#notification-modal-body');
-
-    var image = isSuccess ? successImages[imageIndex] : failImages[imageIndex];
-    $modalBody.html(`<p>${message}</p>`).append(image);
-
-    if (isSuccess) {
-        $modalContent.addClass('modal-success').removeClass('modal-fail');
-    } else {
-        $modalContent.addClass('modal-fail').removeClass('modal-success');
+        var failImagesList = document.getElementById('fail-image-list').getElementsByTagName('img');
+        var randomFailImage = failImagesList[Math.floor(Math.random() * failImagesList.length)];
+        var cardImageContainer = modal.querySelector('.meme-container img');
+        cardImageContainer.src = randomFailImage.src;
     }
 
-    playSound(isSuccess);
-
-    $modal.css('display', 'block');
-
-    setTimeout(function() {
-        $modal.css('display', 'none');
+    setTimeout(() => {
+        modal.querySelector('.modal').remove();
     }, 5000);
-}
-
-
-
-
-
-
-
-
-
+})
 
 
 
@@ -140,23 +95,29 @@ function toggleClass(selectorOrElement, classNames) {
 class CardStyler {
     constructor() {
         // Splitting the class names into an array for easier manipulation
-        this.rewardClasses = 'reward bg-yellow-300 dark:bg-yellow-700';
-        this.presentAttendanceClasses = 'present bg-green-300 dark:bg-green-700';
-        this.absentAttendanceClasses = 'absent bg-red-300 dark:bg-red-700';
-        this.lateAttendanceClasses = 'late bg-blue-300 dark:bg-blue-700';
-        this.leftEarlyAttendanceClasses = 'left-early bg-purple-300 dark:bg-purple-700';
-        this.notCheckedAttendanceClasses = 'not-checked bg-gray-300 dark:bg-gray-700';
+        this.shake = 'shake';
+        this.rewardClasses = 'reward';
+        this.presentAttendanceClasses = 'present';
+        this.absentAttendanceClasses = 'absent';
+        this.lateAttendanceClasses = 'late';
+        this.leftEarlyAttendanceClasses = 'left-early';
+        this.notCheckedAttendanceClasses = 'not-checked';
+        this.grayoutedAttendanceClasses = 'grayouted';
         this.attendanceClassesSet = this.presentAttendanceClasses + ' ' + 
                                     this.absentAttendanceClasses + ' ' + 
                                     this.lateAttendanceClasses + ' ' + 
                                     this.leftEarlyAttendanceClasses + ' ' +
                                     this.netCheckedAttendanceClasses;
-        
     }
     toggleCard(card) {toggleClass(card, this.rewardClasses);}
     selectCard(card) {addClass(card, this.rewardClasses);}
     deselectCard(card) {removeClass(card, this.rewardClasses);}
     clearAttendanceClasses(card) {removeClass(card, this.attendanceClassesSet);}
+    shakeOnCard(card) {addClass(card, this.shake);}
+    shakeOffCard(card) {removeClass(card, this.shake);}
+    applyGrayoutedClasses(card) {addClass(card, this.grayoutedAttendanceClasses);}
+    clearGrayoutedClasses(card) {removeClass(card, this.grayoutedAttendanceClasses);}
+
 
     applyStatus(card, status) {
         this.clearAttendanceClasses(card);
@@ -206,7 +167,8 @@ class CardStyler {
 
 
 // CHECK ATTTENDANCE STUDENTS =========================================
-up.compiler('#display_cards', function(element) {
+up.compiler('#attendance-controls', function(element) {
+    
     let checkDate = document.querySelector('#check_date');
     // check if there is check_date in params, if yes, set the value of checkDate to it
     let urlParams = new URLSearchParams(window.location.search);
@@ -243,6 +205,18 @@ up.compiler('#display_cards', function(element) {
         }
     }
 
+
+    function applyGrayoutedClasses() {
+        const cardStyler = new CardStyler();
+        // only card with class 'not-checked' and 'absent' will be grayouted
+
+        document.querySelectorAll('#display_cards .card').forEach(card => {
+            if (card.classList.contains('not-checked') || card.classList.contains('absent')) {
+                cardStyler.applyGrayoutedClasses(card);
+            }
+        });
+    }
+
     // Function to apply attendance styles
     function applyAttendanceStyles(attendanceData) {
         const cardStyler = new CardStyler();
@@ -264,7 +238,7 @@ up.compiler('#display_cards', function(element) {
         // Correcting the typo in the selector from 'current-school-infor' to 'current-school-info'
         let classId = document.querySelector('#class-infor').getAttribute('class-id');
         let checkDate = document.querySelector('#check_date').value;
-
+        let learningHours = document.querySelector('#learning_hours').value;
         //console.log('classId:', classId, 'checkDate:', checkDate);
         // A helper function to collect student IDs based on attendance status
         function collectStudentIds(status) {
@@ -285,7 +259,8 @@ up.compiler('#display_cards', function(element) {
             'present': present_students,
             'absent': absent_students,
             'late': late_students,
-            'left_early': left_early_students
+            'left_early': left_early_students,
+            'learning_hours': learningHours,
         };
         //console.log('formData:', formData);
         const url = window.location.href.split('?')[0] + `?post=attendance&check_date=${checkDate}`;
@@ -306,6 +281,7 @@ up.compiler('#display_cards', function(element) {
     const cardStyler = new CardStyler();
     let attendanceControls = document.querySelector('#attendance-controls');
     let attendanceButton = document.querySelector('#attendance-button');
+    let cancelAttendanceButton = document.querySelector('#button-cancel-attendance');
     // Set the attendance controls to inactive when first loaded
     attendanceControls.setAttribute('active', 'false');
     attendanceButton.addEventListener('click', function() {
@@ -321,9 +297,13 @@ up.compiler('#display_cards', function(element) {
             }
             //console.log('classId:', classId, 'checkDate:', checkDate);
             fetchAndApplyAttendanceData(classId, checkDate);
+            document.querySelectorAll('#display_cards .card').forEach(card => {
+                cardStyler.clearGrayoutedClasses(card);
+            });
 
         }
         else {
+            applyGrayoutedClasses();
             document.querySelectorAll('#display_cards .card').forEach(card => {
                 cardStyler.clearAttendanceClasses(card);
             });
@@ -331,6 +311,12 @@ up.compiler('#display_cards', function(element) {
             attendanceControls.classList.add('hidden');
         }
     });
+
+    cancelAttendanceButton.addEventListener('click', function() {
+        // perform pressing on attendance button to cancel attendance
+        attendanceButton.click();
+    });
+
 
     document.querySelector('#display_cards').addEventListener('click', function(event) {
         // Select card
@@ -344,7 +330,7 @@ up.compiler('#display_cards', function(element) {
 
 
 // REWARD STUDENTS =========================================
-up.compiler('#display_cards', function(element) {
+up.compiler('#reward-controls', function(element) {
     function selectStudents(selectorOrElement, action) {
         if (document.querySelector('#reward-controls').getAttribute("active") === "true") {
             if (typeof selectorOrElement === 'string') {
@@ -375,7 +361,6 @@ up.compiler('#display_cards', function(element) {
 
         // Getting the value of the reward_points input
         let rewardPoints = document.querySelector('#reward_points').value;
-        console.log(rewardPoints);
         // if rewardPoints is 0, do nothing
         if (rewardPoints === '0') {
             // show browser message "The reward points must not be 0"
@@ -390,15 +375,16 @@ up.compiler('#display_cards', function(element) {
         let students = Array.from(document.querySelectorAll(`#display_cards .reward`))
                         .map(card => card.getAttribute('record-id'))
                         .join('-');
-        
-        let url = `/schools/${schoolId}/students/?post=reward&reward_points=${rewardPoints}&students=${students}`;
+
+        let checkDate = document.querySelector('#check_date');
+        let url = window.location.href.split('?')[0] + `?post=reward&check_date=${checkDate.value}&reward_points=${rewardPoints}&students=${students}`;
+
         up.render({
             url: url, 
             method: 'post', 
             headers: {'X-CSRFToken': csrftoken,},
             target: ':none',
         })
-
     }
 
     let rewardControls = document.querySelector('#reward-controls');
@@ -419,7 +405,7 @@ up.compiler('#display_cards', function(element) {
 
     document.querySelector('#select-all').addEventListener('click', function() {
         // Select all cards
-        selectStudents('#display_cards .card', "select");
+        selectStudents('#display_cards .card:not(.grayouted)', "select");
     });
     document.querySelector('#deselect-all').addEventListener('click', function() {
         // Deselect all cards
@@ -428,6 +414,7 @@ up.compiler('#display_cards', function(element) {
     document.querySelector('#select-reverse').addEventListener('click', function() {
         // Select reserve cards
         selectStudents('#display_cards .card', "toggle");
+        selectStudents('#display_cards .grayouted', "deselect");
     });
 
     document.querySelector('#display_cards').addEventListener('click', function(event) {

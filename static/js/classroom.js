@@ -4,11 +4,7 @@ var successSound = new Audio("/static/sound/success.mp3");
 var failSound = new Audio("/static/sound/fail.mp3");
 
 
-//up.compiler('body', function(element) {
-//    up.on('up:fragment:inserted', function(event, fragment) {
-//    console.log("Looks like we have a new %o!", fragment)
-//    })
-//})
+
 
 up.compiler('#modal', function(element) {
     let modal = element
@@ -106,6 +102,7 @@ class CardStyler {
         this.lateAttendanceClasses = 'late';
         this.leftEarlyAttendanceClasses = 'left-early';
         this.notCheckedAttendanceClasses = 'not-checked';
+        this.grayoutedAttendanceClasses = 'grayouted';
         this.attendanceClassesSet = this.presentAttendanceClasses + ' ' + 
                                     this.absentAttendanceClasses + ' ' + 
                                     this.lateAttendanceClasses + ' ' + 
@@ -118,6 +115,8 @@ class CardStyler {
     clearAttendanceClasses(card) {removeClass(card, this.attendanceClassesSet);}
     shakeOnCard(card) {addClass(card, this.shake);}
     shakeOffCard(card) {removeClass(card, this.shake);}
+    applyGrayoutedClasses(card) {addClass(card, this.grayoutedAttendanceClasses);}
+    clearGrayoutedClasses(card) {removeClass(card, this.grayoutedAttendanceClasses);}
 
 
     applyStatus(card, status) {
@@ -206,6 +205,18 @@ up.compiler('#attendance-controls', function(element) {
         }
     }
 
+
+    function applyGrayoutedClasses() {
+        const cardStyler = new CardStyler();
+        // only card with class 'not-checked' and 'absent' will be grayouted
+
+        document.querySelectorAll('#display_cards .card').forEach(card => {
+            if (card.classList.contains('not-checked') || card.classList.contains('absent')) {
+                cardStyler.applyGrayoutedClasses(card);
+            }
+        });
+    }
+
     // Function to apply attendance styles
     function applyAttendanceStyles(attendanceData) {
         const cardStyler = new CardStyler();
@@ -227,7 +238,7 @@ up.compiler('#attendance-controls', function(element) {
         // Correcting the typo in the selector from 'current-school-infor' to 'current-school-info'
         let classId = document.querySelector('#class-infor').getAttribute('class-id');
         let checkDate = document.querySelector('#check_date').value;
-
+        let learningHours = document.querySelector('#learning_hours').value;
         //console.log('classId:', classId, 'checkDate:', checkDate);
         // A helper function to collect student IDs based on attendance status
         function collectStudentIds(status) {
@@ -248,7 +259,8 @@ up.compiler('#attendance-controls', function(element) {
             'present': present_students,
             'absent': absent_students,
             'late': late_students,
-            'left_early': left_early_students
+            'left_early': left_early_students,
+            'learning_hours': learningHours,
         };
         //console.log('formData:', formData);
         const url = window.location.href.split('?')[0] + `?post=attendance&check_date=${checkDate}`;
@@ -269,6 +281,7 @@ up.compiler('#attendance-controls', function(element) {
     const cardStyler = new CardStyler();
     let attendanceControls = document.querySelector('#attendance-controls');
     let attendanceButton = document.querySelector('#attendance-button');
+    let cancelAttendanceButton = document.querySelector('#button-cancel-attendance');
     // Set the attendance controls to inactive when first loaded
     attendanceControls.setAttribute('active', 'false');
     attendanceButton.addEventListener('click', function() {
@@ -284,9 +297,13 @@ up.compiler('#attendance-controls', function(element) {
             }
             //console.log('classId:', classId, 'checkDate:', checkDate);
             fetchAndApplyAttendanceData(classId, checkDate);
+            document.querySelectorAll('#display_cards .card').forEach(card => {
+                cardStyler.clearGrayoutedClasses(card);
+            });
 
         }
         else {
+            applyGrayoutedClasses();
             document.querySelectorAll('#display_cards .card').forEach(card => {
                 cardStyler.clearAttendanceClasses(card);
             });
@@ -294,6 +311,12 @@ up.compiler('#attendance-controls', function(element) {
             attendanceControls.classList.add('hidden');
         }
     });
+
+    cancelAttendanceButton.addEventListener('click', function() {
+        // perform pressing on attendance button to cancel attendance
+        attendanceButton.click();
+    });
+
 
     document.querySelector('#display_cards').addEventListener('click', function(event) {
         // Select card
@@ -355,7 +378,7 @@ up.compiler('#reward-controls', function(element) {
 
         let checkDate = document.querySelector('#check_date');
         let url = window.location.href.split('?')[0] + `?post=reward&check_date=${checkDate.value}&reward_points=${rewardPoints}&students=${students}`;
-        console.log(url)
+
         up.render({
             url: url, 
             method: 'post', 
@@ -382,7 +405,7 @@ up.compiler('#reward-controls', function(element) {
 
     document.querySelector('#select-all').addEventListener('click', function() {
         // Select all cards
-        selectStudents('#display_cards .card', "select");
+        selectStudents('#display_cards .card:not(.grayouted)', "select");
     });
     document.querySelector('#deselect-all').addEventListener('click', function() {
         // Deselect all cards
@@ -391,6 +414,7 @@ up.compiler('#reward-controls', function(element) {
     document.querySelector('#select-reverse').addEventListener('click', function() {
         // Select reserve cards
         selectStudents('#display_cards .card', "toggle");
+        selectStudents('#display_cards .grayouted', "deselect");
     });
 
     document.querySelector('#display_cards').addEventListener('click', function(event) {

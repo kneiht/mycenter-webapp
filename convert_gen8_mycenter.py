@@ -28,15 +28,33 @@ def import_excel(excel_file):
     return df_dict
 
 # Gen8 db excel file
-excel_file = 'excel_db/gen8db_2024_02_25.xlsx'
+excel_file = 'excel_db/gen8db_2024_04_15.xlsx'
 gen8_dict = import_excel(excel_file)
 
 # Mycennter db excel file
 excel_file = 'excel_db/mycenter_db_2024_02_26.xlsx'
-mycenter_dict = import_excel(excel_file)
+mycenter_dict = {}
 
 
 # CONVERT EACH TABLE
+
+# USER
+df_gen8 = gen8_dict['auth_user']
+transformed_data = {
+    'id': df_gen8['id'],    
+    'password': df_gen8['password'],
+    'last_login': df_gen8['last_login'],
+    'is_superuser': df_gen8['is_superuser'],
+    'username': df_gen8['username'],
+    'first_name': df_gen8['first_name'],
+    'last_name': df_gen8['last_name'],
+    'email': df_gen8['email'],
+    'is_staff': df_gen8['is_staff'],
+    'is_active': df_gen8['is_active'],
+    'date_joined': df_gen8['date_joined'],
+}
+df_transformed = pd.DataFrame(transformed_data)
+mycenter_dict['auth_user'] = df_transformed
 
 # CLASS
 # Transforming data from gen8 class to match the structure of mycenter class
@@ -174,6 +192,6 @@ df_transformed = pd.DataFrame(transformed_data)
 mycenter_dict['financialtransaction'] = df_transformed
 
 # Save the transformed data to a new excel file
-with pd.ExcelWriter('excel_db/converted_mycenter_db_2024_03_09.xlsx') as writer:
+with pd.ExcelWriter('excel_db/mycenter_data.xlsx') as writer:
     for sheet_name, df in mycenter_dict.items():
         df.to_excel(writer, sheet_name=sheet_name, index=False)

@@ -160,11 +160,7 @@ class Student(SecondaryIDMixin, BaseModel):
         return str(self.name)
     
     def check_attendance(self, check_class, check_date):
-        attendance = Attendance.objects.filter(student=self, check_class=check_class, check_date=check_date).first()
-        print('>>>>: ', self)
-        print('>>>>: ', check_class)
-        print('>>>>: ', check_date)
-        
+        attendance = Attendance.objects.filter(student=self, check_class=check_class, check_date=check_date).first()        
         if attendance and attendance.status in ['present', 'late', 'left_early']:
             return True
         else:
@@ -207,6 +203,7 @@ class Attendance(SecondaryIDMixin, BaseModel):
     created_at = models.DateTimeField(default=timezone.now)
 
     def save(self, *args, **kwargs):
+        self.learning_hours = float(self.learning_hours)
         # Set the microsecond part to zero before saving
         if self.check_date:
             self.check_date = self.check_date.replace(microsecond=0)
@@ -276,6 +273,7 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
     # fields for tuition payments
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True, blank=True)
     bonus = models.FloatField(default=0.0, choices=BONUSES)
+    student_balance_increase = models.IntegerField(default=0, null=True, blank=True)
     legacy_discount = models.TextField(default="", blank=True, null=True)
     legacy_tuition_plan = models.TextField(default="", blank=True, null=True)
     
@@ -293,14 +291,13 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
                 self.income_or_expense = 'income'
                 self.giver = self.student.name
                 self.receiver = self.school.name
-                self.student.balance = self.student.balance + float(self.amount)*float(self.bonus)
-                print('float(self.amount)*float(self.bonus)', float(self.amount)*float(self.bonus))
+                self.student_balance_increase = float(self.amount)*float(self.bonus)
+                self.student.balance = self.student.balance + self.student_balance_increase
             else: # If the transaction is being updated
                 # Fetch the old amount
-                old_amount = FinancialTransaction.objects.get(pk=self.pk).amount
-                old_bonus = FinancialTransaction.objects.get(pk=self.pk).bonus
+                old_student_balance_increase = FinancialTransaction.objects.get(pk=self.pk).student_balance_increase
                 # Update the balance
-                self.student.balance = self.student.balance - float(old_amount)*float(old_bonus) + float(self.amount)*float(self.bonus)
+                self.student.balance = self.student.balance - old_student_balance_increase + self.student_balance_increase
             
             print(self.student)
             print(self.student.balance)
@@ -309,292 +306,10 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
 
 
 
-'''    def save(self, *args, **kwargs):
-        if self.student and self.tuition_plan:
-            self.transaction_type = "income_tuition_fee"
-            self.receiver = "GEN8 English School"
-            self.giver = self.student.name
 
-            percent = self.discount.discount_value
-            self.final_fee = int(self.tuition_plan.price * (1 - percent))
 
-            self.amount = int(self.final_fee)
-            
-        self.final_fee = int(self.final_fee)
-        self.amount = int(self.amount)
 
-        if self.transaction_type.startswith('income'):
-            self.income_or_expense = 'income'
-        else:
-            self.income_or_expense = 'expense'
 
-        return super().save(*args, **kwargs)
 
-    def __str__(self):
-        if self.student and self.tuition_plan:
-            return f"{str(self.tuition_plan.plan)} - {str(self.student)} - {format_vnd(self.amount)} - {self.create_date}"
-        else:
-            return f"{str(self.transaction_type)} - {format_vnd(self.amount)} - {self.create_date}"
 
-'''
 
-
-
-
-
-
-
-
-
-
-
-'''
-
-class Course(models.Model):
-    name = models.CharField(max_length=255, default="")
-    hours = models.FloatField(default=0, null=True, blank=True)
-    books = models.TextField(null=True, blank=True)
-    description = models.TextField(null=True, blank=True)
-    def __str__(self):
-        return self.name
-
-
-
-class ClassSchedule(models.Model):
-    name = models.CharField(max_length=255, default="")
-    daytime = models.ManyToManyField('DayTime')
-
-    def __str__(self):
-        return self.name
-
-
-class DayTime(models.Model):
-    DAY_CHOICES = [
-        ('monday', 'Monday'),
-        ('tuesday', 'Tuesday'),
-        ('wednesday', 'Wednesday'),
-        ('thursday', 'Thursday'),
-        ('friday', 'Friday'),
-        ('saturday', 'Saturday'),
-        ('sunday', 'Sunday'),
-    ]
-
-    day_of_week = models.CharField(max_length=10, choices=DAY_CHOICES)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
-
-    def __str__(self):
-        return f"{self.get_day_of_week_display()}: {self.start_time} - {self.end_time}"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def format_vnd(amount):
-    # Convert the number to a string and reverse it
-    amount_str = str(int(amount))[::-1]
-    
-    # Insert a dot every 3 digits
-    formatted_str = '.'.join(amount_str[i:i+3] for i in range(0, len(amount_str), 3))
-    
-    # Reverse the string back and append the VND symbol
-    return formatted_str[::-1] + " VNĐ"
-
-
-class zBaseModel(models.Model):
-    class Meta:
-        abstract = True  # Specify this model as Abstract
-
-    def compress_image(self, image_field):
-        try:
-            # Open the uploaded image using PIL
-            image_temp = Image.open(image_field)
-        except FileNotFoundError:
-            return  # Return from the method if the file is not found
-
-
-        # Get the size of the original image in kilobytes
-        original_io_stream = io.BytesIO()
-        image_field.seek(0)  # Go to the beginning of the file-like object
-        original_io_stream.write(image_field.read())  # Write image data to the new stream to check size
-        original_size_kb = original_io_stream.tell() / 1024  # Size in KB
-        
-        # Check if the original image size is less than 20KB, return the original image
-        print('\n\n>>>>>', original_size_kb)
-        if original_size_kb < 20 or 'servercompressed' in image_field.name:
-            return image_field
-
-        # Resize the image if it is wider than 600px
-        if image_temp.width > 600:
-            # Calculate the height with the same aspect ratio
-            height = int((image_temp.height / image_temp.width) * 600)
-            image_temp = image_temp.resize((600, height), Image.Resampling.LANCZOS)
-
-        # Define the output stream for the compressed image
-        output_io_stream = io.BytesIO()
-
-        # Save the image to the output stream with desired quality
-        image_temp.save(output_io_stream, format='WEBP', quality=40)
-        output_io_stream.seek(0)
-
-        # Create a Django InMemoryUploadedFile from the compressed image
-        file_name = "servercompressed%s.webp" % image_field.name.split('.')[0]
-        output_imagefield = InMemoryUploadedFile(output_io_stream, 'ImageField', 
-                                                 file_name, 
-                                                 'image/webp', output_io_stream.getbuffer().nbytes, None)
-        return output_imagefield
-
-
-    def get_serializable_data(self):
-        data = {}
-        for field in self._meta.fields:
-            value = getattr(self, field.name)
-            if isinstance(value, ImageFieldFile):
-                data[field.name] = value.url if value else None
-            elif isinstance(value, datetime):
-                data[field.name] = value.isoformat() if value else None
-
-            elif isinstance(value, date):
-                data[field.name] = value.isoformat() if value else None
-
-            elif isinstance(value, models.Model):
-                # For foreign key relations, you can choose to serialize only the ID or the entire object
-                #print(value)
-                data[field.name] = value.id
-            else:
-                data[field.name] = value
-        return data
-
-
-    def log_change(self, action, old_data=None, new_data=None):
-        if old_data and new_data:
-            # Determine which fields have changed
-            changed_fields = {field for field in new_data if new_data[field] != old_data[field] and (
-                (new_data[field] is not None and new_data[field] != "") or
-                (old_data[field] is not None and old_data[field] != "")
-            )}
-            
-            if not changed_fields:
-                # If no fields have changed, do not log
-                return
-
-            if changed_fields == {'money'}:
-                # If only the excluded field has changed, do not log
-                return
-        else:
-            if old_data:
-                changed_fields = {field for field in old_data}
-            else:
-                changed_fields = {field for field in new_data}
-
-        if self.__class__.__name__ != 'DatabaseChangeLog':  # Avoid recursion
-            DatabaseChangeLog.objects.create(
-                model_name=self.__class__.__name__,
-                change=action,
-                record_id=self.id,
-                old_data=json.dumps({key: old_data[key] for key in changed_fields}) if old_data else None,
-                new_data=json.dumps({key: new_data[key] for key in changed_fields}) if new_data else None
-            )
-
-    def save(self, *args, **kwargs):
-
-        # refine fields
-        for field in self._meta.fields:
-            value = getattr(self, field.name)
-            if isinstance(value, ImageFieldFile):
-                if value:  # If there's an image to compress
-                    print('\n\ncompressed')
-                    compressed_image = self.compress_image(value)
-                    setattr(self, field.name, compressed_image)
-            elif isinstance(value, str):
-                # Remove leading and trailing whitespaces
-                value = value.strip()
-                # Replace multiple spaces with a single space
-                value = re.sub(r'\s+', ' ', value)
-                setattr(self, field.name, value)
-
-        # Fetch old data for logging
-        old_data = None
-        if not self._state.adding:
-            old_data = type(self).objects.get(pk=self.pk).get_serializable_data()
-
-        # Save the current instance
-        super().save(*args, **kwargs)
-
-        # Refetch the instance from the database to get new data
-        new_data = self.get_serializable_data()
-
-        # Log the changes
-        self.log_change('Updated' if old_data else 'Created', old_data, new_data)
-
-
-    def delete(self, *args, **kwargs):
-        old_data = self.get_serializable_data()
-        self.log_change('Deleted', old_data)
-        super().delete(*args, **kwargs)
-
-
-
-
-
-class DatabaseChangeLog(models.Model):
-    model_name = models.CharField(max_length=255)
-    change = models.CharField(max_length=255)  # 'Created', 'Updated', or 'Deleted'
-    record_id = models.IntegerField()
-    old_data = models.TextField(null=True, blank=True)  # Stores record data during update
-    new_data = models.TextField(null=True, blank=True)  # Stores record data during update
-    change_date = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return f'{self.change_date.date()} - {self.model_name} - {self.change}'
-
-
-class TuitionPlan(BaseModel):
-    plan = models.CharField(max_length=255, default="")
-    price = models.IntegerField()
-    number_of_hours =  models.FloatField(null=True, blank=True)
-    note = models.TextField(default="", blank=True, null=True)
-    def __str__(self):
-        return self.plan
-
-
-class Discount(BaseModel):
-    name = models.CharField(max_length=255, default="")
-    discount_value = models.FloatField(default=0.0)
-    def __str__(self):
-        return self.name
-
-
-from django.utils.deconstruct import deconstructible
-from uuid import uuid4
-import os
-@deconstructible
-class PathAndRename(object):
-    def __init__(self, sub_path):
-        self.sub_path = sub_path
-
-    def __call__(self, instance, filename):
-        ext = filename.split('.')[-1]
-
-        filename = 'transaction_{}_{}_{}.{}'.format(instance.financialtransaction.id, 
-            datetime.now().strftime('%Y_%m_%d'), uuid4().hex, ext)
-        # return the whole path to the file
-        return os.path.join(self.sub_path, filename)
-
-class TransactionImage(BaseModel):
-    financialtransaction = models.ForeignKey(FinancialTransaction, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to=PathAndRename('images/finance_images/'))
-
-
-'''

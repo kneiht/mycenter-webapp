@@ -97,9 +97,13 @@ up.compiler('#display_cards', function(element) {
 
 // MODAL HANDLING =========================================
 up.compiler('.modal', function(element) {
-    element.querySelector('#cancel').addEventListener('click', function() {
-        element.remove();
-    });
+    let modal = element;
+    let cancelButton = modal.querySelector('#cancel');
+    if (cancelButton) {
+        cancelButton.addEventListener('click', function() {
+            element.remove();
+        });
+    }
 });
 
 
@@ -365,9 +369,11 @@ up.compiler('#nav_bar', function(element) {
 
 // FILTER  BAR =========================================
 // Hide search bar when clicking ouside
+
 document.addEventListener('click', function(event) {
+    const searchControl = document.getElementById('search-control')
     const toolBar = document.getElementById('db-tool-bar')
-    if (!toolBar.contains(event.target)) {
+    if (!toolBar.contains(event.target) && searchControl) {
         document.getElementById('filter-list').classList.add('hidden');
         document.getElementById('search-bar').classList.add('max-sm:hidden');
         document.getElementById('toggle-search').classList.remove('hidden');
@@ -380,6 +386,10 @@ document.addEventListener('click', function(event) {
 
 up.compiler('#db-tool-bar', function(element) {
     const toolBar = element
+    const searchControl = document.getElementById('search-control')
+    if (!searchControl) {
+        return;
+    }
     // Toggle search bar visibility on small screens
     document.getElementById('toggle-search').addEventListener('click', function() {
         document.getElementById('filter-list').classList.remove('hidden');
