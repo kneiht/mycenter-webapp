@@ -2,7 +2,7 @@
 from . import views, views_db
 from .views import (
     SchoolViewSet, ClassViewSet, StudentViewSet, TuitionPaymentViewSet, ClassRoomViewSet,
-    FinancialTransactionViewSet, AttendanceViewSet, StudentAttendanceCalendarViewSet,home,wheel
+    FinancialTransactionViewSet, AttendanceViewSet, StudentAttendanceCalendarViewSet,home,wheel,calculate_student_balance
 )
 
 from django.urls import re_path, path
@@ -11,6 +11,7 @@ from django.urls import re_path, path
 urlpatterns = [
     path('', home, name='dashboard'),
     path('wheel', wheel, name='wheel'),
+    path('calculate', calculate_student_balance, name='calculate_student_balance'),
 
     path('schools/', SchoolViewSet.as_view(), name='schools'),
     path('schools/<int:pk>/', SchoolViewSet.as_view(), name='school_detail'),

@@ -353,13 +353,13 @@ up.compiler('#nav_bar', function(element) {
     
 
     // Initial adjustment
-    if (menuSchool) {  
-        adjustNavbarItems();
+    if (menuSchool) { 
+        // document loaded
+        window.addEventListener('load', adjustNavbarItems);
         window.addEventListener('resize', adjustNavbarItems);
     }
     navbar.classList.remove("opacity-0")
     navbar.classList.add("opacity-100")
-    
 
 });
 

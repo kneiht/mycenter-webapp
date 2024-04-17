@@ -1,15 +1,3 @@
-Nén images
-không cho thay đổi balance bằng cách gửi form
-tính toán lại balance hiện tại của học viên
-15/5
-- bug lịch điểm danh hiển thị thiếu
-- bug không laod dúng grayout trong class
-
-
-
-ý tưởng dùng cách này để lưu điểm danh để đỡ số lượng dòng
-{'check_date': ['2024-02-15'], 'present': ['4-5-3-6'], 'absent': [''], 'late': [''], 'left_early': ['']}
-xóa time ra khỏi check date
 
 tailwind
 https://stackoverflow.com/questions/63392426/how-to-use-tailwindcss-with-django
@@ -152,29 +140,6 @@ This is a basic setup. Depending on your specific requirements, you might need t
 
 
 
-
-
-
-
-Tri ân phụ huynh giới thiệu 14 học sinh: Tiêu Thị Ngọc Bình, Lê Ngọc Nhung, Nguyễn Thanh Nhi, 
-
-
-
-
-
-Bảo Nhi, Bảo Vy, Tuấn Minh
-Hoài An, Phan Hà Linh
-
-
-Trả chị Quyên 6.900.000*8/12
-6*300=1.800.000 => 4.100.000
-Phạm Quỳnh Hoa, Lê Bảo An Nhiên, Trường Nguyễn Gia Hân, Nguyễn Bích Thảo, , Đặng Trường An An, Hà Phương, 
-
-
-
-
-
-
 Todo:
 - dịch tiếng việt
 - upload ảnh phải giảm chất lượng
@@ -188,77 +153,26 @@ Todo:
 - làm message cho page
 
 
-12/10 commit 1:
-- add "quản lý điểm danh" to dashboard
-- change nav styles
-- put some styles to css file
-- combine db builder to handles excel, sqlite and mysql
-- make money control bar bigger, add sticky and pin styles
-- add messange pop functions to base
-- show popup with padding calculated from number of students
-
-12/10 commit 2:
-- fix upload image in class detail
-- add image to profile edit page
-
-13/10 commit 1:
-- change redirect for student edit and create
-- translate student edit and create
-- class="text-decoration-none" target="_blank" rel="noopener noreferrer"> for url to student detail
-- make student  table more style with search and sort
-- add "chọn học sinh" in payment template
-- update view to check student id in payment
-- add payment table in create payment
-- add model discount, change payment model to adapt with discount model
-- change view, html to adapt new payment model
-
-14/10 commit 1:
-- create attendance view and html
-
-15/10:
-- fix attendance view and html to select payment
-- add action buttons to student table
-- remove "Điểm Danh" from dashboard
-
-15/10 commit 2:
-- remove TZ = False
-- fix time and date
-- add double click to change attendance
 
 
-16/10:
-- add un-paid css
+15/4
+- Nén images
+- không cho thay đổi balance bằng cách gửi form
+- tính toán lại balance hiện tại của học viên
 
-22/10:
-- add template table.html which use for generic table
-- add api views CRUD
-- add financial model, view
-- add sound and shaking effect and memes
+15/5
+- bug lịch điểm danh hiển thị thiếu => Done
+- bug không laod dúng grayout trong class => Done
+- lỗi server 500 khi khoongn có dữ liệu records
 
-24/10
-- test new student management page
-- add functiton to add student id automatically
-- add BaseModel to remove spaces between words
-
-
-25/10
--  add image to new student  management
-
-26/10
-- separate template files
-- update  crud.py
-- remove discount choices
-
-26/10 commit 2
-- create database_handle  view
-
-1/11:
-- change  softui
-- create gen8-tags
-- build widgets
-- change  database id
+17/5
+- Cần thêm leading and ending empty cells vào calendar => Done
+- Thêm form cho calendar như web cũ
 
 
-19/11
-- update ui
-- change logic
+
+ý tưởng dùng cách này để lưu điểm danh để đỡ số lượng dòng
+{'check_date': ['2024-02-15'], 'present': ['4-5-3-6'], 'absent': [''], 'late': [''], 'left_early': ['']}
+xóa time ra khỏi check date
+
+

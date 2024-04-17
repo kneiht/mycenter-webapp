@@ -71,9 +71,25 @@ def dashboard(request, school_id):
         # Calculate final balance
         student.balance = total_increase - total_attendance_cost
         student.save()
-
-
     return render(request, 'pages/single_page.html', context)
+
+@login_required
+def calculate_student_balance(request):
+    students = Student.objects.all()
+    for student in students:
+        # Summarize all student_balance_increase from FinancialTransaction
+        total_increase = FinancialTransaction.objects.filter(student=student).aggregate(Sum('student_balance_increase'))['student_balance_increase__sum'] or 0
+        
+        # Calculate total attendance cost
+        total_attendance_cost = Attendance.objects.filter(student=student, is_payment_required=True).annotate(
+            total_cost=Sum(F('learning_hours') * F('price_per_hour'), output_field=FloatField())
+        ).aggregate(Sum('total_cost'))['total_cost__sum'] or 0
+        
+        # Calculate final balance
+        student.balance = total_increase - total_attendance_cost
+        student.save()
+    return redirect('schools')
+
 
 @login_required
 def home(request):
@@ -620,8 +636,6 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
             latest_attendance_date = Attendance.objects.filter(student=student).latest('check_date').check_date
 
 
-
-
         elif payment_id and (payment_id !="unpaid"):
             selected_payment = get_object_or_404(FinancialTransaction, pk=payment_id)
             # Calculate the balance before the selected payment
@@ -669,21 +683,29 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
         months = defaultdict(lambda: {'days': []})
         current_day = start_day
         while current_day <= end_day:
+            print(current_day, current_day.weekday())
             day_data = {
                 'date': current_day,
-                'attendances': attendances_by_date.get(current_day.date(), [])
+                'attendances': attendances_by_date.get(current_day.date(), []),
+                'display': True,
             }
             months[current_day.strftime("%Y-%m")]['days'].append(day_data)
             current_day += timedelta(days=1)
-        
-        print(months)
+
+        # iterate each month, then add leading empty days to make sure the first element in the list is monday
+        for month, data in months.items():
+            while data['days'][0]['date'].weekday() != 0:
+                data['days'].insert(0, {'date': data['days'][0]['date'] - timedelta(days=1), 'attendances': [], 'display': False})
+
+        # iterate each month, then add trailing empty days to make sure the last element in the list is sunday
+        for month, data in months.items():
+            while data['days'][-1]['date'].weekday() != 6:
+                data['days'].append({'date': data['days'][-1]['date'] + timedelta(days=1), 'attendances': [], 'display': False})
+
 
         # Convert months to a list if you want a sorted result
         months_list = [{'month': month, 'days': data['days']} for month, data in sorted(months.items())]
         
-        # add leading empty days to months to make sure the fist date is inn the right week day (I start the week by Monday)
-        
-
 
         context = {
             'page': 'attendance',

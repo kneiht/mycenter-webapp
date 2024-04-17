@@ -1,14 +1,14 @@
 <div id="title-bar">
-    <div class="flex justify-between items-center mb-6 mt-2">
+    <div class="flex flex-wrap gap-4 justify-between items-center mb-6 mt-2">
         <p class="text-3xl text-center font-semibold text-theme"> {{ title }} </p>
 
         {% if select == 'classroom' %}
             <div id='class-infor' class="hidden" class-id="{{ class.pk }}"></div>
             <div class="flex gap-4">
                 <input id="check_date" type="date" name="check_date" class="form-input"> 
-                <button id="attendance-button" class="max-sm:hidden btn btn-primary text-nowrap">
+                <button id="attendance-button" class="btn btn-primary text-nowrap">
 
-                    <i class="fas fa-plus me-3" style="font-size: 16px;"></i>
+                    <i class="fas fa-users mx-3" style="font-size: 16px;"></i>
                     <span class="max-sm:hidden me-3"> Attendance </span>
                 </button>
             </div>
