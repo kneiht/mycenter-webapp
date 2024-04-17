@@ -1,0 +1,308 @@
+{% load static %}
+
+<!DOCTYPE html>
+<!-- Coding By Royal 420 KE | youtube.com/royal420ke -->
+<!-- This is the start of the HTML document -->
+<html lang="en">
+
+<!-- This is the start of the head section -->
+
+<head>
+    <!-- This sets the character set to UTF-8 -->
+    <meta charset="UTF-8">
+    <!-- This sets the title of the page to "Spin Wheel" -->
+    <title>Spin Wheel</title>
+    <!-- This is the start of the style section -->
+    <link id="style" href="{% static 'css/styles.css' %}" rel="stylesheet" />
+    <style>
+        /* This styles the body of the page */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: start;
+            min-height: 85vh;
+            background: #333;
+            overflow: hidden;
+        }
+
+        /* This styles the container of the wheel */
+        .container {
+            position: relative;
+            top: 60px;
+            width: 80vh;
+            height: 80vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+
+        /* This styles the spin button */
+        .container .spinBtn {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: #fff;
+            border-radius: 50%;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+            color: #333;
+            border: 4px solid rgba(0, 0, 0, 0.75);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* This styles the spin button's arrow */
+        .container .spinBtn::before {
+            content: '';
+            position: absolute;
+            top: -28px;
+            width: 20px;
+            height: 30px;
+            background: #fff;
+            clip-path: polygon(50% 0, 15% 100%, 85% 100%);
+        }
+
+        /* This styles the wheel */
+        .container .wheel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #333;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 0 0 5px #333,
+                0 0 0 15px #fff,
+                0 0 0 18px #111;
+            transition: transform 20s ease-in-out;
+        }
+
+        /* This styles the numbers on the wheel */
+        .container .wheel .number {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            background: var(--clr);
+            transform-origin: bottom right;
+            transform: rotate(calc(45deg * var(--i)));
+            clip-path: polygon(0 0, 56% 0,
+                    100% 100%, 0 56%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        /* This styles the number text */
+        /* 360 / 8 = 45deg */
+        .container .wheel .number span {
+            position: relative;
+            transform: rotate(45deg);
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 3px 5px 2px rgba(0, 0, 0, 0.15);
+            margin-left: 30px;
+        }
+
+        /* This styles the number text's after pseudo-element */
+        .container .wheel .number span::after {
+            content: '';
+            position: absolute;
+            font-size: 0.75em;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<!-- This is the start of the body section -->
+
+<body>
+    <!-- This is the start of the container div -->
+    <div id="main" class="">
+        <div id="myModal" class="hidden">
+            <div class="modal z-50 fixed inset-0 bg-slate-600 bg-opacity-60 overflow-y-auto flex justify-center">
+                <!-- Modal Content -->
+                <div class="modal-content relative top-40 mx-4 card h-fit w-[600px]">
+                    <h3 class="mt-7 mb-8 px-6 text-xl font-bold leading-6 text-center text-theme">KẾT QUẢ VÒNG QUAY MAY
+                        MẮN</h3>
+                    <div class="gap-4 px-6 flex justify-center items-center text-center text-2xl">
+                        <div>
+                            <p class="text-center">Chúc mừng bạn đã nhận được phần thưởng</p>
+                            <div class="p-4 rounded-lg bg-green-500 m-5 text-white">
+                                <p id="prizeText"></p>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="flex justify-center items-center gap-5 pt-8 pb-7">
+                        <button id='cancel' type="button" class="btn btn-primary rounded-full w-36">
+                            OK
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-center items-center pt-10">
+            <p class="text-3xl font-bold text-white">VÒNG XOAY MAY MẮN - ANH NGỮ GEN8</p>
+        </div>
+
+        <div class="container">
+            <!-- This is the start of the header div -->
+            <!-- This is the spin button -->
+            <div class="spinBtn">Spin</div>
+            <!-- This is the wheel div -->
+            <div class="wheel">
+                <!-- These are the numbers on the wheel -->
+                <div class="number" id="prize1" data-angle="0" style="--i:1;--clr:#db7093;">
+                    <span class="pl-12">Tiền măt 500k</span>
+                </div>
+                <div class="number" id="prize2" data-angle="45" style="--i:2;--clr:#20b2aa;">
+                    <span class="pl-12">Trải nghiệm 1 tuần và Tiền mặt 500k</span>
+                </div>
+                <div class="number" id="prize3" data-angle="90" style="--i:3;--clr:#daa520;">
+                    <span class="pl-12">Tiền mặt 200k</span>
+                </div>
+                <div class="number" id="prize4" data-angle="135" style="--i:4;--clr:#ff340f;">
+                    <span class="pl-12">Trải nghiệm 1 tuần và Tiền mặt 100k</span>
+                </div>
+                <div class="number" id="prize5" data-angle="180" style="--i:5;--clr:#4169e1;">
+                    <span class="pl-12">Trải nghiệm 1 tuần và Voucher 200k</span>
+                </div>
+                <div class="number" id="prize6" data-angle="225" style="--i:6;--clr:#3cb371;">
+                    <span class="pl-12">Trải nghiệm 2 tuần và 1 món đồ chơi</span>
+                </div>
+                <div class="number" id="prize7" data-angle="270" style="--i:7;--clr:#d63e92;">
+                    <span class="pl-12">Trải nghiệm 1 tuần và Voucher 500k</span>
+                </div>
+                <div class="number" id="prize8" data-angle="315" style="--i:8;--clr:#ff7f50;">
+                    <span class="pl-12">Trải nghiệm 2 tuần và 1 món đồ chơi</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- This is the start of the script section -->
+    <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
+        
+    
+    <script>
+        const defaults = {
+            spread: 360,
+            ticks: 50,
+            gravity: 0,
+            decay: 0.94,
+            startVelocity: 30,
+            shapes: ["star"],
+            colors: ["FFE400", "FFBD00", "E89400", "FFCA6C", "FDFFB8"],
+        };
+
+        function shoot() {
+        confetti({
+            ...defaults,
+            particleCount: 40,
+            scalar: 1.2,
+            shapes: ["star"],
+        });
+
+        confetti({
+            ...defaults,
+            particleCount: 10,
+            scalar: 0.75,
+            shapes: ["circle"],
+        });
+        }
+
+        function shootConfetti() {
+            shoot();
+            setTimeout(shoot, 50);
+            setTimeout(shoot, 100);
+            setTimeout(shoot, 150);
+            setTimeout(shoot, 200);
+            setTimeout(shoot, 250);
+        }
+        
+
+        var spinningSound = new Audio('/static/sound/spinning.mp3');
+        var handclapingSound = new Audio('/static/sound/handclaping.mp3');
+
+        // This selects the wheel and spin button
+        let wheel = document.querySelector('.wheel');
+        let spinBtn = document.querySelector('.spinBtn');
+        // This sets the initial value for the wheel rotation
+        let offset = 22.5; //Math.ceil(Math.random() * 360);
+        let time = 0;
+        // This sets the click event for the spin button
+
+        // Sample list
+        const prizeList = ['prize5', 'prize5', 'prize5', 'prize8', 'prize6', 'prize7', 'prize8', 'prize8', 'prize8'];
+        let prizeText = '';
+        spinBtn.onclick = function () {
+
+            // Play the spinning sound
+            spinningSound.play();
+            handclapingSound.pause();
+            handclapingSound.currentTime = 0;
+
+            time = time + 40;
+            // Secretly pick the prize first
+            //let selectedPrizeAngle = Math.floor(Math.random() * 8) * 45;
+            // Get a random index
+            const randomIndex = Math.floor(Math.random() * prizeList.length);
+            // Get the random element from the list
+            let prize_chosen = prizeList[randomIndex];
+            let prize = document.getElementById(prize_chosen);
+            // get the prize's angle
+            let prizeAngle = parseInt(prize.getAttribute('data-angle'));
+            // get the prize's text
+            prizeText = prize.querySelector('span').textContent;
+            console.log('prize_chosen', prize_chosen);
+            console.log('prizeAngle', prizeAngle);
+            console.log('prizeText', prizeText);
+
+            //choose random angle for prize based on prize chosen
+            let prizeRandomAngle = prizeAngle + Math.floor(Math.random() * 45);
+            valueNeededToSpin = 360 * time + 360 - prizeRandomAngle + offset;
+            wheel.style.transform = "rotate(" + valueNeededToSpin + "deg)";
+
+            console.log('prizeRandomAngle', prizeRandomAngle);
+            console.log('valueNeededToSpin', valueNeededToSpin);
+
+        }
+
+        function displayModal(message) {
+            document.getElementById("prizeText").innerText = message;
+            document.getElementById("myModal").classList.remove('hidden');
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        document.getElementById("cancel").addEventListener("click", function () {
+            document.getElementById("myModal").classList.add('hidden');
+        });
+
+        // Wait for the wheel to stop
+        wheel.addEventListener('transitionend', function () {
+            // The wheel has stopped spinning
+            console.log('CHÚC MỪNG, BẠN ĐÃ TRÚNG GIẢI THƯỞNG:', prizeText);
+            shootConfetti();
+            // Stop the spinning sound
+            spinningSound.pause();
+            spinningSound.currentTime = 0;
+            handclapingSound.play();
+
+            displayModal(prizeText);
+            
+        });
+
+    </script>
+</body>
+
+</html>

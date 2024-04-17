@@ -80,6 +80,12 @@ def home(request):
     return redirect('schools')
 
 
+@login_required
+def wheel(request):
+    rendered_page = render(request, 'pages/wheel.html')
+    return rendered_page
+
+
 
 # DATABASE MANAGEMENT VIEWS
 #------------------------------
@@ -596,7 +602,7 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
         payment_id = request.GET.get('payment_id')
         payments = FinancialTransaction.objects.filter(student=student).order_by('created_at')
         attendances = Attendance.objects.filter(student=student).order_by('check_date')
-        
+
         if len(attendances)==0: #
             context = {
                 'page': 'attendance',
@@ -604,7 +610,6 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
                 'school': School.objects.filter(pk=school_id).first(),
                 'student': student,
             }
-
             return render(request, 'pages/single_page.html', context)
 
 
@@ -613,6 +618,9 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
             # For demonstration, replace these with actual queries if available
             earliest_attendance_date = Attendance.objects.filter(student=student).earliest('check_date').check_date
             latest_attendance_date = Attendance.objects.filter(student=student).latest('check_date').check_date
+
+
+
 
         elif payment_id and (payment_id !="unpaid"):
             selected_payment = get_object_or_404(FinancialTransaction, pk=payment_id)
@@ -645,10 +653,11 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
         start_day = earliest_attendance_date - timedelta(days=earliest_attendance_date.weekday())
         end_day = latest_attendance_date + timedelta(days=6 - latest_attendance_date.weekday())
 
+
         # Fetch attendances within the expanded date range
         attendances = Attendance.objects.filter(
             student=student,
-            check_date__range=(start_day, end_day)
+            check_date__range=(start_day, end_day + timedelta(days=1))  # Add 1 day to include the last day
         ).order_by('check_date')
         
         # Organize attendances by date
@@ -666,9 +675,15 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
             }
             months[current_day.strftime("%Y-%m")]['days'].append(day_data)
             current_day += timedelta(days=1)
+        
+        print(months)
 
         # Convert months to a list if you want a sorted result
         months_list = [{'month': month, 'days': data['days']} for month, data in sorted(months.items())]
+        
+        # add leading empty days to months to make sure the fist date is inn the right week day (I start the week by Monday)
+        
+
 
         context = {
             'page': 'attendance',
