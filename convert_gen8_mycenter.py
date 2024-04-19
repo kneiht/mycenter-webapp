@@ -28,7 +28,7 @@ def import_excel(excel_file):
     return df_dict
 
 # Gen8 db excel file
-gen8_excel_file = 'excel_db/gen8db_2024_04_15.xlsx'
+gen8_excel_file = 'excel_db/gen8db_2024_04_19.xlsx'
 gen8_dict = import_excel(gen8_excel_file)
 
 # Mycennter db excel file

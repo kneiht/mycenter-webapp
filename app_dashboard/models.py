@@ -219,6 +219,11 @@ class Attendance(SecondaryIDMixin, BaseModel):
         self.learning_hours = float(self.learning_hours)
         # Set the microsecond part to zero before saving
         if self.check_date:
+            #handle the case 2024-04-19T16:55:38
+            if "T" in str(self.check_date):
+                self.check_date = datetime.strptime(str(self.check_date), '%Y-%m-%dT%H:%M:%S')
+            else:
+                self.check_date = datetime.strptime(str(self.check_date), '%Y-%m-%d %H:%M:%S    ')
             self.check_date = self.check_date.replace(microsecond=0)
 
         if self.use_price_per_hour_from_class and self.check_class:

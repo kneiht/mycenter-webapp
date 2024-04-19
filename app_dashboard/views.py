@@ -157,7 +157,6 @@ class BaseViewSet(LoginRequiredMixin, View):
 
             html_display_cards = html_render('display_cards', request, select=self.page, records=[instance], school=school)
             html_message = html_render('message', request, message='create successfully')
-            print(html_display_cards + html_message)
             return HttpResponse(html_display_cards + html_message)
         else:
             record_id=instance.pk if instance else None

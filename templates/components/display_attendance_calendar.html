@@ -32,7 +32,12 @@
                 {% for day in month.days %}
                     <div class="text-center py-2">
                         {% if day.display %}
-                            <div class="py-2">{{ day.date.day }}</div>
+                            <div class="flex justify-center items-center gap-3">
+                                <div class="py-2">{{ day.date.day }}</div>
+                                <a href="/schools/{{ school.pk }}/attendances/?get=form&student_id={{ student.pk }}" class="btn btn-primary w-12 h-5 rounded-full flex justify-center items-center text-center" up-target="#modal" up-history="false" >
+                                    <i class="fas fa-plus" style="font-size: 16px;"></i>
+                                </a>
+                            </div>
                             <div class="py-2 flex flex-col gap-3">
                                 {% for attendance in day.attendances %}
                                     
