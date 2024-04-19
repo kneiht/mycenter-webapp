@@ -1,6 +1,23 @@
 {% load custom_tags %}
 
+{% if select == 'attendance' %}
+<a up-hungry id="record_{{ record.pk }}" href="/schools/{{ school.pk }}/attendances/{{ record.pk }}?get=form" up-target="#modal" up-history="false">
+    <!-- Example: You might want to customize this based on your attendance model -->
+    {% if record.status == 'present' %}
+        <span class="py-1 px-2 rounded-lg present">
+    {% elif record.status == 'absent' %}
+        <span class="py-1 px-2 rounded-lg absent">
+    {% elif record.status == 'late' %}
+        <span class="py-1 px-2 rounded-lg late">
+    {% elif record.status == 'left_early' %}
+        <span class="py-1 px-2 rounded-lg left-early">
+    {% endif %}
+    {{ record.check_class }} 
+    {% if record.is_payment_required %} - Paid {% endif %} - {{ record.learning_hours }}h</span>
+</a>
 
+
+{% else %}
 <div up-hungry id="record_{{ record.pk }}" record-id="{{ record.pk }}" class="relative card {{ record.style }}">
     
     {% if select == 'schools' %}
@@ -106,7 +123,7 @@
             <div class="flex">
                 <div class="flex-1 mr-2 h-10 truncate flex items-center">
                     <i class="fas fa-user-check w-6"></i>
-                    <span>{{ record.get_status_display }}</span>
+                    <span class="{{ record.status }} text-white p-1 rounded-md">{{ record.get_status_display }}</span>
                 </div>
                 <div class="flex-1 mr-2 h-10 truncate flex items-center">
                     <i class="fas fa-venus-mars w-6"></i>
@@ -169,6 +186,5 @@
     
     
 </div>
-
-
+{% endif %}
 

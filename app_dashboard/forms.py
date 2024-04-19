@@ -145,13 +145,28 @@ class AttendanceForm(forms.ModelForm):
     # form for attendance
     class Meta:
         model = Attendance
-        fields = ['check_date', 'status', 'learning_hours', 'note', 'price_per_hour', 'is_payment_required']
+        fields = ['check_date', 'student', 'check_class', 'status', 'is_payment_required', 'use_price_per_hour_from_class', 'price_per_hour', 'learning_hours', 'note', ]
         widgets = {
             'check_date': forms.DateTimeInput(attrs={
                 'class': 'form-input',
                 'type': 'datetime-local'
             }),
-            'status': forms.TextInput(attrs={
+
+            'student': forms.Select(attrs={
+                'class': 'form-input'
+            }),
+
+            'check_class': forms.Select(attrs={
+                'class': 'form-input'
+            }),
+            'use_price_per_hour_from_class': forms.CheckboxInput(attrs={
+                'class': 'checkbox'
+            }),
+            'is_payment_required': forms.CheckboxInput(attrs={
+                'class': 'checkbox'
+            }),
+
+            'status': forms.Select(attrs={
                 'class': 'form-input'
             }),
             'learning_hours': forms.NumberInput(attrs={
@@ -164,10 +179,8 @@ class AttendanceForm(forms.ModelForm):
             'price_per_hour': forms.NumberInput(attrs={
                 'class': 'form-input'
             }),
-            'is_payment_required': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            }),
         }
+
 
 
 

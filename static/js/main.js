@@ -99,8 +99,14 @@ up.compiler('#display_cards', function(element) {
 up.compiler('.modal', function(element) {
     let modal = element;
     let cancelButton = modal.querySelector('#cancel');
+    let okButton = modal.querySelector('#ok');
     if (cancelButton) {
         cancelButton.addEventListener('click', function() {
+            element.remove();
+        });
+    }
+    if (okButton) {
+        okButton.addEventListener('click', function() {
             element.remove();
         });
     }
@@ -452,5 +458,36 @@ up.compiler('#db-tool-bar', function(element) {
         filterTags.forEach(filterTag => {
             filterTag.remove();
         });
+    });
+});
+
+
+
+// ATTENDANCANCE FORM =========================================
+up.compiler('#id_use_price_per_hour_from_class', function(element) {
+    const usePricePerHourFromClass = element;
+    const pricePerHour = document.getElementById('id_price_per_hour');
+    // if usePricePerHourFromClass is checked, disable pricePerHour else enable
+    togglePricePerHour();
+    usePricePerHourFromClass.addEventListener('change', function() {
+        togglePricePerHour();
+    });
+
+    function togglePricePerHour() {
+        if (usePricePerHourFromClass.checked) {
+            pricePerHour.disabled = true
+        } else {
+            pricePerHour.disabled = false;
+        }
+    }
+});
+
+
+up.compiler('.modal', function(element) {
+    // when the url has "attendance-calendar" in the url, reload when the button ok is pressed
+    document.getElementById('ok').addEventListener('click', function() {
+        if (window.location.href.includes('attendance-calendar')) {
+            up.reload('#display_attendance_calendar')
+        }
     });
 });

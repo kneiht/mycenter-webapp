@@ -45,6 +45,11 @@ from .html_render import html_render
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
+
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import user_passes_test
+
+
 def is_admin(user):
     return user.is_authenticated and user.is_active and user.is_staff and user.is_superuser
 
@@ -119,12 +124,32 @@ class BaseViewSet(LoginRequiredMixin, View):
         else:
             return self.create_display(request, school_id=school_id)
 
+    def delete(self, request, school_id=None, pk=None):
+        # Get the record and put it in a list for later deletion
+        record = get_object_or_404(self.model_class, pk=pk)
+        # Delete the record
+        if 'confirm' in request.POST:
+            record.delete()
+            # Return a success message
+            html_message = html_render('message', request, message='Delete successfully')
+        else:
+            # return confirmation message
+            html_message = html_render('message', request, message_type="confirm_delete", message='Do yo really want to delete this record?')
+        
+        return HttpResponse(html_message)
+
+
     def post(self, request, school_id=None, pk=None):
         school = School.objects.filter(pk=school_id).first()
         if pk:
             instance = get_object_or_404(self.model_class, id=pk)
+        
+        print(request.POST)
+        # if there is delete = true in data form
+        if 'delete' in request.POST and request.POST.get('delete')=='true':
+            return self.delete(request, school_id=school_id, pk=pk)
+            
         result, instance, form = self.process_form(request, instance if pk else None)
-
         if result=='success':
             # add payment in students page
             if self.page=='students' and type(instance)==FinancialTransaction:
@@ -132,6 +157,7 @@ class BaseViewSet(LoginRequiredMixin, View):
 
             html_display_cards = html_render('display_cards', request, select=self.page, records=[instance], school=school)
             html_message = html_render('message', request, message='create successfully')
+            print(html_display_cards + html_message)
             return HttpResponse(html_display_cards + html_message)
         else:
             record_id=instance.pk if instance else None
@@ -247,6 +273,16 @@ class BaseViewSet(LoginRequiredMixin, View):
             }
             form = self.form_class(initial = initial_data, school_id=school_id, student_id=student_id)
             record_id = student.pk
+
+        elif self.form_class==AttendanceForm:
+            student_id = request.GET.get('student_id')
+            student = Student.objects.filter(pk=student_id).first()
+            initial_data = {
+                'student': student
+            }
+            form = self.form_class(instance=record) if record else self.form_class(initial = initial_data)
+            record_id = record.pk if record else None
+
         else:
             form = self.form_class(instance=record) if record else self.form_class()
             record_id = record.pk if record else None
@@ -602,7 +638,6 @@ class AttendanceViewSet(BaseViewSet):
     page = 'attendance'
 
 
-
 class StudentAttendanceCalendarViewSet(BaseViewSet):
     model_class = Attendance
     form_class = AttendanceForm
@@ -611,6 +646,7 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
     page = 'attendance'
 
     def get(self, request, school_id=None, student_id=None):
+        get_query = request.GET.get('get')
         return self.student_attendance_calendar(request, school_id, student_id)
 
     def student_attendance_calendar(self, request, school_id, student_id):
@@ -621,6 +657,7 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
 
         if len(attendances)==0: #
             context = {
+                'select': 'attendance',
                 'page': 'attendance',
                 'title': 'Attendance - ' + student.name,
                 'school': School.objects.filter(pk=school_id).first(),
@@ -709,6 +746,7 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
 
         context = {
             'page': 'attendance',
+            'select': 'attendance',
             'title': 'Attendance - ' + student.name,
             'school': School.objects.filter(pk=school_id).first(),
             'student': student,
@@ -729,6 +767,10 @@ class FinancialTransactionViewSet(BaseViewSet):
     title =  'Manage Financial Transactions'
     modal = 'modal_financial_transaction'
     page = 'financial_transactions'
+
+    @method_decorator(user_passes_test(lambda u: u.is_superuser))
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 class TuitionPaymentViewSet(BaseViewSet):
     model_class = FinancialTransaction

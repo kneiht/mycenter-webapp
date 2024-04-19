@@ -10,7 +10,7 @@
                         <p class="text-theme"> {{ message }} </p>
                     </div>
                     <div class="flex justify-center items-center gap-5 pt-8 pb-7">
-                        <button id='cancel' type="button" class="btn btn-primary rounded-full w-36">
+                        <button id='ok' type="button" class="btn btn-primary rounded-full w-36">
                             OK
                         </button>
                     </div>
@@ -33,7 +33,40 @@
                 </div>
             </div>
         </div>
+
+    {% elif message_type == 'confirm_delete' %}
+    <div id="modal" up-hungry message-type="{{ message_type }}">
+        <div class="modal z-50 fixed inset-0 bg-slate-600 bg-opacity-60 overflow-y-auto h-full w-full flex justify-center">
+            <!-- Modal Content -->
+            <div class="relative top-20 mx-4 card h-fit w-full sm:w-fit">
+                <h3 class="mt-7 mb-8 text-xl font-bold leading-6 text-center text-theme">Delete confirmation</h3>
+                <div class="w-[300px] gap-4 px-6 flex justify-center">
+                    <p class="text-theme"> {{ message }} </p>
+                </div>
+
+                <form enctype="multipart/form-data" method="post"
+                   action="{{ request.path }}"n up-target="#modal:maybe, #record_{{ record_id }}:maybe">
+
+                    {% csrf_token %}
+                    <input type="hidden" name="delete" value="true">
+                    <input type="hidden" name="confirm" value="true">
+                    <div class="flex justify-center items-center gap-5 pt-8 pb-7 px-10">
+                        <button id='cancel' type="button" class="btn btn-secondary rounded-full w-36">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-danger rounded-full w-36">
+                                Delete
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
     {% endif %}
+
+
 
 
 {% elif modal != 'modal_message' %}  
@@ -43,7 +76,7 @@
             <!-- Modal Content -->
             <div class="relative top-16 mb-10 mx-4 card h-fit w-full sm:w-fit">
                 <h3 class="mt-7 mb-8 text-xl font-bold leading-6 text-center text-theme">{% if record_id %} Edit Information {% else %} Create New {% endif %}</h3>
-
+                
                 <!-- Result could be a html card if success or a new form modal with error if fail, if success, the card will be added right after the div cards, else the form will be the same place but display as fixed -->
                 <form enctype="multipart/form-data" method="post"
                     {% if record_id %}
@@ -139,16 +172,23 @@
                         </div>
                     {% endif %}
 
-
-
                     <div class="flex justify-center items-center gap-5 pt-8 pb-7">
-                        <button type="submit" class="btn btn-primary rounded-full w-36">
+                        <button type="submit" class="btn btn-primary rounded-full w-36" onclick="this.form.delete.value = 'false';">
                             {% if record_id %} Update {% else %} Create {% endif %}
                         </button>
                         <button id='cancel' type="button" class="btn btn-secondary rounded-full w-36">
                             Cancel
                         </button>
+                        {% if record_id and modal == 'modal_attendance' %}
+                            <span class="">
+                                <input type="hidden" name="delete" value="true">
+                            </span>
+                            <button type="submit" class="btn btn-danger rounded-full w-36" onclick="this.form.delete.value = 'true';">
+                                Delete
+                            </button>
+                        {% endif %}
                     </div>
+
                 </form>
             </div>
         </div>

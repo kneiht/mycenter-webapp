@@ -197,12 +197,19 @@ class StudentClass(models.Model):
 
 
 class Attendance(SecondaryIDMixin, BaseModel):
+    STATUS_CHOICES = (
+        ('present', 'Present'),
+        ('late', 'Late'),
+        ('left_early', 'Left Early'),
+        ('absent', 'Absent'),
+    )
     school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True)
     check_class = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True)
     check_date = models.DateTimeField(default=timezone.now)
-    status = models.CharField(max_length=20)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="present")
     learning_hours = models.FloatField(default=1.5, null=True, blank=True)
+    use_price_per_hour_from_class = models.BooleanField(default=True)
     price_per_hour = models.IntegerField(default=0, null=True, blank=True)
     is_payment_required = models.BooleanField(default=True)
     note = models.TextField(default="", blank=True, null=True)
@@ -213,8 +220,10 @@ class Attendance(SecondaryIDMixin, BaseModel):
         # Set the microsecond part to zero before saving
         if self.check_date:
             self.check_date = self.check_date.replace(microsecond=0)
-        
-        self.price_per_hour = self.check_class.price_per_hour
+
+        if self.use_price_per_hour_from_class and self.check_class:
+            self.price_per_hour = self.check_class.price_per_hour
+
         # get is_payment_required from the StudentClass
         if self.student and self.check_class:
             try:
