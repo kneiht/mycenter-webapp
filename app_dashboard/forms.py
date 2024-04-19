@@ -149,7 +149,7 @@ class AttendanceForm(forms.ModelForm):
         widgets = {
             'check_date': forms.DateTimeInput(attrs={
                 'class': 'form-input',
-                'type': 'datetime-local'
+                'type': 'datetime'
             }),
 
             'student': forms.Select(attrs={
