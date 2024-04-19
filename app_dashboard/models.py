@@ -223,8 +223,9 @@ class Attendance(SecondaryIDMixin, BaseModel):
             if "T" in str(self.check_date):
                 self.check_date = datetime.strptime(str(self.check_date), '%Y-%m-%dT%H:%M:%S')
             else:
-                self.check_date = datetime.strptime(str(self.check_date), '%Y-%m-%d %H:%M:%S    ')
+                self.check_date = datetime.strptime(str(self.check_date), '%Y-%m-%d %H:%M:%S')
             self.check_date = self.check_date.replace(microsecond=0)
+            print(self.check_date)
 
         if self.use_price_per_hour_from_class and self.check_class:
             self.price_per_hour = self.check_class.price_per_hour
