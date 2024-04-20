@@ -288,16 +288,22 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
     )
     BONUSES = (
         (1.0, 'No bonus'),
+        (1.05, 'Extra 5%'),
         (1.1, 'Extra 10%'),
+        (1.15, 'Extra 15%'),
         (1.2, 'Extra 20%'),
+        (1.25, 'Extra 25%'),
         (1.3, 'Extra 30%'),
+        (1.35, 'Extra 35%'),
+        (1.4, 'Extra 40%'),
+        (1.45, 'Extra 45%'),
+        (1.5, 'Extra 50%'),
     )
     income_or_expense = models.CharField(max_length=20, choices=IN_OR_OUT_CHOICES)
     transaction_type = models.CharField(max_length=255, choices=TRANSACTION_TYPES)
     giver = models.CharField(max_length=100, default="Undefined", null=True, blank=True)
     receiver = models.CharField(max_length=100, default="Undefined", null=True, blank=True)
     amount = models.IntegerField(default=0, null=True, blank=True)
-
 
     # fields for tuition payments
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True, blank=True)

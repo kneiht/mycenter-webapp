@@ -161,8 +161,14 @@
                                         <div class="border-b pb-0.5 flex justify-between w-full">
                                             <span class="w-2/12"> {{ payment.created_at|date:"d-m-Y" }} </span>
                                             <span class="w-3/12"> {{ payment.amount|format_vnd }} </span>
-                                            <span class="w-2/12"> {{ payment.bonus }} </span>
-                                            <span class="w-3/12"> {{ payment.balance_increase|format_vnd }}</span>
+                                            <span class="w-2/12"> 
+                                                 {% if payment.bonus == 0 and payment.amount != payment.student_balance_increase %}
+                                                    {{ payment.student_balance_increase|calculate_bonus:payment.amount }}
+                                                {% else %}
+                                                    {{ payment.get_bonus_display }}
+                                                {% endif %}
+                                            </span>
+                                            <span class="w-3/12"> {{ payment.student_balance_increase|format_vnd }}</span>
 
                                             <span class="w-3/12"> {{ payment.note }} </span>
                                         </div>

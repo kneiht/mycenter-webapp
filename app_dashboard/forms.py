@@ -147,9 +147,9 @@ class AttendanceForm(forms.ModelForm):
         model = Attendance
         fields = ['check_date', 'student', 'check_class', 'status', 'is_payment_required', 'use_price_per_hour_from_class', 'price_per_hour', 'learning_hours', 'note', ]
         widgets = {
-            'check_date': forms.DateTimeInput(attrs={
+            'check_date': forms.DateInput(attrs={
                 'class': 'form-input',
-                'type': 'datetime'
+                'type': 'date'
             }),
 
             'student': forms.Select(attrs={

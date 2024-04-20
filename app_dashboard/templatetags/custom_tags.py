@@ -17,6 +17,14 @@ def format_vnd(amount):
     return formatted_str[::-1].replace('-.','-') + " VNĐ"
 
 
+@register.filter
+def calculate_bonus(value, arg):
+    try:
+        number = round(int(value) / int(arg), 3) - 1
+        result = "Extra " + str(number*100) + "%" 
+        return result
+    except (ValueError, ZeroDivisionError):
+        return
 
 
 @register.inclusion_tag('components/display_cards.html')

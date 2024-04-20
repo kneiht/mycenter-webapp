@@ -278,9 +278,9 @@ class BaseViewSet(LoginRequiredMixin, View):
             check_date = request.GET.get('check_date')
             # convert check_date to date object
             if check_date:
-                check_date = datetime.strptime(check_date, '%Y-%m-%d')
+                check_date = datetime.strptime(check_date, '%Y-%m-%d').date()
             else:
-                check_date = datetime.now()
+                check_date = datetime.now().date()
             student = Student.objects.filter(pk=student_id).first()
             initial_data = {
                 'student': student,
