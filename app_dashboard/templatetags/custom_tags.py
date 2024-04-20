@@ -20,7 +20,7 @@ def format_vnd(amount):
 @register.filter
 def calculate_bonus(value, arg):
     try:
-        number = round(int(value) / int(arg), 3) - 1
+        number = round(int(value) / int(arg) - 1,3)
         result = "Extra " + str(number*100) + "%" 
         return result
     except (ValueError, ZeroDivisionError):
