@@ -1813,6 +1813,10 @@ select {
   height: 100%;
 }
 
+.h-5 {
+  height: 1.25rem;
+}
+
 .min-h-full {
   min-height: 100%;
 }
@@ -1912,6 +1916,10 @@ select {
 
 .w-full {
   width: 100%;
+}
+
+.w-12 {
+  width: 3rem;
 }
 
 .max-w-md {
@@ -2664,6 +2672,14 @@ select {
 
 .opacity-5 {
   opacity: 0.05;
+}
+
+.opacity-20 {
+  opacity: 0.2;
+}
+
+.opacity-30 {
+  opacity: 0.3;
 }
 
 .shadow {
