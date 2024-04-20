@@ -275,9 +275,16 @@ class BaseViewSet(LoginRequiredMixin, View):
 
         elif self.form_class==AttendanceForm:
             student_id = request.GET.get('student_id')
+            check_date = request.GET.get('check_date')
+            # convert check_date to date object
+            if check_date:
+                check_date = datetime.strptime(check_date, '%Y-%m-%d')
+            else:
+                check_date = datetime.now()
             student = Student.objects.filter(pk=student_id).first()
             initial_data = {
-                'student': student
+                'student': student,
+                'check_date':check_date,
             }
             form = self.form_class(instance=record) if record else self.form_class(initial = initial_data)
             record_id = record.pk if record else None

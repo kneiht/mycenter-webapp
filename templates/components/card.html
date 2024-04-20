@@ -3,20 +3,20 @@
 {% if select == 'attendance' %}
 <a up-hungry id="record_{{ record.pk }}" href="/schools/{{ school.pk }}/attendances/{{ record.pk }}?get=form" up-target="#modal" up-history="false">
     <!-- Example: You might want to customize this based on your attendance model -->
-    {% if record.status == 'present' %}
-        <span class="py-1 px-2 rounded-lg present">
-    {% elif record.status == 'absent' %}
-        <span class="py-1 px-2 rounded-lg absent">
-    {% elif record.status == 'late' %}
-        <span class="py-1 px-2 rounded-lg late">
-    {% elif record.status == 'left_early' %}
-        <span class="py-1 px-2 rounded-lg left-early">
+    {% if attendance.status == 'present' %}
+    <span class="py-1 px-2 rounded--xl present">
+    {% elif attendance.status == 'absent' %}
+        <span class="py-1 px-2 rounded-xl absent">
+    {% elif attendance.status == 'late' %}
+        <span class="py-1 px-2 rounded-xl late">
+    {% elif attendance.status == 'left_early' %}
+        <span class="py-1 px-2 rounded-xl left-early">
     {% endif %}
     {{ record.check_class }} 
     {% if record.is_payment_required %} - Paid {% endif %} - {{ record.learning_hours }}h</span>
 </a>
 
-
+    
 {% else %}
 <div up-hungry id="record_{{ record.pk }}" record-id="{{ record.pk }}" class="relative card {{ record.style }}">
     

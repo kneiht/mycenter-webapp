@@ -34,23 +34,25 @@
                         {% if day.display %}
                             <div class="flex justify-center items-center gap-3">
                                 <div class="py-2">{{ day.date.day }}</div>
-                                <a href="/schools/{{ school.pk }}/attendances/?get=form&student_id={{ student.pk }}" class="btn btn-primary w-12 h-5 rounded-full flex justify-center items-center text-center" up-target="#modal" up-history="false" >
+                                <a href="/schools/{{ school.pk }}/attendances/?get=form&student_id={{ student.pk }}&check_date={{ day.date|date:'Y-m-d' }}" class="btn btn-primary w-12 h-6 opacity-30 rounded-full flex justify-center items-center text-center" up-target="#modal" up-history="false">
                                     <i class="fas fa-plus" style="font-size: 16px;"></i>
                                 </a>
                             </div>
-                            <div class="py-2 flex flex-col gap-3">
+                            <div class="py-2 flex flex-col gap-3 m-2">
                                 {% for attendance in day.attendances %}
                                     
-                                    <a id="record_{{ attendance.pk }}" href="/schools/{{ school.pk }}/attendances/{{ attendance.pk }}?get=form" up-target="#modal" up-history="false">
+                                    <a id="record_{{ attendance.pk }}" class="flex justify-center items-center" href="/schools/{{ school.pk }}/attendances/{{ attendance.pk }}?get=form" up-target="#modal" up-history="false">
                                         <!-- Example: You might want to customize this based on your attendance model -->
                                         {% if attendance.status == 'present' %}
-                                            <span class="py-1 px-2 rounded-lg present">
+                                            <span class="py-1 px-2 rounded-xl present">
                                         {% elif attendance.status == 'absent' %}
-                                            <span class="py-1 px-2 rounded-lg absent">
+                                            <span class="py-1 px-2 rounded-xl absent">
                                         {% elif attendance.status == 'late' %}
-                                            <span class="py-1 px-2 rounded-lg late">
+                                            <span class="py-1 px-2 rounded-xl late">
                                         {% elif attendance.status == 'left_early' %}
-                                            <span class="py-1 px-2 rounded-lg left-early">
+                                            <span class="py-1 px-2 rounded-xl left-early">
+                                        {% elif attendance.status == 'just_added' %}
+                                            <span class="py-1 px-2 rounded-xl just_added">
                                         {% endif %}
                                         {{ attendance.check_class }} 
                                         {% if attendance.is_payment_required %} - Paid {% endif %} - {{ attendance.learning_hours }}h</span>
