@@ -8,6 +8,8 @@ register = template.Library()
 
 @register.filter(name='format_vnd')
 def format_vnd(amount):
+    if amount is None:
+        return 'errorNontype'
     # Convert the number to a string and reverse it
     amount_str = str(int(amount))[::-1]
     

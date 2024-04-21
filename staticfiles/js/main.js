@@ -143,6 +143,17 @@ up.compiler('.card', function(element) {
                     payTuition.setAttribute('href', href);
                 }
 
+
+                // Update the URL for the tuition payment link
+                let payTuitionOld = document.getElementById('pay_tuition_old');
+                if (payTuitionOld) {
+                    let href = window.location.pathname
+                    href = href + '/' + recordId + '/pay-tuition-old/?get=form';
+                    href = href.replace('//', '/');
+                    payTuitionOld.setAttribute('href', href);
+                }
+
+
                 // Update the URL for attendance link
                 let attendanceCalendar = document.getElementById('attendance-calendar');
                 if (attendanceCalendar) {
@@ -404,7 +415,12 @@ up.compiler('#db-tool-bar', function(element) {
         document.getElementById('sort-button').classList.add('hidden');
         document.getElementById('right-controls').classList.add('hidden');
     });
-    
+
+    // hide filter list when clicking submit search-button
+    document.getElementById('search-button').addEventListener('click', function() {
+        document.getElementById('filter-list').classList.add('hidden');
+    })
+
     // Toggle information bar visibility
     document.getElementById('toggle-infor-bar').addEventListener('click', function() {
         const infoBar = document.getElementById('infor-bar');
@@ -485,9 +501,89 @@ up.compiler('#id_use_price_per_hour_from_class', function(element) {
 
 up.compiler('.modal', function(element) {
     // when the url has "attendance-calendar" in the url, reload when the button ok is pressed
-    document.getElementById('ok').addEventListener('click', function() {
-        if (window.location.href.includes('attendance-calendar')) {
-            up.reload('#display_attendance_calendar')
-        }
-    });
+    if (document.getElementById('ok')) {
+        document.getElementById('ok').addEventListener('click', function() {
+            if (window.location.href.includes('attendance-calendar')) {
+                up.reload('#display_attendance_calendar')
+            }
+        });
+    }
+
 });
+
+
+// CALCULATE BALANCE IN STUDENT FORM =========================================
+up.compiler('#calculate-balance', function(element) {
+    // when the url has "attendance-calendar" in the url, reload when the button ok is pressed
+    document.getElementById('id_amount').addEventListener('input', function() {
+        calculateBalance();
+    });
+    document.getElementById('id_bonus').addEventListener('input', function() {
+        calculateBalance();
+    });
+    function calculateBalance() {
+        console.log(document.getElementById('id_amount').tagName)
+        if (document.getElementById('id_amount').tagName === "INPUT") {
+            let amount = document.getElementById('id_amount').value;
+            // get the tag with id id_bonus
+
+            let bonus = document.getElementById('id_bonus').value;
+            let balance = amount*bonus;
+            element.innerText = Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(balance);
+        }
+        else {
+            let amount = document.getElementById('id_amount').value;
+            // create a map of amount and balance increase
+            let map = new Map();
+            map.set('1800000', 1800000);
+            map.set('1620000', 1800000);
+            map.set('1440000', 1800000);
+            map.set('1350000', 1800000);
+            map.set('1300000', 1800000);
+            map.set('3240000', 3240000);
+            map.set('2916000', 3240000);
+            map.set('5640000', 5640000);
+            map.set('5076000', 5640000);
+            let balance = map.get(amount);
+            element.innerText = Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(balance);
+            let balanceElement = document.getElementById('id_student_balance_increase');
+            if (balanceElement) { 
+                balanceElement.value = balance;
+            }
+        }
+    }
+});
+
+
+const defaults = {
+    spread: 360,
+    ticks: 50,
+    gravity: 0,
+    decay: 0.94,
+    startVelocity: 30,
+    shapes: ["star"],
+    colors: ["FFE400", "FFBD00", "E89400", "FFCA6C", "FDFFB8"],
+};
+function shoot() {
+confetti({
+    ...defaults,
+    particleCount: 40,
+    scalar: 1.2,
+    shapes: ["star"],
+});
+confetti({
+    ...defaults,
+    particleCount: 10,
+    scalar: 0.75,
+    shapes: ["circle"],
+});
+}
+function shootConfetti() {
+    shoot();
+    setTimeout(shoot, 50);
+    setTimeout(shoot, 100);
+    setTimeout(shoot, 150);
+    setTimeout(shoot, 200);
+    setTimeout(shoot, 250);
+}
+

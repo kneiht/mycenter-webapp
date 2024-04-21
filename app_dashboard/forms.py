@@ -36,7 +36,7 @@ class SchoolForm(forms.ModelForm):
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
-        fields = ['name', 'status', 'gender', 'date_of_birth', 'parents', 'phones', 'reward_points', 'note', 'image']
+        fields = ['name', 'status', 'gender', 'date_of_birth', 'parents', 'phones', 'reward_points', 'note', 'image', 'classes']
         widgets = {
             'name': forms.TextInput(attrs={
                 'placeholder': 'Student name',
@@ -72,6 +72,50 @@ class StudentForm(forms.ModelForm):
                 'class': 'form-input-file'
             }),
         }
+    def __init__(self, *args, **kwargs):
+        school_id = kwargs.pop('school_id', None)
+        super().__init__(*args, **kwargs)
+        if school_id is not None:
+            self.school_id = school_id
+        else:
+            self.school_id = None
+
+    def get_classes(self):
+        student_instance = self.instance
+        print(student_instance)
+        # Check if the student instance exists
+        if not student_instance.pk:
+            # The student isn't saved yet; return all classes from the specified school without extra processing
+            return Class.objects.filter(school_id=self.school_id).order_by('-pk')
+
+        # Annotate each class with a flag indicating if the student is in this class
+        student_in_class_subquery = StudentClass.objects.filter(
+            student=student_instance, _class=OuterRef('pk')
+        )
+        classes = Class.objects.filter(school_id=self.school_id).annotate(
+            in_class=Exists(student_in_class_subquery)
+        ).order_by('-in_class', '-pk')
+        print(classes)
+        # Convert the QuerySet to a list to avoid duplicate queries on iteration
+        classes_list = list(classes)
+
+        # Fetch all StudentClass instances for the current student to reduce query count
+        student_classes = {sc._class_id: sc for sc in StudentClass.objects.filter(student=student_instance)}
+
+        # Set `is_payment_required` on each class object
+        for _class in classes_list:
+            # Check if there's a StudentClass instance for this student and class
+            student_class = student_classes.get(_class.id)
+            if student_class:
+                # Directly attach the is_payment_required attribute from StudentClass
+                _class.is_payment_required = student_class.is_payment_required
+            else:
+                # Default to False if no StudentClass instance exists
+                _class.is_payment_required = False
+
+        return classes_list
+
+
 
 
 class ClassForm(forms.ModelForm):
@@ -110,7 +154,7 @@ class ClassForm(forms.ModelForm):
         # Check if the class instance exists
         if not class_instance.pk:
             # The class isn't saved yet; return all students from the specified school without extra processing
-            return Student.objects.filter(school_id=self.school_id).order_by('name')
+            return Student.objects.filter(school_id=self.school_id).order_by('-pk')
 
         # Annotate each student with a flag indicating if they are in this class
         student_in_class_subquery = StudentClass.objects.filter(
@@ -265,9 +309,64 @@ class TuitionPaymentForm(forms.ModelForm):
 
     def get_payments(self):
         payments = FinancialTransaction.objects.filter(school_id=self.school_id,student_id=self.student_id).order_by('created_at')
-        for payment in payments:
-            payment.balance_increase = payment.amount*payment.bonus
         return payments
+
+
+
+class TuitionPaymentOldForm(forms.ModelForm):
+    class Meta:
+        model = FinancialTransaction
+        fields = ['income_or_expense', 'transaction_type', 'student', 'receiver', 'amount', 'note', 'student_balance_increase']
+        widgets = {
+            'income_or_expense': forms.Select(attrs={
+                'class': 'form-input disabled',
+            }),
+            'transaction_type': forms.Select(attrs={
+                'class': 'form-input',
+            }),
+            'student': forms.Select(attrs={
+                'class': 'form-input',
+            }),
+            'receiver': forms.TextInput(attrs={
+                'class': 'form-input',
+            }),
+            'amount': forms.Select(
+                choices = [(0, "Chọn gói học phí"),
+                           (1800000, "Quý 1.800.000 VNĐ (gốc)"),
+                           (1620000, "Quý 1.620.000 VNĐ (gốc - 10%)"),
+                           (1440000, "Quý 1.440.000 VNĐ (gốc - 20%)"),
+                           (1350000, "Quý 1.350.000 VNĐ (gốc - 25%)"),
+                           (1300000, "Quý 1.300.000 VNĐ (Hp chính sách cũ)"),
+                           (3240000, "Nửa năm 3.240.000 VNĐ (gốc)"),
+                           (2916000, "Nửa năm 2.916.000 VNĐ (gốc - 10%)"),
+                           (5640000, "Năm 5.640.000 VNĐ (gốc)"),
+                           (5076000, "Năm 5.076.000 VNĐ (gốc - 10%)"),],
+                attrs={
+                'class': 'form-input'
+            }),
+
+            'note': forms.Textarea(attrs={
+                'class': 'form-input',
+                'rows': 2
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        school_id = kwargs.pop('school_id', None)
+        student_id = kwargs.pop('student_id', None)
+        super().__init__(*args, **kwargs)
+        if school_id is not None:
+            self.school_id = school_id
+            self.student_id = student_id
+        else:
+            self.school_id = None
+            self.student_id = None
+
+    def get_payments(self):
+        payments = FinancialTransaction.objects.filter(school_id=self.school_id,student_id=self.student_id).order_by('created_at')
+        return payments
+
+
 
 '''
 

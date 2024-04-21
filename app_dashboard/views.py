@@ -30,7 +30,7 @@ from django.db.models import Q, Count, Sum  # 'Sum' is imported here
 
 # Import forms
 from .forms import (
-    SchoolForm, StudentForm, ClassForm, AttendanceForm, FinancialTransactionForm, TuitionPaymentForm
+    SchoolForm, StudentForm, ClassForm, AttendanceForm, FinancialTransactionForm, TuitionPaymentForm, TuitionPaymentOldForm
 )
 # Import models
 from django.contrib.auth.models import User
@@ -155,6 +155,7 @@ class BaseViewSet(LoginRequiredMixin, View):
             if self.page=='students' and type(instance)==FinancialTransaction:
                 instance = instance.student
 
+            instance.style = 'just-updated'
             html_display_cards = html_render('display_cards', request, select=self.page, records=[instance], school=school)
             html_message = html_render('message', request, message='create successfully')
             return HttpResponse(html_display_cards + html_message)
@@ -184,9 +185,6 @@ class BaseViewSet(LoginRequiredMixin, View):
                 records = self.model_class.objects.filter(school_id=school_id)
             else:
                 return HttpResponseForbidden("Access restricted to users of the school.")
-
-        # Get the and sort option from the request
-        sort_option = request.GET.get('sort', 'default')
 
         # Determine the fields to be used as filter options based on the selected page
         if self.page == 'schools':
@@ -231,10 +229,15 @@ class BaseViewSet(LoginRequiredMixin, View):
         records = records.filter(combined_query)
 
         # Sort the results if the sort field exists in the model
+        # Get the and sort option from the request
+        sort_option = request.GET.get('sort', 'default')
         if sort_option and hasattr(self.model_class, sort_option):
             records = records.order_by(sort_option)
         else:
-            records = records.order_by('-pk')
+            if sort_option == 'balance_up_active':
+                records = records.order_by('balance')
+            else:
+                records = records.order_by('-pk')
 
         context = {
             'select': self.page, 
@@ -252,7 +255,6 @@ class BaseViewSet(LoginRequiredMixin, View):
         school_id = kwargs.pop('school_id', None)
         pk = kwargs.pop('pk', None)
 
-
         # Get the instance if pk is provided, use None otherwise
         record = self.model_class.objects.filter(pk=pk).first() if pk!='new' else None
         
@@ -260,8 +262,13 @@ class BaseViewSet(LoginRequiredMixin, View):
         if self.form_class==ClassForm:
             form = self.form_class(instance=record, school_id=school_id) if record else self.form_class(school_id=school_id)
             record_id = record.pk if record else None
+        
+        elif self.form_class==StudentForm:
+            form = self.form_class(instance=record, school_id=school_id) if record else self.form_class(school_id=school_id)
+            record_id = record.pk if record else None
 
-        elif self.form_class==TuitionPaymentForm:
+
+        elif self.form_class==TuitionPaymentForm or self.form_class==TuitionPaymentOldForm: 
             student_id = kwargs.pop('student_id', None)
             student = Student.objects.filter(pk=student_id).first()
             initial_data = {
@@ -272,6 +279,9 @@ class BaseViewSet(LoginRequiredMixin, View):
             }
             form = self.form_class(initial = initial_data, school_id=school_id, student_id=student_id)
             record_id = student.pk
+
+
+
 
         elif self.form_class==AttendanceForm:
             student_id = request.GET.get('student_id')
@@ -316,6 +326,7 @@ class BaseViewSet(LoginRequiredMixin, View):
                     if not instance:
                         instance_form.school = school
                     instance_form.save()
+
                     if  self.model_class == Class:
                         form.save_m2m()      
 
@@ -344,8 +355,11 @@ class BaseViewSet(LoginRequiredMixin, View):
                                 _class=instance_form,
                                 is_payment_required=student_id in payment_required_ids,
                             )
-
                         return 'success', instance_form, form
+
+                    elif self.model_class == Student:
+                        form.save_m2m()
+
 
             return 'success', instance_form, form
         else:
@@ -449,8 +463,6 @@ class ClassViewSet(BaseViewSet):
 
         # style disable absent students
         for student in students_in_class:
-            print(student)
-            print(student.check_attendance(class_instance, check_date))
             if not student.check_attendance(class_instance, check_date):
                 student.style = 'grayouted'
 
@@ -694,22 +706,26 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
             # Filter attendances based on the balance
             cumulative_balance = 0
             filtered_attendance_ids = []
+
             for attendance in attendances:
                 if attendance.is_payment_required:
                     cumulative_balance += attendance.price_per_hour * attendance.learning_hours
 
                 if (cumulative_balance > balance_before_payment) and (cumulative_balance <= balance_up_to_payment):
                     filtered_attendance_ids.append(attendance.id)
+
                 elif cumulative_balance > balance_up_to_payment:
                     break
+                
+
             attendances = Attendance.objects.filter(id__in=filtered_attendance_ids)
             earliest_attendance_date = attendances.earliest('check_date').check_date
             latest_attendance_date = attendances.filter(student=student).latest('check_date').check_date
 
         # Adjust start_day and end_day to cover all attendance records
-        start_day = earliest_attendance_date - timedelta(days=earliest_attendance_date.weekday())
-        end_day = latest_attendance_date + timedelta(days=6 - latest_attendance_date.weekday())
-
+        start_day = earliest_attendance_date
+        end_day = latest_attendance_date
+        print(start_day, end_day)
 
         # Fetch attendances within the expanded date range
         attendances = Attendance.objects.filter(
@@ -726,7 +742,7 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
         months = defaultdict(lambda: {'days': []})
         current_day = start_day
         while current_day <= end_day:
-            print(current_day, current_day.weekday())
+
             day_data = {
                 'date': current_day,
                 'attendances': attendances_by_date.get(current_day.date(), []),
@@ -791,6 +807,22 @@ class TuitionPaymentViewSet(BaseViewSet):
             return self.create_form(request, school_id=school_id, student_id=student_id, pk=pk)
     def post(self, request, school_id=None, student_id=None, pk=None):
         return super().post(request, school_id, pk)
+
+class TuitionPaymentOldViewSet(BaseViewSet):
+    model_class = FinancialTransaction
+    form_class = TuitionPaymentOldForm
+    title =  'Manage Tuition Payments'
+    modal = 'modal_pay_tuition_old'
+    page = 'students'
+
+    def get(self, request, school_id=None, student_id=None, pk=None):
+        get_query = request.GET.get('get')
+        if get_query=='form':
+            return self.create_form(request, school_id=school_id, student_id=student_id, pk=pk)
+    def post(self, request, school_id=None, student_id=None, pk=None):
+        return super().post(request, school_id, pk)
+
+
 
 
 

@@ -115,10 +115,7 @@ GEN8 NOTES:a
 - cập nhật thống kê nếu update  1 record nào đó trong bảng
 - cập nhật giờ khi  tính tiền học phí
 
-- nghiên cứu htmlx, alpine, tailwin css
 
-- Trần ngọc mỹ linh sai điểm danh
-- reload in class
 
 Additional Points to Consider:
 Error Handling: Implement proper error handling for file uploads and data processing.
@@ -167,11 +164,17 @@ Todo:
 
 17/5
 - Cần thêm leading and ending empty cells vào calendar => Done
-- Thêm form cho calendar như web cũ
-- thêm phân quyền cho các trang finnance
+- Thêm form cho calendar như web cũ => Done
+- thêm phân quyền cho các trang finnance => Done
 - Nguyen thi anh thu blance increase = 0 ? why
 
-
+20/5
+- thêm pay_tuition theo kiểu củ => Done
+- thêm note theo kiểu chát
+- thêm filter and sort
+- nut add atttendace trong từng ngày bị lỗi khi thu nhỏ
+- lịch lố =27 28 ngày => Done
+- unpaid trong attendance calendar
 
 ý tưởng dùng cách này để lưu điểm danh để đỡ số lượng dòng
 {'check_date': ['2024-02-15'], 'present': ['4-5-3-6'], 'absent': [''], 'late': [''], 'left_early': ['']}

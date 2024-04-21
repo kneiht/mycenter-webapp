@@ -134,10 +134,19 @@
                     </div>
 
                     <!-- Button to access sorting options -->
-                    <button id="sort-button" type="button" class="btn btn-outline h-full max-sm:w-11">
+                    <button id="sort-button" type="button" class="hidden btn btn-outline h-full max-sm:w-11">
                         <span class="max-sm:hidden me-3"> Sorts </span>
                         <i class="fas fa-sort text-theme" style="font-size: 20px;"></i> <!-- Icon for filter -->
                     </button>
+
+                    {% if select == 'students' %}
+                        <select id="sort-select" name="sort" class="form-input w-fit">
+                            <option value="-pk" selected>Sort by ...</option>
+                            <option value="name">Name</option>
+                            <option value="balance_up_active">Balance up (Active)</option>
+                        </select>
+                    {% endif %}
+
                 </form>
 
                 <!-- Right controls for view toggle and information display -->

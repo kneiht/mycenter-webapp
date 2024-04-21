@@ -298,17 +298,18 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
         (1.4, 'Extra 40%'),
         (1.45, 'Extra 45%'),
         (1.5, 'Extra 50%'),
+
     )
     income_or_expense = models.CharField(max_length=20, choices=IN_OR_OUT_CHOICES)
     transaction_type = models.CharField(max_length=255, choices=TRANSACTION_TYPES)
     giver = models.CharField(max_length=100, default="Undefined", null=True, blank=True)
     receiver = models.CharField(max_length=100, default="Undefined", null=True, blank=True)
-    amount = models.IntegerField(default=0, null=True, blank=True)
+    amount = models.FloatField(default=0, null=True, blank=True)
 
     # fields for tuition payments
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True, blank=True)
-    bonus = models.FloatField(default=0.0, choices=BONUSES, null=True, blank=True)
-    student_balance_increase = models.IntegerField(default=0, null=True, blank=True)
+    bonus = models.FloatField(default=1.0, choices=BONUSES, null=True, blank=True)
+    student_balance_increase = models.FloatField(default=0, null=True, blank=True)
     legacy_discount = models.TextField(default="", blank=True, null=True)
     legacy_tuition_plan = models.TextField(default="", blank=True, null=True)
     
@@ -322,11 +323,22 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
     def save(self, *args, **kwargs):
         # The balance is calculated based on the transaction type
         if self.transaction_type=='income_tuition_fee' and self.student and self.amount: 
+
+            # if the student has balance increase from the form
+            if self.student_balance_increase:
+                if self.amount == self.student_balance_increase:
+                    self.bonus = 1.0
+                else: 
+                    self.bonus = 0
+            else:
+                self.student_balance_increase = round(self.amount*self.bonus)
+            print(self.student_balance_increase)
+
+
             if self._state.adding: # If the transaction is being created
                 self.income_or_expense = 'income'
                 self.giver = self.student.name
                 self.receiver = self.school.name
-                self.student_balance_increase = float(self.amount)*float(self.bonus)
                 self.student.balance = self.student.balance + self.student_balance_increase
             else: # If the transaction is being updated
                 # Fetch the old amount
