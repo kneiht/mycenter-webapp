@@ -299,7 +299,7 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
         (1.45, 'Extra 45%'),
         (1.5, 'Extra 50%'),
 
-    )
+    )   
     income_or_expense = models.CharField(max_length=20, choices=IN_OR_OUT_CHOICES)
     transaction_type = models.CharField(max_length=255, choices=TRANSACTION_TYPES)
     giver = models.CharField(max_length=100, default="Undefined", null=True, blank=True)
@@ -345,7 +345,9 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
                 # Fetch the old amount
                 old_student_balance_increase = FinancialTransaction.objects.get(pk=self.pk).student_balance_increase
                 # Update the balance
-                self.student.balance = self.student.balance - old_student_balance_increase + self.student_balance_increase
+                if not old_student_balance_increase:
+                    old_student_balance_increase = 0   
+                self.student.balance = float(self.student.balance) - float(old_student_balance_increase) + float(self.student_balance_increase)
             
             print(self.student)
             print(self.student.balance)

@@ -25,8 +25,8 @@ def calculate_bonus(value, arg):
         number = round(int(value) / int(arg) - 1,3)
         result = "Extra " + str(number*100) + "%" 
         return result
-    except (ValueError, ZeroDivisionError):
-        return
+    except Exception as e:
+        return e
 
 
 @register.inclusion_tag('components/display_cards.html')
