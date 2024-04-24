@@ -64,7 +64,7 @@
                 {{ record }}
             </h3>
         </div>
-        <div class="menu relative">
+        <div class="menu relative text-sm">
 
             <div class="menu-button flex flex-col justify-between items-center cursor-pointer gap-y-0.5 py-1.5 w-6 rounded-xl hover:bg-gray-200 hover:dark:bg-gray-700">
                 <div class="w-1 h-1 bg-theme-900 dark:bg-theme-100 rounded-full"></div>
@@ -73,7 +73,7 @@
             </div>
             {% if is_first %}
                 <!-- Dropdown Context Menu For Record-->
-                <ul  id="menu-card-context" class="dropdown-menu right-0 hidden">
+                <ul  id="menu-card-context" class="dropdown-menu right-0 hidden ">
                     <!-- Add record id by js -->
                     <a id="record-edit" class="" 
                         href="" 
@@ -83,13 +83,6 @@
                     </a>
 
                     {% if select == 'students' %}
-                        <a id="pay_tuition" class="menu-item menu-item-border"
-                            href="" 
-                            up-target="#modal" up-history="false">
-                            <i class="fa fa-money ml-3 mr-5"></i> 
-                            Pay tuition (Cách tính mới)
-                        </a>
-
                         <a id="pay_tuition_old" class="menu-item menu-item-border"
                             href="" 
                             up-target="#modal" up-history="false">
@@ -97,8 +90,15 @@
                             Pay tuition (Cách tính cũ)
                         </a>
 
+                        <a id="pay_tuition" class="menu-item menu-item-border"
+                            href="" 
+                            up-target="#modal" up-history="false">
+                            <i class="fa fa-money ml-3 mr-5"></i> 
+                            Pay tuition (Cách tính mới)
+                        </a>
+
                         <a id="attendance-calendar" class="menu-item menu-item-border"
-                            href=""
+                            href="" target="_blank"
                             up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
                             <i class="fa fa-calendar ml-3 mr-5"></i> 
                             Attendance calendar
@@ -183,10 +183,42 @@
             </div>
     
         {% elif select == 'financial_transactions' %}
-            <!-- Use div for consistency; span for text -->
+            <div class="h-10 truncate flex items-center">
+                <i class="fas fa-star w-5"></i>
+                <spa class="{{ record.income_or_expense }} text-white p-1 rounded-md">{{ record.get_income_or_expense_display }}</span>
+            </div>
             <div class="h-10 truncate flex items-center">
                 <i class="fas fa-dollar-sign w-5"></i>
                 <span>{{ record.amount|format_vnd }}</span>
+            </div>
+            <div class="h-10 truncate flex items-center">
+                <i class="fas fa-users w-5"></i>
+                <span>{{ record.receiver }}</span>
+            </div>
+
+            
+            {% if record.student %}
+                <div class="h-10 truncate flex items-center">
+                    <i class="fas fa-user-check w-5"></i>
+                    <span>{{ record.student }}</span>
+                </div>
+            {% endif %}
+            
+            {% if record.student_balance_increase %}
+                <div class="h-10 truncate flex items-center">
+                    <i class="fas fa-arrow-up w-5"></i>
+                    <span>{{ record.student_balance_increase|format_vnd }}</span>
+                </div>
+            {% endif %}
+
+            <div class="h-10 truncate flex items-center">
+                <i class="fas fa-clock w-5"></i>
+                <span>{{ record.created_at|date:"d-m-Y H:i" }}</span>
+            </div>
+
+            <div class="h-10 truncate flex items-center">
+                <i class="fas fa-comment w-5"></i>
+                <span>{{ record.note }}</span>
             </div>
         {% endif %}
     </div>

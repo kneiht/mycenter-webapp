@@ -54,3 +54,8 @@ def my_filter(value, arg):
     # Your processing here
     return "processed value"
 
+
+
+@register.filter
+def multiply(value, arg):
+    return value * arg

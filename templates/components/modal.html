@@ -116,6 +116,23 @@
                                         {% endfor %}
                                     </div>
                                 {% endif %}
+
+
+                                {% if field.name == 'student_balance_increase' and modal == 'modal_financial_transaction' %}
+                                    <div>
+                                        <label for="{{ field.name }}" class="text-theme">{{ field.label }}</label>
+                                        {{ field }}    
+                                    
+                                        {% if field.help_text %}
+                                            <p class="text-blue-500 px-3">{{ field.help_text }}</p>
+                                        {% endif %}
+                                        {% for error in field.errors %}
+                                            <p class="text-red-500 px-3">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+
+
                             </div>
                         {% endfor %}
                     </div>
@@ -173,7 +190,7 @@
                     </div>
 
 
-                    {% elif modal == 'modal_pay_tuition' or modal == 'modal_pay_tuition_old'%}
+                    {% elif modal == 'modal_pay_tuition' or modal == 'modal_pay_tuition_old' %}
                         <div class="flex justify-center items-center mx-10 my-5 p-2 rounded-2xl bg-green-600 dark:bg-green-700 text-lg text-white">
                             <div>
                             <input type="hidden" id="id_student_balance_increase" name="student_balance_increase" value="0">
@@ -227,14 +244,15 @@
                         <button id='cancel' type="button" class="btn btn-secondary rounded-full w-36">
                             Cancel
                         </button>
-                        {% if record_id and modal == 'modal_attendance' %}
+                        {% if record_id %} {% if modal == 'modal_financial_transaction' or modal == 'modal_attendance' %}
                             <span class="">
                                 <input type="hidden" name="delete" value="true">
                             </span>
                             <button type="submit" class="btn btn-danger rounded-full w-36" onclick="this.form.delete.value = 'true';">
                                 Delete
                             </button>
-                        {% endif %}
+
+                        {% endif %}{% endif %}
                     </div>
 
                 </form>

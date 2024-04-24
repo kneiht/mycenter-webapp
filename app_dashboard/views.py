@@ -30,7 +30,8 @@ from django.db.models import Q, Count, Sum  # 'Sum' is imported here
 
 # Import forms
 from .forms import (
-    SchoolForm, StudentForm, ClassForm, AttendanceForm, FinancialTransactionForm, TuitionPaymentForm, TuitionPaymentOldForm
+    SchoolForm, StudentForm, ClassForm, AttendanceForm, FinancialTransactionForm, 
+    TuitionPaymentForm, TuitionPaymentOldForm, TuitionPaymentSpecialForm
 )
 # Import models
 from django.contrib.auth.models import User
@@ -256,7 +257,7 @@ class BaseViewSet(LoginRequiredMixin, View):
             record_id = record.pk if record else None
 
 
-        elif self.form_class==TuitionPaymentForm or self.form_class==TuitionPaymentOldForm: 
+        elif self.form_class in [TuitionPaymentForm, TuitionPaymentOldForm, TuitionPaymentSpecialForm]: 
             student_id = kwargs.pop('student_id', None)
             student = Student.objects.filter(pk=student_id).first()
             initial_data = {
@@ -710,6 +711,28 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
             earliest_attendance_date = attendances.earliest('check_date').check_date
             latest_attendance_date = attendances.filter(student=student).latest('check_date').check_date
 
+        elif payment_id=="unpaid":
+            balance = 0
+            for payment in payments:
+                balance += payment.student_balance_increase
+
+            # Filter attendances based on the balance
+            cumulative_balance = 0
+            filtered_attendance_ids = []
+
+            for attendance in attendances:
+                if attendance.is_payment_required:
+                    cumulative_balance += attendance.price_per_hour * attendance.learning_hours
+
+                if cumulative_balance > balance:
+                    filtered_attendance_ids.append(attendance.id)
+            
+            attendances = Attendance.objects.filter(id__in=filtered_attendance_ids)
+            earliest_attendance_date = attendances.earliest('check_date').check_date
+            latest_attendance_date = attendances.filter(student=student).latest('check_date').check_date
+
+
+
         # Adjust start_day and end_day to cover all attendance records
         start_day = earliest_attendance_date
         end_day = latest_attendance_date
@@ -810,6 +833,21 @@ class TuitionPaymentOldViewSet(BaseViewSet):
     def post(self, request, school_id=None, student_id=None, pk=None):
         return super().post(request, school_id, pk)
 
+
+
+class TuitionPaymentSpecialViewSet(BaseViewSet):
+    model_class = FinancialTransaction
+    form_class = TuitionPaymentSpecialForm
+    title =  'Manage Tuition Payments'
+    modal = 'modal_pay_tuition_special'
+    page = 'students'
+
+    def get(self, request, school_id=None, student_id=None, pk=None):
+        get_query = request.GET.get('get')
+        if get_query=='form':
+            return self.create_form(request, school_id=school_id, student_id=student_id, pk=pk)
+    def post(self, request, school_id=None, student_id=None, pk=None):
+        return super().post(request, school_id, pk)
 
 
 

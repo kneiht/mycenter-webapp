@@ -317,7 +317,8 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"{self.transaction_type}"
+        return self.get_transaction_type_display()
+
     
     
     def save(self, *args, **kwargs):
