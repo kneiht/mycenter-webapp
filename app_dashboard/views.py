@@ -57,17 +57,18 @@ def is_admin(user):
 
 # GENERAL PAGES ==============================================================
 def landing_page(request):
-    rendered_page = render(request, 'pages/landing_page.html')
-    return rendered_page
-
-@login_required
-def dashboard(request, school_id):
     if settings.DOMAIN == 'mycenter':
         return redirect('schools')
     else:
         school = School.objects.filter(pk=school_id).first()
         context = {'page': 'dashboard', 'title': 'Dashboard', 'school': school}
         return render(request, 'pages/single_page.html', context)
+
+@login_required
+def dashboard(request, school_id):
+    school = School.objects.filter(pk=school_id).first()
+    context = {'page': 'dashboard', 'title': 'Dashboard', 'school': school}
+    return render(request, 'pages/single_page.html', context)
 
 
 @login_required

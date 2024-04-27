@@ -178,3 +178,4 @@ Todo:
 xóa time ra khỏi check date
 
 
+- lỗi trang attendance, khi chuyển từ unpaid sang paid nó không cập nhật  tiền
