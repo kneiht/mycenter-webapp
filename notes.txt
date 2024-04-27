@@ -113,7 +113,7 @@ GEN8 NOTES:a
 - làm thêm xác nhận thông tin tài chính
 - update thông tin trên bảng đúng ngay chỗ cần update, không cần tải lại trtang
 - cập nhật thống kê nếu update  1 record nào đó trong bảng
-- cập nhật giờ khi  tính tiền học phí
+
 
 
 
@@ -140,7 +140,6 @@ This is a basic setup. Depending on your specific requirements, you might need t
 Todo:
 - dịch tiếng việt
 - upload ảnh phải giảm chất lượng
-- ảnh profile để 1 tên cho học sinh hoặc lớp thôi
 - làm trang cho phụ huỵnh truy cập  để xem điểm danh, buổi học còn lại, bài học
 - kiểm tra lỗi đồng bộ ngày
 - ý tưởng khóa tên học viên, không cho thay đổi
@@ -148,8 +147,6 @@ Todo:
 - archived nếu không dùng đến record nữa
 - thêm cách tính ngày lễ
 - làm message cho page
-
-
 
 
 15/4
@@ -166,7 +163,7 @@ Todo:
 - Cần thêm leading and ending empty cells vào calendar => Done
 - Thêm form cho calendar như web cũ => Done
 - thêm phân quyền cho các trang finnance => Done
-- Nguyen thi anh thu blance increase = 0 ? why
+- Nguyen thi anh thu blance increase = 0 ? why => Done
 
 20/5
 - thêm pay_tuition theo kiểu củ => Done
@@ -174,7 +171,7 @@ Todo:
 - thêm filter and sort
 - nut add atttendace trong từng ngày bị lỗi khi thu nhỏ
 - lịch lố =27 28 ngày => Done
-- unpaid trong attendance calendar
+- unpaid trong attendance calendar => Done
 
 ý tưởng dùng cách này để lưu điểm danh để đỡ số lượng dòng
 {'check_date': ['2024-02-15'], 'present': ['4-5-3-6'], 'absent': [''], 'late': [''], 'left_early': ['']}

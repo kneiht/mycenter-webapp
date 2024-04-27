@@ -62,9 +62,12 @@ def landing_page(request):
 
 @login_required
 def dashboard(request, school_id):
-    school = School.objects.filter(pk=school_id).first()
-    context = {'page': 'dashboard', 'title': 'Dashboard', 'school': school}
-    return render(request, 'pages/single_page.html', context)
+    if settings.DOMAIN == 'mycenter':
+        return redirect('schools')
+    else:
+        school = School.objects.filter(pk=school_id).first()
+        context = {'page': 'dashboard', 'title': 'Dashboard', 'school': school}
+        return render(request, 'pages/single_page.html', context)
 
 
 @login_required

@@ -255,6 +255,7 @@ class Attendance(SecondaryIDMixin, BaseModel):
     def delete(self, *args, **kwargs):
         if self.student and self.is_payment_required:
             self.student.balance = self.student.balance + self.price_per_hour * self.learning_hours
+            self.student.save()
         super().delete(*args, **kwargs)  # Perform the actual database deletion
 
         # Custom logic after deletion (optional)

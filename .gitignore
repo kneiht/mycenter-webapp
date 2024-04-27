@@ -8,5 +8,6 @@
 /app_dashboard/migrations
 /tailwindcss
 /jstoolchain
+env.json
 db.sqlite3
 *.pyc

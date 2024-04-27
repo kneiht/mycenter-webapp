@@ -16,6 +16,14 @@ from django.utils import timezone
 
 import socket
 
+import json
+
+# Load from a file
+with open("env.json", "r") as f:
+    env = json.load(f)
+
+DOMAIN = env["domain"]
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = str(Path(__file__).resolve().parent.parent)
@@ -41,7 +49,7 @@ if computer_name in ["Kay-Macbook", 'DESKTOP-3VQ6KPP']:
 else:
     DEBUG = False
     ALLOWED_HOSTS = ['minhthienk.pythonanywhere.com', 
-        'www.gen8.edu.vn', 'gen8.edu.vn']
+        'www.gen8.edu.vn', 'gen8.edu.vn', 'www.mycenter.edu.vn', 'mycenter.edu.vn']
 
 
 
@@ -100,10 +108,10 @@ if computer_name not in ["Kay-Macbook", 'DESKTOP-3VQ6KPP']:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'minhthienk$mycenter',
-            'USER': 'minhthienk',
-            'PASSWORD': 'Thislove123',
-            'HOST': 'minhthienk.mysql.pythonanywhere-services.com',
+            'NAME': env['database_name'],
+            'USER': env['database_user'],
+            'PASSWORD': env['database_password'],
+            'HOST': env['database_host'],
             'PORT': '3306',
         }
     }
@@ -116,7 +124,7 @@ else:
             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
-    
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
