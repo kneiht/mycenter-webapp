@@ -95,6 +95,7 @@ def home(request):
 
 
 
+@login_required
 def wheel(request):
     rendered_page = render(request, 'pages/wheel.html')
     return rendered_page
