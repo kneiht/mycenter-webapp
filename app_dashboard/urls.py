@@ -1,7 +1,7 @@
 
 from . import views, views_db
 from .views import (
-    SchoolViewSet, ClassViewSet, StudentViewSet, StudentNoteViewSet, TuitionPaymentViewSet, ClassRoomViewSet, TuitionPaymentOldViewSet, TuitionPaymentSpecialViewSet,
+    StudentConvertViewSet, CMRViewSet, CRMNoteViewSet, SchoolViewSet, ClassViewSet, StudentViewSet, StudentNoteViewSet, TuitionPaymentViewSet, ClassRoomViewSet, TuitionPaymentOldViewSet, TuitionPaymentSpecialViewSet,
     FinancialTransactionViewSet, AttendanceViewSet, StudentAttendanceCalendarViewSet,home,wheel,calculate_student_balance, landing_page
 )
 
@@ -25,6 +25,15 @@ urlpatterns = [
     path('schools/<int:school_id>/students/', StudentViewSet.as_view(), name='students'),
     path('schools/<int:school_id>/students/<int:pk>/', StudentViewSet.as_view(), name='student_detail'),
     path('schools/<int:school_id>/students/<int:pk>/note/', StudentNoteViewSet.as_view(), name='student_detail_note'),
+    path('schools/<int:school_id>/students/<int:pk>/convert/', StudentConvertViewSet.as_view(), name='crm_convert'),
+
+
+
+    path('schools/<int:school_id>/crm/', CMRViewSet.as_view(), name='crm'),
+    path('schools/<int:school_id>/crm/<int:pk>/', CMRViewSet.as_view(), name='crm_detail'),
+    path('schools/<int:school_id>/crm/<int:pk>/note/', CRMNoteViewSet.as_view(), name='crm_detail_note'),
+    path('schools/<int:school_id>/crm/<int:student_id>/attendance-calendar/', StudentAttendanceCalendarViewSet.as_view(), name='student_attendance_calendar'),
+
 
     path('schools/<int:school_id>/students/<int:student_id>/attendance-calendar/', StudentAttendanceCalendarViewSet.as_view(), name='student_attendance_calendar'),
     path('schools/<int:school_id>/students/<int:student_id>/pay-tuition/', TuitionPaymentViewSet.as_view(), name='pay_tuition'),

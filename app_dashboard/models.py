@@ -95,6 +95,8 @@ class SecondaryIDMixin(models.Model):
         super().save(*args, **kwargs)
 
 
+
+
 class School(BaseModel):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True, default='')
@@ -136,13 +138,18 @@ class Student(SecondaryIDMixin, BaseModel):
         ('enrolled', 'Enrolled'),                 # Student is currently enrolled
         ('on_hold', 'On Hold'),                   # Student is on hold
         ('discontinued', 'Discontinued'),         # Student has discontinued
+    )
+    CRM_STATUS = (
         ('potential_customer', 'Potential'),  # Potential customer with potential interest
         ('not_contacted_customer', 'Not Contacted'), # Customer not contacted yet
         ('not_potential_customer', 'Not Potential'), # Not a potential customer
         ('just_added', 'Just Added'), # Not a potential customer
     )
-    
-    
+    # combine 2  status
+    STATUS_CHOICES = list(STUDENT_STATUS) + list(CRM_STATUS)
+
+    student_id = models.IntegerField(blank=True, null=True)
+    is_converted_to_student = models.BooleanField(blank=True, null=True)
     school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)
     classes = models.ManyToManyField('Class', through='StudentClass', blank=True)
     name = models.CharField(max_length=255, default="")
@@ -150,7 +157,7 @@ class Student(SecondaryIDMixin, BaseModel):
     date_of_birth = models.DateField(null=True, blank=True)
     parents = models.CharField(max_length=255, default="", blank=True, null=True)
     phones = models.CharField(max_length=50, default="", blank=True, null=True)
-    status =  models.CharField(max_length=50, choices=STUDENT_STATUS, default="just_added")
+    status =  models.CharField(max_length=50, choices=STATUS_CHOICES, default="just_added")
     reward_points = models.IntegerField(default=0, blank=True)
     balance = models.FloatField(default=0, blank=True)
     image = models.ImageField(upload_to='images/profiles/', blank=True, null=True, default='images/default/default_profile.webp')
@@ -160,6 +167,21 @@ class Student(SecondaryIDMixin, BaseModel):
     def __str__(self):
         return str(self.name)
     
+    def save(self, *args, **kwargs):
+        if self.is_converted_to_student:
+            if self.status not in ['enrolled', 'on_hold', 'discontinued']:
+                self.status = "enrolled"
+
+        if not self.student_id and self.is_converted_to_student and hasattr(self, 'school'):
+            with transaction.atomic():
+                highest_id = self.__class__.objects.filter(
+                    school=self.school
+                ).aggregate(max_student_id=Max('student_id'))['max_student_id'] or 0
+                self.student_id = highest_id + 1
+        super().save(*args, **kwargs)
+
+
+
     def check_attendance(self, check_class, check_date):
         if type(check_date) == str:
             check_date = datetime.strptime(check_date, '%Y-%m-%d').date()

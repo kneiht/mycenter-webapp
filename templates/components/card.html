@@ -58,7 +58,10 @@
     <div class="flex justify-between items-start px-2">
         <div class="w-11/12">
             <h3 class="text-md font-semibold text-theme text-center pl-1 truncate">
-                {% if select != 'schools' %}
+                {% if select == 'schools' %}
+                {% elif select == 'students' %}
+                    ST{{ record.student_id}} - 
+                {% else %}
                     {{ record.secondary_id}} - 
                 {% endif %}
                 {{ record }}
@@ -82,7 +85,7 @@
                         Edit information
                     </a>
 
-                    {% if select == 'students' %}
+                    {% if select == 'students'%}
                         <a id="pay_tuition_old" class="menu-item menu-item-border"
                             href="" 
                             up-target="#modal" up-history="false">
@@ -96,7 +99,8 @@
                             <i class="fa fa-money ml-3 mr-5"></i> 
                             Pay tuition (Cách tính mới)
                         </a>
-
+                    {% endif %}
+                    {% if select == 'students' or select == 'CRM' %}
                         <a id="attendance-calendar" class="menu-item menu-item-border"
                             href="" target="_blank"
                             up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
@@ -125,7 +129,7 @@
             <!-- Keep <p> for paragraphs of text -->
             <div class="whitespace-pre-line"> {{ record.note }} </div>
 
-        {% elif select == 'students' %}
+        {% elif select == 'students' or select == 'CRM' %}
             <!-- Use div for flex container, span for inline text elements -->
             <div class="flex">
                 <div class="flex-1 mr-2 h-10 truncate flex items-center">
@@ -176,11 +180,19 @@
                     <!-- Button add new note -->
                     <a type="button" class="add-note btn btn-outline px-1 py-0 text-sm"
                         href="/schools/{{ school.pk }}/students/{{ record.pk }}/note/?get=form" up-target="#modal" up-history="false">
-                        Add note
+                        Add quick note
                     </a>
+                    {% if select == 'CRM' %}
+                        <a type="button" class="btn btn-outline px-1 py-0 text-sm mx-2"
+                            href="/schools/{{ school.pk }}/students/{{ record.pk }}/convert/?get=form" up-target="#modal" up-history="false">
+                            Convert student
+                        </a>
+                    {% endif %}
                 </div>
-                <div class="max-h-40 pt-3 overflow-y-scroll">
-                    <div class="whitespace-pre-line"> {{ record.note }} </div>
+                <div class="pt-3">
+                    <div class="max-h-40  overflow-y-scroll">
+                        <div class="whitespace-pre-line"> {{ record.note }} </div>
+                    </div>
                 </div>
             </div>
 

@@ -26,7 +26,13 @@
                     <span class="fa fa-user-graduate w-8" style="font-size: 18px;"></span>
                     Students
                 </a>
- 
+                <a href="{% url 'crm' school.pk %}" class="p-2 flex justify-start items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer text-theme" 
+                            up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
+                    <span class="fa fa-users w-8" style="font-size: 18px;"></span>
+                    CRM
+                </a>
+
+
                 <a href="{% url 'financialtransactions' school.pk %}" class="p-2 flex justify-start items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer text-theme"
                         up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
                     <span class="fa fa-dollar-sign w-8" style="font-size: 18px;"></span>

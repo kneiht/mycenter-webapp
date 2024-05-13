@@ -399,14 +399,23 @@ document.addEventListener('click', function(event) {
     const searchControl = document.getElementById('search-control')
     const toolBar = document.getElementById('db-tool-bar')
     if (!toolBar.contains(event.target) && searchControl) {
-        document.getElementById('filter-list').classList.add('hidden');
+        let sortSelect = document.getElementById('sort-select');
+        if (sortSelect) {
+            document.getElementById('sort-select').classList.remove('hidden');
+        }
         document.getElementById('search-bar').classList.add('max-sm:hidden');
         document.getElementById('toggle-search').classList.remove('hidden');
-        document.getElementById('sort-button').classList.remove('hidden');
         document.getElementById('right-controls').classList.remove('hidden');
     }
 });
 
+up.compiler('#sort-select', function(element) {
+    const sortSelect = element
+    sortSelect.addEventListener('change', function() {
+        // press search button
+        document.getElementById('search-button').click();
+    });
+});
 
 
 up.compiler('#db-tool-bar', function(element) {
@@ -417,17 +426,15 @@ up.compiler('#db-tool-bar', function(element) {
     }
     // Toggle search bar visibility on small screens
     document.getElementById('toggle-search').addEventListener('click', function() {
-        document.getElementById('filter-list').classList.remove('hidden');
+        let sortSelect = document.getElementById('sort-select');
+        if (sortSelect) {
+            document.getElementById('sort-select').classList.add('hidden');
+        }
         document.getElementById('search-bar').classList.remove('max-sm:hidden');
         document.getElementById('toggle-search').classList.add('hidden');
-        document.getElementById('sort-button').classList.add('hidden');
         document.getElementById('right-controls').classList.add('hidden');
     });
 
-    // hide filter list when clicking submit search-button
-    document.getElementById('search-button').addEventListener('click', function() {
-        document.getElementById('filter-list').classList.add('hidden');
-    })
 
     // Toggle information bar visibility
     document.getElementById('toggle-infor-bar').addEventListener('click', function() {
@@ -437,52 +444,11 @@ up.compiler('#db-tool-bar', function(element) {
         }
     });
 
-    // Show filter list when clicking to filter input
-    document.getElementById('filter-input').addEventListener('click', function() {
-        document.getElementById('filter-list').classList.remove('hidden');
-    });
-
     document.getElementById('filter-select').addEventListener('change', function() {
         const filterSelectValue = this.value;
         document.getElementById('filter-input').setAttribute('name', filterSelectValue);
     });
 
-    // Add filter button functionality
-    document.getElementById('add-filter-button').addEventListener('click', function() {
-        const filterInput = document.getElementById('filter-input');
-        const filterList = document.getElementById('filter-list');
-        const filterSelect = document.getElementById('filter-select');
-        const filterValue = filterInput.value.trim();
-        const filterField = filterSelect.value;
-
-        if (filterValue !== '') {
-            const filterTag = document.createElement('span');
-            filterTag.className = 'filter-tag bg-green-500 text-white rounded-lg px-2 py-1 mr-2 hover:bg-red-600 cursor-pointer';
-            filterTag.textContent = `${filterField}:${filterValue}`;
-            filterTag.addEventListener('click', function() {
-                filterList.removeChild(filterTag);
-            });
-
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.value = filterValue;
-            hiddenInput.name = filterField;
-
-            filterTag.appendChild(hiddenInput);
-            filterList.appendChild(filterTag);
-            filterList.classList.remove('hidden');
-
-            filterInput.value = ''; // Clear the input after adding the tag
-        }
-    });
-
-    // Clear all filter tags only
-    document.getElementById('clear-filter-button').addEventListener('click', function() {
-        const filterTags = document.querySelectorAll('#filter-list .filter-tag');
-        filterTags.forEach(filterTag => {
-            filterTag.remove();
-        });
-    });
 });
 
 

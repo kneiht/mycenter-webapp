@@ -31,7 +31,7 @@ from django.db.models import Q, Count, Sum  # 'Sum' is imported here
 # Import forms
 from .forms import (
     SchoolForm, StudentForm, ClassForm, AttendanceForm, FinancialTransactionForm, 
-    TuitionPaymentForm, TuitionPaymentOldForm, TuitionPaymentSpecialForm, StudentNoteForm
+    TuitionPaymentForm, TuitionPaymentOldForm, TuitionPaymentSpecialForm, StudentNoteForm, StudentConvertForm
 )
 # Import models
 from django.contrib.auth.models import User
@@ -135,8 +135,7 @@ class BaseViewSet(LoginRequiredMixin, View):
         school = School.objects.filter(pk=school_id).first()
         if pk:
             instance = get_object_or_404(self.model_class, id=pk)
-        
-        print(request.POST)
+
         # if there is delete = true in data form
         if 'delete' in request.POST and request.POST.get('delete')=='true':
             return self.delete(request, school_id=school_id, pk=pk)
@@ -177,6 +176,14 @@ class BaseViewSet(LoginRequiredMixin, View):
                 records = self.model_class.objects.filter(school_id=school_id)
             else:
                 return HttpResponseForbidden("Access restricted to users of the school.")
+
+        # filter for Students and CRM
+        if self.page=='students':
+            # filter status "enrolled, on_hold, discontinued"
+            records = records.filter(status__in=['enrolled', 'on_hold', 'discontinued'])
+        elif self.page=='CRM':
+            records = records.filter(status__in=['potential_customer', 'not_contacted_customer', 'not_potential_customer', 'just_added'])
+
 
         # Determine the fields to be used as filter options based on the selected page
         if self.page == 'schools':
@@ -227,6 +234,8 @@ class BaseViewSet(LoginRequiredMixin, View):
             records = records.order_by(sort_option)
         else:
             if sort_option == 'balance_up_active':
+                # filter enrolled
+                records = records.filter(status='enrolled')
                 records = records.order_by('balance')
             else:
                 records = records.order_by('-pk')
@@ -238,9 +247,6 @@ class BaseViewSet(LoginRequiredMixin, View):
             'fields':  fields,
             'school': School.objects.filter(pk=school_id).first() if school_id else None
         }
-
-
-
         return render(request, 'pages/single_page.html', context)
 
     def create_form(self, request, **kwargs):
@@ -423,7 +429,6 @@ class StudentViewSet(BaseViewSet):
         return super().post(request, school_id, pk)
 
 
-
 class StudentNoteViewSet(BaseViewSet):
     model_class = Student
     form_class = StudentNoteForm
@@ -432,6 +437,38 @@ class StudentNoteViewSet(BaseViewSet):
 
     def post(self, request, school_id=None, pk=None):
         return super().post(request, school_id, pk)
+
+class CMRViewSet(BaseViewSet):
+    model_class = Student
+    form_class = StudentForm
+    title =  'Customer Relationship Management'
+    modal = 'modal_student'
+    page = 'CRM'
+
+    def post(self, request, school_id=None, pk=None):
+        return super().post(request, school_id, pk)
+
+class CRMNoteViewSet(BaseViewSet):
+    model_class = Student
+    form_class = StudentNoteForm
+    modal = 'modal_note'
+    page = 'CRM'
+
+    def post(self, request, school_id=None, pk=None):
+        return super().post(request, school_id, pk)
+
+class StudentConvertViewSet(BaseViewSet):
+    model_class = Student
+    form_class = StudentConvertForm
+    modal = 'modal_convert_student'
+    page = 'CRM'
+
+    def post(self, request, school_id=None, pk=None):
+        return super().post(request, school_id, pk)
+
+
+
+
 
 
 
@@ -684,7 +721,7 @@ class AttendanceViewSet(BaseViewSet):
     page = 'attendance'
 
 
-class StudentAttendanceCalendarViewSet(BaseViewSet):
+class   StudentAttendanceCalendarViewSet(BaseViewSet):
     model_class = Attendance
     form_class = AttendanceForm
     title =  'Manage Attendance'

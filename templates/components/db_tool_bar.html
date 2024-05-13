@@ -99,48 +99,21 @@
                             <input id="filter-input" name="all" type="text" placeholder="Type to search ..." class="form-input rounded-none h-full border-r-0 border-l-0 border-theme border-opacity-50 text-theme" autocomplete="off"/>
 
                             <!-- Button to submit search -->
-                            <button id="search-button" type="submit" class="btn btn-outline border-r-0 rounded-none h-full shadow-none"> Search </button>
-
-                            <!-- Button to add new filter tags based on the selected filter type and value -->
-                            <button id="add-filter-button" type="button" class="btn btn-outline rounded-l-none h-full shadow-none">
-                                    <!-- Template for creating new filter tags -->
-                                    <div id="filter-tag-template" class="hidden">
-                                        <span name="filter-tag" class="filter-tag bg-green-500 text-white rounded-lg px-2 py-1 mr-2 hover:bg-red-600 cursor-pointer">
-                                            <input type="hidden">
-                                            <span></span>
-                                        </span>
-                                    </div>
-                                Add
+                            <button id="search-button" type="submit" class="btn btn-outline rounded-l-none h-full shadow-none"> 
+                                <i class="fas fa-search text-theme" style="font-size: 18px;"></i>
                             </button>
-
-
                         </div>
-
-                        <!-- Container for displaying current filter tags with option to clear them -->
-                        <div id="filter-list" class="z-10 p-4 my-2 mx-10 card flex flex-wrap justify-center gap-3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hidden">
-                            <div class="flex justify-between items-end w-full mb-5">
-                                <p class="text-theme font-semibold w-full">Filter List</p>
-                                <div class="flex gap-4">
-
-                                    <!-- Button to clear all filter tags -->
-                                    <button id="clear-filter-button" type="button" class="btn btn-outline h-8 w-32 flex flex-between">
-                                        <span class="me-3">Clear all</span>
-                                        <i class="fas fa-trash text-theme" style="font-size: 18px;"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
 
                     <!-- Button to access sorting options -->
-                    <button id="sort-button" type="button" class="hidden btn btn-outline h-full max-sm:w-11">
+                    <!-- Converted to comment as per instructions -->
+                    <!-- <button id="sort-button" type="button" class="hidden btn btn-outline h-full max-sm:w-11">
                         <span class="max-sm:hidden me-3"> Sorts </span>
-                        <i class="fas fa-sort text-theme" style="font-size: 20px;"></i> <!-- Icon for filter -->
-                    </button>
+                        <i class="fas fa-sort text-theme" style="font-size: 20px;"></i> Icon for filter
+                    </button> -->
 
-                    {% if select == 'students' %}
-                        <select id="sort-select" name="sort" class="form-input w-fit">
+                    {% if select == 'students' or select == 'CRM' %}
+                        <select id="sort-select" name="sort" class="form-input w-fit border border-theme border-opacity-50">
                             <option value="-pk" selected>Sort by ...</option>
                             <option value="name">Name</option>
                             <option value="balance_up_active">Balance up (Active)</option>
