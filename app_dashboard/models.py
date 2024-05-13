@@ -72,7 +72,7 @@ class BaseModel(models.Model):
                 # Remove leading and trailing whitespaces
                 value = value.strip()
                 # Replace multiple spaces with a single space
-                value = re.sub(r'\s+', ' ', value)
+                value = re.sub(r' +', ' ', value)
                 setattr(self, field.name, value)
 
         # Save the current instance
@@ -155,6 +155,7 @@ class Student(SecondaryIDMixin, BaseModel):
     balance = models.FloatField(default=0, blank=True)
     image = models.ImageField(upload_to='images/profiles/', blank=True, null=True, default='images/default/default_profile.webp')
     note = models.TextField(default="", blank=True, null=True)
+    last_note = models.TextField(default="", blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     def __str__(self):
         return str(self.name)

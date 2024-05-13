@@ -18,7 +18,7 @@
 
     
 {% else %}
-<div up-hungry id="record_{{ record.pk }}" record-id="{{ record.pk }}" class="relative card {{ record.style }}">
+<div up-hungry id="record_{{ record.pk }}" record-id="{{ record.pk }}" class="relative card card-record {{ record.style }}">
     
     {% if select == 'schools' %}
         <a href="{% url 'dashboard' record.pk %}">
@@ -170,7 +170,21 @@
                     <span>{{ record.reward_points }}</span>
                 </div>
             </div>
-    
+            <div class="note flex-col text-blue-500">
+                <div class="mr-2 flex items-start">
+                    <i class="fas fa-sticky-note w-6 pt-1"></i>
+                    <!-- Button add new note -->
+                    <a type="button" class="add-note btn btn-outline px-1 py-0 text-sm"
+                        href="/schools/{{ school.pk }}/students/{{ record.pk }}/note/?get=form" up-target="#modal" up-history="false">
+                        Add note
+                    </a>
+                </div>
+                <div class="max-h-40 pt-3 overflow-y-scroll">
+                    <div class="whitespace-pre-line"> {{ record.note }} </div>
+                </div>
+            </div>
+
+
         {% elif select == 'classess' %}
             <!-- Use div for consistency; span for text -->
             <div class="h-10 truncate flex items-center">

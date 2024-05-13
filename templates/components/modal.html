@@ -75,8 +75,11 @@
 
             <!-- Modal Content -->
             <div class="relative top-16 mb-10 mx-4 card h-fit w-full sm:w-fit">
-                <h3 class="mt-7 mb-8 text-xl font-bold leading-6 text-center text-theme">{% if record_id %} Edit Information {% else %} Create New {% endif %}</h3>
-                
+                {% if modal == 'modal_note' %}
+                    <h3 class="mt-7 mb-8 text-xl font-bold leading-6 text-center text-theme">Add note to: {{ record }}</h3>
+                {% else %}
+                    <h3 class="mt-7 mb-8 text-xl font-bold leading-6 text-center text-theme">{% if record_id %} Edit Information {% else %} Create New {% endif %}</h3>
+                {% endif %}
                 <!-- Result could be a html card if success or a new form modal with error if fail, if success, the card will be added right after the div cards, else the form will be the same place but display as fixed -->
                 <form enctype="multipart/form-data" method="post"
                     {% if record_id %}

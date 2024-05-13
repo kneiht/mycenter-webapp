@@ -1,6 +1,6 @@
 
 from django import forms
-
+from datetime import datetime
 from django.shortcuts import get_object_or_404
 
 
@@ -115,6 +115,33 @@ class StudentForm(forms.ModelForm):
 
         return classes_list
 
+
+
+class StudentNoteForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ['last_note']
+        widgets = {
+            'last_note': forms.Textarea(attrs={
+                'class': 'form-input',
+                'rows': 2
+            }),
+        }
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        new_note = self.cleaned_data['last_note']
+        current_date = datetime.now().strftime("- %d-%m-%Y %H:%M")
+        if instance.note:
+            instance.note = f'{current_date}: {new_note}\n' +  instance.note # Append the new note to the current note
+            print(instance.note)
+        else:
+            instance.note = f'{current_date}: {new_note}'  # If there's no current note, set the new note
+        instance.last_note = ""
+        if commit:
+            instance.save()
+            print(instance.last_note)
+        return instance
 
 
 

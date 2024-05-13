@@ -575,6 +575,33 @@ up.compiler('#calculate-balance', function(element) {
 });
 
 
+
+// CALCULATE BALANCE IN STUDENT FORM =========================================
+up.compiler('#toggle-note', function(element) {
+    let toggleNote = element;
+    let flag = true;
+    toggleNote.addEventListener('click', function() {
+        // hide all .note elements
+        const notes = document.querySelectorAll('.note');
+        notes.forEach(note => {
+            note.classList.toggle('hidden');
+        })
+        // set a flag based on the hidden state
+        flag = !flag;
+    })
+    up.compiler('.card-record', function(element) {
+        let card = element;
+        if (flag) {
+            card.querySelector('.note').classList.remove('hidden');
+        }
+        else {
+            card.querySelector('.note').classList.add('hidden');
+        }
+    });
+});
+
+
+
 const defaults = {
     spread: 360,
     ticks: 50,

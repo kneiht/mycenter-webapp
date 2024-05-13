@@ -1,7 +1,7 @@
 
 from . import views, views_db
 from .views import (
-    SchoolViewSet, ClassViewSet, StudentViewSet, TuitionPaymentViewSet, ClassRoomViewSet, TuitionPaymentOldViewSet, TuitionPaymentSpecialViewSet,
+    SchoolViewSet, ClassViewSet, StudentViewSet, StudentNoteViewSet, TuitionPaymentViewSet, ClassRoomViewSet, TuitionPaymentOldViewSet, TuitionPaymentSpecialViewSet,
     FinancialTransactionViewSet, AttendanceViewSet, StudentAttendanceCalendarViewSet,home,wheel,calculate_student_balance, landing_page
 )
 
@@ -24,6 +24,8 @@ urlpatterns = [
 
     path('schools/<int:school_id>/students/', StudentViewSet.as_view(), name='students'),
     path('schools/<int:school_id>/students/<int:pk>/', StudentViewSet.as_view(), name='student_detail'),
+    path('schools/<int:school_id>/students/<int:pk>/note/', StudentNoteViewSet.as_view(), name='student_detail_note'),
+
     path('schools/<int:school_id>/students/<int:student_id>/attendance-calendar/', StudentAttendanceCalendarViewSet.as_view(), name='student_attendance_calendar'),
     path('schools/<int:school_id>/students/<int:student_id>/pay-tuition/', TuitionPaymentViewSet.as_view(), name='pay_tuition'),
     path('schools/<int:school_id>/students/<int:student_id>/pay-tuition-old/', TuitionPaymentOldViewSet.as_view(), name='pay_tuition_old'),
