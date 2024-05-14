@@ -1,3 +1,4 @@
+import time    
 
 
 from django.db import models
@@ -22,6 +23,7 @@ from django.db.models import Max
 from django.db import transaction
 
 class BaseModel(models.Model):
+    last_saved = models.IntegerField(int(time.time()))
     class Meta:
         abstract = True  # Specify this model as Abstract
 
@@ -76,6 +78,7 @@ class BaseModel(models.Model):
                 setattr(self, field.name, value)
 
         # Save the current instance
+        self.last_saved = int(time.time())
         super().save(*args, **kwargs)
 
 

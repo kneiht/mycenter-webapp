@@ -239,8 +239,12 @@ class BaseViewSet(LoginRequiredMixin, View):
                 records = records.filter(status='enrolled')
                 records = records.order_by('balance')
             elif sort_option == 'balance_up':
-                # filter enrolled
                 records = records.order_by('balance')
+            elif sort_option == 'last_saved':
+                # filter enrolled
+                records = records.order_by('-last_saved')
+                # reverse the list
+                records = records.reverse()
 
             else:
                 records = records.order_by('-pk')
