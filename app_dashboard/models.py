@@ -23,7 +23,7 @@ from django.db.models import Max
 from django.db import transaction
 
 class BaseModel(models.Model):
-    last_saved = models.IntegerField(int(time.time()))
+    last_saved = models.IntegerField(default=int(time.time()))
     class Meta:
         abstract = True  # Specify this model as Abstract
 
