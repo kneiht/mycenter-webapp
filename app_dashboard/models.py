@@ -23,7 +23,7 @@ from django.db.models import Max
 from django.db import transaction
 
 class BaseModel(models.Model):
-    last_saved = models.IntegerField(default=int(time.time()))
+    last_saved = models.DateTimeField(default=timezone.now)
     class Meta:
         abstract = True  # Specify this model as Abstract
 
@@ -78,7 +78,7 @@ class BaseModel(models.Model):
                 setattr(self, field.name, value)
 
         # Save the current instance
-        self.last_saved = int(time.time())
+        self.last_saved = timezone.now()
         super().save(*args, **kwargs)
 
 

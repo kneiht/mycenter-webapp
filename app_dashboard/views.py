@@ -232,7 +232,11 @@ class BaseViewSet(LoginRequiredMixin, View):
         # Get the and sort option from the request
         sort_option = request.GET.get('sort', 'default')
         if sort_option and hasattr(self.model_class, sort_option):
-            records = records.order_by(sort_option)
+            if sort_option == 'last_saved':
+                # filter enrolled
+                records = records.order_by('-last_saved')
+            else:
+                records = records.order_by(sort_option)
         else:
             if sort_option == 'balance_up_active':
                 # filter enrolled
@@ -240,11 +244,6 @@ class BaseViewSet(LoginRequiredMixin, View):
                 records = records.order_by('balance')
             elif sort_option == 'balance_up':
                 records = records.order_by('balance')
-            elif sort_option == 'last_saved':
-                # filter enrolled
-                records = records.order_by('-last_saved')
-                # reverse the list
-                records = records.reverse()
 
             else:
                 records = records.order_by('-pk')
