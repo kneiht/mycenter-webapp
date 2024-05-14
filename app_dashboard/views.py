@@ -64,9 +64,10 @@ def landing_page(request):
 
 @login_required
 def dashboard(request, school_id):
-    school = School.objects.filter(pk=school_id).first()
-    context = {'page': 'dashboard', 'title': 'Dashboard', 'school': school}
-    return render(request, 'pages/single_page.html', context)
+    #school = School.objects.filter(pk=school_id).first()
+    #context = {'page': 'dashboard', 'title': 'Dashboard', 'school': school}
+    #return render(request, 'pages/single_page.html', context)
+    return redirect('classes', school_id=school_id)
 
 
 @login_required
@@ -237,6 +238,10 @@ class BaseViewSet(LoginRequiredMixin, View):
                 # filter enrolled
                 records = records.filter(status='enrolled')
                 records = records.order_by('balance')
+            elif sort_option == 'balance_up':
+                # filter enrolled
+                records = records.order_by('balance')
+
             else:
                 records = records.order_by('-pk')
 

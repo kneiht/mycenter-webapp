@@ -178,9 +178,10 @@ Todo:
 xóa time ra khỏi check date
 
 
-- lỗi trang attendance, khi chuyển từ unpaid sang paid nó không cập nhật  tiền
+- lỗi trang attendance, khi chuyển từ unpaid sang paid nó không cập nhật tiền
 - thiết lập lại nếu trường học đó thuộc sở hữu của user => hiện finance 
 - thêm chwucs năng chia sẻ
-- xử lý chia học sinh ra 2 nhóm, nhóm potential và nhóm học sinh của mình, nhóm học sinh sẽ có thêm id học sinh, nhóm potential có thêm id potential
+- xử lý chia học sinh ra 2 nhóm, nhóm potential và nhóm học sinh của mình, nhóm học sinh sẽ có thêm id học sinh, nhóm potential có thêm id potential  => Done
 - sửa chức năng lọc và filter
 -  thêm note kiểu chat
+- thêm lớp vào card student => Done

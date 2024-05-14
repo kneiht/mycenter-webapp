@@ -180,6 +180,9 @@ class Student(SecondaryIDMixin, BaseModel):
                 self.student_id = highest_id + 1
         super().save(*args, **kwargs)
 
+    def get_student_classes(self):
+        classes = StudentClass.objects.filter(student=self)
+        return classes
 
 
     def check_attendance(self, check_class, check_date):
@@ -217,7 +220,8 @@ class StudentClass(models.Model):
 
     def __str__(self):
         return f"{self.student.name} - {self._class.name}"
-
+    def class_name(self):
+        return self._class.name
 
 class Attendance(SecondaryIDMixin, BaseModel):
     STATUS_CHOICES = (

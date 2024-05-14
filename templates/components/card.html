@@ -59,10 +59,10 @@
         <div class="w-11/12">
             <h3 class="text-md font-semibold text-theme text-center pl-1 truncate">
                 {% if select == 'schools' %}
-                {% elif select == 'students' %}
-                    ST{{ record.student_id}} - 
+                {% elif select == 'students' or select == 'classroom' %}
+                    G{{ record.student_id|stringformat:"04d"}} - 
                 {% else %}
-                    {{ record.secondary_id}} - 
+                    {{ record.secondary_id|stringformat:"04d"}} - 
                 {% endif %}
                 {{ record }}
             </h3>
@@ -123,11 +123,11 @@
     <div class="flex flex-col text-cyan-600 dark:text-cyan-500 text-sm px-4 pb-3">
         {% if select == 'schools' %}
             <!-- Keep <p> for paragraphs of text -->
-            <div class="whitespace-pre-line"> {{ record.description }} </div>
+            <div class="note whitespace-pre-line"> {{ record.description }} </div>
 
         {% elif select == 'classes' %}
             <!-- Keep <p> for paragraphs of text -->
-            <div class="whitespace-pre-line"> {{ record.note }} </div>
+            <div class="note whitespace-pre-line"> {{ record.note }} </div>
 
         {% elif select == 'students' or select == 'CRM' %}
             <!-- Use div for flex container, span for inline text elements -->
@@ -174,7 +174,21 @@
                     <span>{{ record.reward_points }}</span>
                 </div>
             </div>
-            <div class="note flex-col text-blue-500">
+
+            <div class="flex">
+                <div class="flex-1 mr-2 h-10 flex items-start justify-start">
+                    <i class="fas fa-chalkboard w-6 pt-1"></i>
+                    <div class="h-10 overflow-y-scroll">
+                            {% for student_class in record.get_student_classes %}
+                                {{ student_class.class_name }}
+                                {% if student_class.is_payment_required %} (charge) {% endif %}
+                                {% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="note flex-col text-blue-500 pt-2">
                 <div class="mr-2 flex items-start">
                     <i class="fas fa-sticky-note w-6 pt-1"></i>
                     <!-- Button add new note -->
@@ -242,7 +256,7 @@
                 <span>{{ record.created_at|date:"d-m-Y H:i" }}</span>
             </div>
 
-            <div class="h-10 truncate flex items-center">
+            <div class="note h-10 truncate flex items-center">
                 <i class="fas fa-comment w-5"></i>
                 <span>{{ record.note }}</span>
             </div>

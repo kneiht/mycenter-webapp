@@ -116,10 +116,10 @@
                         <select id="sort-select" name="sort" class="form-input w-fit border border-theme border-opacity-50">
                             <option value="-pk" selected>Sort by ...</option>
                             <option value="name">Name</option>
-                            <option value="balance_up_active">Balance up (Active)</option>
+                            <option value="balance_up">Balance up</option>
+                            <option value="balance_up_active">Balance up (Enrolled)</option>
                         </select>
                     {% endif %}
-
                 </form>
 
                 <!-- Right controls for view toggle and information display -->
@@ -134,11 +134,14 @@
                         <i class="fas fa-info-circle" style="font-size: 20px;"></i>
                     </button>
 
-                    <!-- Button to open a modal (for additional actions or information) -->
-                    <a href="{{ base_url }}?get=form" class="sm:hidden btn btn-primary h-full w-11"
-                            up-target="#modal" up-history="false">
-                        <i class="fas fa-plus" style="font-size: 20px;"></i>
-                    </a>
+                    {% if select != 'students' %}
+                        <!-- Don't allow add new student, only convert from CRM -->
+                        <!-- Button to open a modal (for additional actions or information) -->
+                        <a href="{{ base_url }}?get=form" class="sm:hidden btn btn-primary h-full w-11"
+                                up-target="#modal" up-history="false">
+                            <i class="fas fa-plus" style="font-size: 20px;"></i>
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>

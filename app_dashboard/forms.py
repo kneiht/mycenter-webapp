@@ -159,9 +159,13 @@ class StudentNoteForm(forms.ModelForm):
 class StudentConvertForm(forms.ModelForm):
     class Meta:
         model = Student
+        
         fields = ['is_converted_to_student']
+        labels = {
+            'is_converted_to_student': 'Do you want to convert this customer into a student?'
+        }
         help_texts = {
-            'is_converted_to_student': 'Be careful! When you convert a customer into a student, it can not be converted back to the CRM. The status of the student will be set to "Enrolled" by default.'
+            'is_converted_to_student': 'Be careful! Only convert a customer who already paid tuition. When you convert a customer into a student, it can not be converted back to the CRM. The status of the student will be set to "Enrolled" by default.'
         }
         widgets = {
             'is_converted_to_student': forms.CheckboxInput(attrs={
