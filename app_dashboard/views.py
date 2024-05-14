@@ -189,7 +189,7 @@ class BaseViewSet(LoginRequiredMixin, View):
         # Determine the fields to be used as filter options based on the selected page
         if self.page == 'schools':
             fields = ['all', 'name', 'description']
-        elif self.page == 'students':
+        elif self.page == 'students' or self.page == 'CRM':
             fields = ['all', 'name','status', 'gender', 'parents', 'phones']
         elif self.page == 'classes':
             fields = ['all', 'name']
