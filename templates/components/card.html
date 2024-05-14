@@ -58,8 +58,8 @@
     <div class="flex justify-between items-start px-2">
         <div class="w-11/12">
             <h3 class="text-md font-semibold text-theme text-center pl-1 truncate">
-                {% if select == 'schools' %}
-                {% elif select == 'students' or select == 'classroom' %}
+                {% if select == 'schools' or select == 'classroom' %}
+                {% elif select == 'students' %}
                     G{{ record.student_id|stringformat:"04d"}} - 
                 {% else %}
                     {{ record.secondary_id|stringformat:"04d"}} - 
@@ -192,11 +192,17 @@
                 <div class="mr-2 flex items-start">
                     <i class="fas fa-sticky-note w-6 pt-1"></i>
                     <!-- Button add new note -->
-                    <a type="button" class="add-note btn btn-outline px-1 py-0 text-sm"
-                        href="/schools/{{ school.pk }}/students/{{ record.pk }}/note/?get=form" up-target="#modal" up-history="false">
-                        Add quick note
-                    </a>
-                    {% if select == 'CRM' %}
+                    {% if select == 'students' %}
+                        <a type="button" class="add-note btn btn-outline px-1 py-0 text-sm"
+                            href="/schools/{{ school.pk }}/students/{{ record.pk }}/note/?get=form" up-target="#modal" up-history="false">
+                            Add quick note
+                        </a>
+                    {% elif select == 'CRM' %}
+                        <a type="button" class="add-note btn btn-outline px-1 py-0 text-sm"
+                            href="/schools/{{ school.pk }}/crm/{{ record.pk }}/note/?get=form" up-target="#modal" up-history="false">
+                            Add quick note
+                        </a>
+                    
                         <a type="button" class="btn btn-outline px-1 py-0 text-sm mx-2"
                             href="/schools/{{ school.pk }}/students/{{ record.pk }}/convert/?get=form" up-target="#modal" up-history="false">
                             Convert student
