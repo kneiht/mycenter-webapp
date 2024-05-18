@@ -61,6 +61,13 @@ def multiply(value, arg):
     return value * arg
 
 
+
+import qrcode
+import qrcode.image.svg
+from django.utils.safestring import mark_safe
+
 @register.simple_tag
 def qr_from_text(text):
-    return text
+    factory = qrcode.image.svg.SvgPathImage
+    img = qrcode.make(text, image_factory = factory)
+    return mark_safe(img.to_string(encoding='unicode'))
