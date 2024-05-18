@@ -41,8 +41,8 @@ urlpatterns = [
     path('schools/<int:school_id>/students/<int:student_id>/pay-tuition-old/', TuitionPaymentOldViewSet.as_view(), name='pay_tuition_old'),
     path('schools/<int:school_id>/students/<int:student_id>/pay-tuition-special/', TuitionPaymentSpecialViewSet.as_view(), name='pay_tuition_special'),
 
-    path('schools/<int:school_id>/students/<int:student_id>/attendance-calendar/view', views.student_attendance_calendar_view, name='student_attendance_calendar_view'),
-    path('schools/<int:school_id>/students/<int:student_id>/view', views.student_view, name='student_view'),
+    path('schools/<int:school_id>/students/<int:student_id>/attendance-calendar/view/', views.student_attendance_calendar_view, name='student_attendance_calendar_view'),
+    path('schools/<int:school_id>/students/<int:student_id>/view/', views.student_view, name='student_view'),
     
 
 

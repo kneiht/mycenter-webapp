@@ -22,7 +22,7 @@
                     <!-- Modal Content -->
                     <div class="relative top-20 mx-4 card h-fit w-full sm:w-fit">
                         <h3 class="mt-7 mb-8 text-xl font-bold leading-6 text-center text-theme">QR Code for the view only link</h3>
-                        <a class="btn btn-success mx-10" href="{{ request.path }}view" target="_blank" rel="noopener noreferrer">Go to view only page</a>
+                        <a class="btn btn-success mx-10" href="{{ request.path }}view/" target="_blank" rel="noopener noreferrer">Go to view only page</a>
                         <div class="w-[500px] gap-4 px-6 py-5 flex justify-center">
                             {% qr_from_text view_only_url %}
                         </div>
