@@ -609,7 +609,7 @@ class ClassViewSet(BaseViewSet):
         # Parsing the JSON data
         class_id = pk
         data = request.POST
-        print(data)
+        #print(data)
         check_date_str = data.get('check_date')  # Assuming 'checkDate' is sent in the format 'YYYY-MM-DD HH:MM'
         learning_hours = data.get('learning_hours')
         # Assuming 'school_id' can be directly used to find a class, adjust as needed

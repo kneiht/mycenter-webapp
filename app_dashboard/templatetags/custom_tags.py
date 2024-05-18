@@ -59,3 +59,8 @@ def my_filter(value, arg):
 @register.filter
 def multiply(value, arg):
     return value * arg
+
+
+@register.simple_tag
+def qr_from_text(text):
+    return text

@@ -66,7 +66,6 @@ INSTALLED_APPS = [
     'app_accounts',
     'app_dashboard',
     'widget_tweaks',
-    'qr_code',
 ]
 
 MIDDLEWARE = [

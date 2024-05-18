@@ -1,4 +1,4 @@
-{% load qr_code %}
+{% load custom_tags %}
 <div id="title-bar">
     <div class="flex flex-wrap gap-4 justify-between items-center mb-6 mt-2">
         <p class="text-3xl text-center font-semibold text-theme"> {{ title }} </p>
@@ -24,9 +24,8 @@
                         <h3 class="mt-7 mb-8 text-xl font-bold leading-6 text-center text-theme">QR Code for the view only link</h3>
                         <a class="btn btn-success mx-10" href="{{ request.path }}view" target="_blank" rel="noopener noreferrer">Go to view only page</a>
                         <div class="w-[500px] gap-4 px-6 py-5 flex justify-center">
-                            {% qr_from_text view_only_url size="M" %}
+                            {% qr_from_text view_only_url %}
                         </div>
-                        {{ view_only_url }}
                         <div class="flex justify-center items-center gap-5 pt-8 pb-7">
                             <button id='hideQRcode' type="button" class="btn btn-primary rounded-full w-36">
                                 OK
