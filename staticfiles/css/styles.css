@@ -2333,6 +2333,11 @@ select {
   background-color: rgb(250 204 21 / var(--tw-bg-opacity));
 }
 
+.bg-red-700 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(185 28 28 / var(--tw-bg-opacity));
+}
+
 .bg-opacity-30 {
   --tw-bg-opacity: 0.3;
 }
@@ -2571,6 +2576,10 @@ select {
 
 .text-center {
   text-align: center;
+}
+
+.text-right {
+  text-align: right;
 }
 
 .text-start {
@@ -2956,6 +2965,13 @@ select {
   }
 }
 
+@media not all and (min-width: 768px) {
+  .max-md\:my-2 {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
 @media not all and (min-width: 640px) {
   .max-sm\:hidden {
     display: none;
@@ -2994,6 +3010,15 @@ select {
   .md\:mx-20 {
     margin-left: 5rem;
     margin-right: 5rem;
+  }
+
+  .md\:my-2 {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .md\:flex {
+    display: flex;
   }
 
   .md\:px-20 {

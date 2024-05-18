@@ -10,7 +10,9 @@
         </option>
 
         {% endfor %}
-        <option value="unpaid">Unpaid lessons</option>
+        {% if student.balance < 0 %}
+            <option value="unpaid">Unpaid lessons</option>
+        {% endif %}
     </select>
 {% else %}
     <div class="pb-5 px-0 lg:px-10">
@@ -25,16 +27,26 @@
             <li>5. Nếu Quý Phụ Huynh có vấn đề cần hỏi về lịch điểm danh, có thể liên hệ trực tiếp với nhân viên tư vấn tại trung tâm, hoặc qua số điện thoại thầy Thiện 0393.593.905</li>
         </ol>
     </div>
-    <select id="paymentFilter" class="form-input" onchange="window.location.href = '{{ request.path }}?payment_id=' + this.value;">
-        <option value="all">Chọn kì phí (đang hiển thị tất cả)</option>
-        {% for payment in payments %}
-        <option value="{{ payment.id }}" {% if payment.id|stringformat:"s" == selected_payment_id %}selected{% endif %}>
-            {{ payment.created_at|date:"d-m-Y" }} - {{ payment.student.name }} - Đóng {{ payment.amount|format_vnd }} - HP tăng thêm {{ payment.student_balance_increase|format_vnd }}
-        </option>
+    <div class="md:flex gap-5">
+        <div class="flex-1">
+            <select id="paymentFilter" class="form-input" onchange="window.location.href = '{{ request.path }}?payment_id=' + this.value;">
+                <option value="all">Chọn kì phí (đang hiển thị tất cả)</option>
+                {% for payment in payments %}
+                <option value="{{ payment.id }}" {% if payment.id|stringformat:"s" == selected_payment_id %}selected{% endif %}>
+                    {{ payment.created_at|date:"d-m-Y" }} - {{ payment.student.name }} - Đóng {{ payment.amount|format_vnd }} - HP tăng thêm {{ payment.student_balance_increase|format_vnd }}
+                </option>
 
-        {% endfor %}
-        <option value="unpaid">Ngày học nợ phí</option>
-    </select>
+                {% endfor %}
+                {% if student.balance < 0 %}
+                    <option value="unpaid">Ngày học nợ phí</option>
+                {% endif %}
+            </select>
+        </div>
+        <div class="flex-1 flex text-center justify-center items-center h-10 max-md:my-2 border border-1 rounded-lg text-white
+            {% if student.balance < 0 %}bg-red-500{% else %}bg-green-600{% endif %}">
+            Học phí còn lại: {{ student.balance|format_vnd }} {% if student.balance < 0 %}(nợ học phí) {% endif %}
+        </div>
+    </div>
 
 
 
