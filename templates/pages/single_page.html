@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name='csrf-token' content='{{ csrf_token }}'>
     <title>
-        {{ title }} | Mycenter
+        {{ title }} | GEN8
     </title>
 
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
@@ -16,8 +16,8 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/unpoly@3.7.3/unpoly.min.css">
-    <link id="style" href="{% static 'css/styles.css' %}?v=4" rel="stylesheet" />
-    <link id="style" href="{% static 'css/extra_styles.css' %}?v=4" rel="stylesheet" />
+    <link id="style" href="{% static 'css/styles.css' %}?v=5" rel="stylesheet" />
+    <link id="style" href="{% static 'css/extra_styles.css' %}?v=5" rel="stylesheet" />
     <!-- JS -->
 
     {% block extra_head %}
@@ -28,24 +28,30 @@
 <!-- Add CSRF token for htmx -->
 <body class="px-4 bg-[#F0F2F5] dark:bg-slate-900 min-h-full" style="font-family: 'Open Sans';">
 
-    <!-- A place holder for keep success image list and fail image list -->
-    <div id="success-image-list" up-hungry style="display: none;">
-        {% for image in success_images_list %}
-            <img src="{{ image }}" alt="Success Image" />
-        {% endfor %}
-    </div>
 
-    <div id="fail-image-list" up-hungry style="display: none;">
-        {% for image in fail_images_list %}
-            <img src="{{ image }}" alt="Fail Image" />
-        {% endfor %}
-    </div>
+    {% if request.mode != 'view' %}
+        <!-- A place holder for keep success image list and fail image list -->
+        <div id="success-image-list" up-hungry style="display: none;">
+            {% for image in success_images_list %}
+                <img src="{{ image }}" alt="Success Image" />
+            {% endfor %}
+        </div>
 
-    <!-- A place holder for displaying modal -->
-    <div id="modal" up-hungry></div>
+        <div id="fail-image-list" up-hungry style="display: none;">
+            {% for image in fail_images_list %}
+                <img src="{{ image }}" alt="Fail Image" />
+            {% endfor %}
+        </div>
 
-    <!-- Navigation bar -->
-    {% include 'components/nav_bar.html' %}
+        <!-- A place holder for displaying modal -->
+        <div id="modal" up-hungry></div>
+    
+
+        <!-- Navigation bar -->
+        {% include 'components/nav_bar.html' %}
+    {% endif %}
+
+
 
     <!-- The main display -->
     {% if page == 'attendance' %}
@@ -83,8 +89,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/unpoly@3.7.3/unpoly.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
-    <script src="/static/js/main.js?v=4"></script>
-    <script src="/static/js/classroom.js?v=4"></script>
+    <script src="/static/js/main.js?v=5"></script>
+    <script src="/static/js/classroom.js?v=5"></script>
 
 
 

@@ -62,6 +62,18 @@ def landing_page(request):
     else:
         return render(request, 'pages/landing_page.html')
 
+import os
+from django.shortcuts import render
+
+def html_page(request):
+    # This view is for all pages ended with html 
+    # check the file in the url, get the file name and return it
+    file_name = request.path.split('/')[-1]  # Get the file name from the URL
+    file_name = file_name.replace('-', '_')
+    file_path = os.path.join('pages/', file_name)  # Replace 'path_to_your_html_files' with the actual path to your HTML files
+    return render(request, file_path)
+
+
 @login_required
 def dashboard(request, school_id):
     #school = School.objects.filter(pk=school_id).first()
@@ -597,6 +609,7 @@ class ClassViewSet(BaseViewSet):
         # Parsing the JSON data
         class_id = pk
         data = request.POST
+        print(data)
         check_date_str = data.get('check_date')  # Assuming 'checkDate' is sent in the format 'YYYY-MM-DD HH:MM'
         learning_hours = data.get('learning_hours')
         # Assuming 'school_id' can be directly used to find a class, adjust as needed
@@ -729,7 +742,16 @@ class AttendanceViewSet(BaseViewSet):
     page = 'attendance'
 
 
-class   StudentAttendanceCalendarViewSet(BaseViewSet):
+
+
+def student_attendance_calendar_view(request, school_id, student_id):
+    request.mode = "view"
+    return StudentAttendanceCalendarViewSet.student_attendance_calendar(request, school_id, student_id)
+def student_view(request, school_id, student_id):
+    return redirect('student_attendance_calendar_view', school_id=school_id, student_id=student_id) 
+    
+
+class StudentAttendanceCalendarViewSet(BaseViewSet):
     model_class = Attendance
     form_class = AttendanceForm
     title =  'Manage Attendance'
@@ -738,9 +760,11 @@ class   StudentAttendanceCalendarViewSet(BaseViewSet):
 
     def get(self, request, school_id=None, student_id=None):
         get_query = request.GET.get('get')
-        return self.student_attendance_calendar(request, school_id, student_id)
+        return StudentAttendanceCalendarViewSet.student_attendance_calendar(request, school_id, student_id)
 
-    def student_attendance_calendar(self, request, school_id, student_id):
+
+    @staticmethod
+    def student_attendance_calendar(request, school_id, student_id):
         student = get_object_or_404(Student, pk=student_id)
         payment_id = request.GET.get('payment_id')
         payments = FinancialTransaction.objects.filter(student=student).order_by('created_at')
@@ -871,6 +895,7 @@ class   StudentAttendanceCalendarViewSet(BaseViewSet):
             'today': datetime.today(),
             'payments': payments,
             'selected_payment_id': payment_id,
+            'view_only_url': request.build_absolute_uri(f'/schools/{school_id}/students/{student_id}/view/')
         }
 
         return render(request, 'pages/single_page.html', context)

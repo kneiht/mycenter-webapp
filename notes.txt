@@ -185,3 +185,7 @@ xóa time ra khỏi check date
 - sửa chức năng lọc và filter
 -  thêm note kiểu chat
 - thêm lớp vào card student => Done
+- code user của trường mới được xem học sinh của trường đó cả trong CRM student hay calendar
+-code user của trường mới được xem học sinh của trường đó cả trong CRM student hay calendar
+- bug, payment require không thay đổi trong calendar khi chỉnh sauwrf
+- cập nhật học phí trong finance, phải cập nhật luôn balance

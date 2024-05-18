@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="light"> 
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name='csrf-token' content='{{ csrf_token }}'>
+    <title>
+        {% block title %}{% endblock %} | GEN8
+    </title>
+
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link id="style" href="{% static 'css/styles.css' %}?v=5" rel="stylesheet" />
+    <link id="style" href="{% static 'css/extra_styles.css' %}?v=5" rel="stylesheet" />
+    <!-- JS -->
+
+    {% block extra_head %}
+    {% endblock %}
+</head>
+
+
+<!-- Add CSRF token for htmx -->
+<body class="px-4 bg-[#F0F2F5] dark:bg-slate-900 min-h-full" style="font-family: 'Open Sans';">
+    <main class="">
+    {% block content %}
+    {% endblock %}
+    </main>
+    {% block extra_script %}
+    {% endblock %}
+</body>
+
+</html>
+
+
+

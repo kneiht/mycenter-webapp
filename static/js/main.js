@@ -600,3 +600,9 @@ function shootConfetti() {
     setTimeout(shoot, 250);
 }
 
+document.getElementById('showQRcode').addEventListener('click', function() {
+    document.getElementById('qrcode_modal').classList.toggle('hidden');
+});
+document.getElementById('hideQRcode').addEventListener('click', function() {
+    document.getElementById('qrcode_modal').classList.add('hidden');
+});

@@ -241,7 +241,7 @@ class Attendance(SecondaryIDMixin, BaseModel):
     learning_hours = models.FloatField(default=1.5, null=True, blank=True)
     use_price_per_hour_from_class = models.BooleanField(default=True)
     price_per_hour = models.IntegerField(default=0, null=True, blank=True)
-    is_payment_required = models.BooleanField(default=True)
+    is_payment_required = models.BooleanField(default=None, null=True, blank=True)
     note = models.TextField(default="", blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
 
@@ -255,18 +255,22 @@ class Attendance(SecondaryIDMixin, BaseModel):
             else:
                 self.check_date = datetime.strptime(str(self.check_date), '%Y-%m-%d %H:%M:%S')
             self.check_date = self.check_date.replace(microsecond=0)
-            print(self.check_date)
+
 
         if self.use_price_per_hour_from_class and self.check_class:
             self.price_per_hour = self.check_class.price_per_hour
 
         # get is_payment_required from the StudentClass
-        if self.student and self.check_class:
-            try:
-                student_class = StudentClass.objects.get(student=self.student, _class=self.check_class)
-                self.is_payment_required = student_class.is_payment_required
-            except StudentClass.DoesNotExist:
-                self.is_payment_required = True
+        print(self.student, self.is_payment_required)
+        if self.is_payment_required is None:
+            if self.student and self.check_class:
+                try:
+                    student_class = StudentClass.objects.get(student=self.student, _class=self.check_class)
+                    self.is_payment_required = student_class.is_payment_required
+                except StudentClass.DoesNotExist:
+                    self.is_payment_required = True
+        else:
+            self.is_payment_required = self.is_payment_required
         
         # If the attendance is being created, updated, or deleted, update the student's balance
         if self.student and self.is_payment_required:
@@ -281,6 +285,7 @@ class Attendance(SecondaryIDMixin, BaseModel):
                 self.student.balance = self.student.balance + old_price_per_hour * old_learning_hours - self.price_per_hour * self.learning_hours
             self.student.save()
         super(Attendance, self).save(*args, **kwargs)
+        print(self)
 
     def delete(self, *args, **kwargs):
         if self.student and self.is_payment_required:
@@ -292,7 +297,7 @@ class Attendance(SecondaryIDMixin, BaseModel):
         # ...
 
     def __str__(self):
-        return "{} - {} - {} - {}".format(str(self.student), str(self.check_class), str(self.check_date), str(self.status))
+        return "{} - {} - {} - {}".format(str(self.student), str(self.check_class), str(self.check_date), str(self.is_payment_required), str(self.status))
 
 
 

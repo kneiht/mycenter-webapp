@@ -12,6 +12,7 @@ urlpatterns = [
     path('', landing_page, name='landing_page'),
     path('wheel', wheel, name='wheel'),
     path('calculate', calculate_student_balance, name='calculate_student_balance'),
+    re_path(r'.*\.html', views.html_page, name='specific_page'),
 
     path('schools/', SchoolViewSet.as_view(), name='schools'),
     path('schools/<int:pk>/', SchoolViewSet.as_view(), name='school_detail'),
@@ -40,7 +41,9 @@ urlpatterns = [
     path('schools/<int:school_id>/students/<int:student_id>/pay-tuition-old/', TuitionPaymentOldViewSet.as_view(), name='pay_tuition_old'),
     path('schools/<int:school_id>/students/<int:student_id>/pay-tuition-special/', TuitionPaymentSpecialViewSet.as_view(), name='pay_tuition_special'),
 
-
+    path('schools/<int:school_id>/students/<int:student_id>/attendance-calendar/view', views.student_attendance_calendar_view, name='student_attendance_calendar_view'),
+    path('schools/<int:school_id>/students/<int:student_id>/view', views.student_view, name='student_view'),
+    
 
 
     path('schools/<int:school_id>/attendances/', AttendanceViewSet.as_view(), name='attendances'),

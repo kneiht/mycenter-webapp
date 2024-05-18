@@ -1,29 +1,53 @@
+{% load qr_code %}
 <div id="title-bar">
     <div class="flex flex-wrap gap-4 justify-between items-center mb-6 mt-2">
         <p class="text-3xl text-center font-semibold text-theme"> {{ title }} </p>
+        {% if request.mode != 'view' %}
+            {% if select == 'classroom' %}
+            <div id='class-infor' class="hidden" class-id="{{ class.pk }}"></div>
+            <div class="flex gap-4">
+                <input id="check_date" type="date" name="check_date" class="form-input">
+                <button id="attendance-button" class="btn btn-primary text-nowrap">
 
-        {% if select == 'classroom' %}
-        <div id='class-infor' class="hidden" class-id="{{ class.pk }}"></div>
-        <div class="flex gap-4">
-            <input id="check_date" type="date" name="check_date" class="form-input">
-            <button id="attendance-button" class="btn btn-primary text-nowrap">
+                    <i class="fas fa-users mx-3" style="font-size: 16px;"></i>
+                    <span class="max-sm:hidden me-3"> Attendance </span>
+                </button>
+            </div>
+            {% elif select == 'attendance' %}
+            
+                <div>
+                    <button id="showQRcode" class="btn btn-primary">Show QR Code</button>
+                </div>
+                <div id="qrcode_modal" class="modal z-50 fixed inset-0 bg-slate-600 bg-opacity-60 overflow-y-auto h-full w-full flex justify-center hidden">
+                    <!-- Modal Content -->
+                    <div class="relative top-20 mx-4 card h-fit w-full sm:w-fit">
+                        <h3 class="mt-7 mb-8 text-xl font-bold leading-6 text-center text-theme">QR Code for the view only link</h3>
+                        <a class="btn btn-success mx-10" href="{{ request.path }}view" target="_blank" rel="noopener noreferrer">Go to view only page</a>
+                        <div class="w-[500px] gap-4 px-6 py-5 flex justify-center">
+                            {% qr_from_text view_only_url size="M" %}
+                        </div>
+                        {{ view_only_url }}
+                        <div class="flex justify-center items-center gap-5 pt-8 pb-7">
+                            <button id='hideQRcode' type="button" class="btn btn-primary rounded-full w-36">
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-                <i class="fas fa-users mx-3" style="font-size: 16px;"></i>
-                <span class="max-sm:hidden me-3"> Attendance </span>
-            </button>
-        </div>
-        {% elif select == 'attendance' %}
-            <a href="/schools/{{ school.pk }}/attendances/?get=form&student_id={{ student.pk }}" class="max-sm:hidden btn btn-primary" up-target="#modal" up-history="false">
+
+                <a href="/schools/{{ school.pk }}/attendances/?get=form&student_id={{ student.pk }}" class="btn btn-primary" up-target="#modal" up-history="false">
+                    <i class="fas fa-plus" style="font-size: 16px;"></i>
+                    <span class="max-sm:hidden me-3 ms-3"> Add new </span>
+                </a>
+            {% elif select == 'students' %}
+                <!-- Don't allow add new student, only convert from CRM -->
+            {% else %}
+            <a href="?get=form" class="max-sm:hidden btn btn-primary" up-target="#modal" up-history="false">
                 <i class="fas fa-plus me-3" style="font-size: 16px;"></i>
                 <span class="max-sm:hidden me-3"> Add new </span>
             </a>
-        {% elif select == 'students' %}
-            <!-- Don't allow add new student, only convert from CRM -->
-        {% else %}
-        <a href="?get=form" class="max-sm:hidden btn btn-primary" up-target="#modal" up-history="false">
-            <i class="fas fa-plus me-3" style="font-size: 16px;"></i>
-            <span class="max-sm:hidden me-3"> Add new </span>
-        </a>
+            {% endif %}
         {% endif %}
 
     </div>

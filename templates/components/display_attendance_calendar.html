@@ -1,7 +1,8 @@
 {% load custom_tags %}
+{% load qr_code %}
 
 <!-- Payment Selection Dropdown -->
-<div class="col-xl-4 col-lg-5 col-md-6 d-flex align-items-center">
+{% if request.mode != 'view' %}
     <select id="paymentFilter" class="form-input" onchange="window.location.href = '{{ request.path }}?payment_id=' + this.value;">
         <option value="all">Select Payment to Filter</option>
         {% for payment in payments %}
@@ -12,7 +13,34 @@
         {% endfor %}
         <option value="unpaid">Unpaid lessons</option>
     </select>
-</div>
+{% else %}
+    <div class="pb-5 px-0 lg:px-10">
+        <p class="text-lg text-theme font-semibold">Quý Phụ Huynh Lưu ý:</p>
+        <ol class="text-md text-theme">
+            <li>1. Quý Phụ Huynh và học viên xem quy định về quyền lợi và trách nhiệm của học viên tại đây.
+                <a href="/quyen-loi-va-trach-nhiem.html" target="_blank" style="color: blue; text-decoration: underline;">Xem quy định</a>
+            </li>
+            <li>2. Ngày hiển thị trong khung chọn kì học phí không phải là ngày đóng phí, đây là ngày nhân viên tại trung tâm nhập dữ liệu vào hệ thống, ngày này có thể trễ hơn so với ngày đóng học phí.</li>
+            <li>3. Ngày đóng học phí là ngày bắt đầu mà lịch điểm danh hiển thị khi chọn kì học phí.</li>
+            <li>4. Đối với kì học phí hiện tại, lịch điểm danh có thể chưa chính xác do nhiều lý do như chưa điểm danh, điểm danh sai ngày ... Cuối kì học phí giáo viên sẽ rà roát để nhập lại dữ liệu chính xác.</li>
+            <li>5. Nếu Quý Phụ Huynh có vấn đề cần hỏi về lịch điểm danh, có thể liên hệ trực tiếp với nhân viên tư vấn tại trung tâm, hoặc qua số điện thoại thầy Thiện 0393.593.905</li>
+        </ol>
+    </div>
+    <select id="paymentFilter" class="form-input" onchange="window.location.href = '{{ request.path }}?payment_id=' + this.value;">
+        <option value="all">Chọn kì phí (đang hiển thị tất cả)</option>
+        {% for payment in payments %}
+        <option value="{{ payment.id }}" {% if payment.id|stringformat:"s" == selected_payment_id %}selected{% endif %}>
+            {{ payment.created_at|date:"d-m-Y" }} - {{ payment.student.name }} - Đóng {{ payment.amount|format_vnd }} - HP tăng thêm {{ payment.student_balance_increase|format_vnd }}
+        </option>
+
+        {% endfor %}
+        <option value="unpaid">Ngày học nợ phí</option>
+    </select>
+
+
+
+{% endif %}
+
 
 <div id="display_attendance_calendar" class="my-5">
     {% for month in months %}
@@ -34,29 +62,50 @@
                         {% if day.display %}
                             <div class="flex justify-center items-center gap-3">
                                 <div class="py-2">{{ day.date.day }}</div>
-                                <a href="/schools/{{ school.pk }}/attendances/?get=form&student_id={{ student.pk }}&check_date={{ day.date|date:'Y-m-d' }}" class="btn btn-primary w-12 h-6 opacity-30 rounded-full flex justify-center items-center text-center max-sm:hidden" up-target="#modal" up-history="false">
-                                    <i class="fas fa-plus" style="font-size: 16px;"></i>
-                                </a>
-                            </div>
-                            <div class="py-2 flex flex-col gap-3 m-2">
-                                {% for attendance in day.attendances %}
-                                    
-                                    <a id="record_{{ attendance.pk }}" class="flex justify-center items-center" href="/schools/{{ school.pk }}/attendances/{{ attendance.pk }}?get=form" up-target="#modal" up-history="false">
-                                        <!-- Example: You might want to customize this based on your attendance model -->
-                                        {% if attendance.status == 'present' %}
-                                            <span class="py-1 px-2 rounded-xl present">
-                                        {% elif attendance.status == 'absent' %}
-                                            <span class="py-1 px-2 rounded-xl absent">
-                                        {% elif attendance.status == 'late' %}
-                                            <span class="py-1 px-2 rounded-xl late">
-                                        {% elif attendance.status == 'left_early' %}
-                                            <span class="py-1 px-2 rounded-xl left-early">
-                                        {% elif attendance.status == 'just_added' %}
-                                            <span class="py-1 px-2 rounded-xl just_added">
-                                        {% endif %}
-                                        {{ attendance.check_class }} 
-                                        {% if attendance.is_payment_required %} - Paid {% endif %} - {{ attendance.learning_hours }}h - {{ attendance.price_per_hour|multiply:attendance.learning_hours|format_vnd }}</span>
+                                {% if request.mode != 'view' %}
+                                    <a href="/schools/{{ school.pk }}/attendances/?get=form&student_id={{ student.pk }}&check_date={{ day.date|date:'Y-m-d' }}" class="btn btn-primary w-12 h-6 opacity-30 rounded-full flex justify-center items-center text-center max-sm:hidden" up-target="#modal" up-history="false">
+                                        <i class="fas fa-plus" style="font-size: 16px;"></i>
                                     </a>
+                                {% endif %} 
+                            </div>
+                            <div class="py-2 flex flex-col gap-3 m-2 text-sm">
+                                {% for attendance in day.attendances %}
+                                    {% if request.mode != 'view' %}
+                                        <a id="record_{{ attendance.pk }}" class="flex justify-center items-center" href="/schools/{{ school.pk }}/attendances/{{ attendance.pk }}?get=form" up-target="#modal" up-history="false">
+                                            <!-- Example: You might want to customize this based on your attendance model -->
+                                            {% if attendance.status == 'present' %}
+                                                <span class="py-1 px-2 rounded-xl present">
+                                            {% elif attendance.status == 'absent' %}
+                                                <span class="py-1 px-2 rounded-xl absent">
+                                            {% elif attendance.status == 'late' %}
+                                                <span class="py-1 px-2 rounded-xl late">
+                                            {% elif attendance.status == 'left_early' %}
+                                                <span class="py-1 px-2 rounded-xl left-early">
+                                            {% elif attendance.status == 'just_added' %}
+                                                <span class="py-1 px-2 rounded-xl just_added">
+                                            {% endif %}
+                                            {{ attendance.check_class }} 
+                                            {% if attendance.is_payment_required %} - Paid {% endif %} - {{ attendance.learning_hours }}h - {{ attendance.price_per_hour|multiply:attendance.learning_hours|format_vnd }}</span>
+                                        </a>
+                                    {% else %}
+                                        <div class="flex justify-center items-center">
+                                            <!-- Example: You might want to customize this based on your attendance model -->
+                                            {% if attendance.status == 'present' %}
+                                                <span class="py-1 px-2 rounded-xl present">
+                                            {% elif attendance.status == 'absent' %}
+                                                <span class="py-1 px-2 rounded-xl absent">
+                                            {% elif attendance.status == 'late' %}
+                                                <span class="py-1 px-2 rounded-xl late">
+                                            {% elif attendance.status == 'left_early' %}
+                                                <span class="py-1 px-2 rounded-xl left-early">
+                                            {% elif attendance.status == 'just_added' %}
+                                                <span class="py-1 px-2 rounded-xl just_added">
+                                            {% endif %}
+                                            {{ attendance.check_class }} -
+                                            {{ attendance.learning_hours }}h
+                                            {% if attendance.is_payment_required %} - {{ attendance.price_per_hour|multiply:attendance.learning_hours|format_vnd }} {% else %} - 0 VNĐ {% endif %}  </span>
+                                        </div>
+                                    {% endif %}
                                 {% endfor %}
                             </div>
                         {% endif %}
