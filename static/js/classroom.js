@@ -199,8 +199,16 @@ up.compiler('#attendance-controls', function(element) {
             }
             const data = await response.json();
             if (data.status === 'success') {
-                //console.log('got data:', data.attendance_data);
+                console.log('got data:', data.attendance_data);
                 applyAttendanceStyles(data.attendance_data);
+                // apply notes from data to attendance-note
+                data.attendance_data.forEach(student => {
+                    let noteInput = document.querySelector(`#attendance_note_${student.id}`);
+                    if (noteInput) {
+                        noteInput.value = student.note || ''; // Set the note or empty string if no note
+                    }
+                });
+
             } else {
                 console.error('Failed to fetch data:', data.message);
             }
@@ -264,7 +272,17 @@ up.compiler('#attendance-controls', function(element) {
         let absent_students = collectStudentIds('absent');
         let late_students = collectStudentIds('late');
         let left_early_students = collectStudentIds('left-early');
+        let not_checked_students = collectStudentIds('not-checked');
     
+        // Collecting notes
+        let notes = {};
+// Filter out notes that are not empty before stringifying
+        Array.from(document.querySelectorAll('[id^="attendance_note_"]')).forEach(input => {
+            if (input.value.trim() !== '') {
+                notes[input.name.replace('attendance_note_', '')] = input.value;
+            }
+        });
+        notes = JSON.stringify(notes);
         // Creating FormData object to send data
         let formData = {
             'check_date': checkDate,
@@ -272,7 +290,9 @@ up.compiler('#attendance-controls', function(element) {
             'absent': absent_students,
             'late': late_students,
             'left_early': left_early_students,
+            'not_checked': not_checked_students,
             'learning_hours': learningHours,
+            'notes': notes,
         };
         //console.log('formData:', formData);
         const url = window.location.href.split('?')[0] + `?post=attendance&check_date=${checkDate}`;
@@ -297,7 +317,10 @@ up.compiler('#attendance-controls', function(element) {
     // Set the attendance controls to inactive when first loaded
     attendanceControls.setAttribute('active', 'false');
     attendanceButton.addEventListener('click', function() {
+        // Display all attendance notes input fields
+
         if (attendanceControls.getAttribute('active') === 'false') {
+
             attendanceControls.setAttribute('active', 'true');
             attendanceControls.classList.remove('hidden');
             // Fetch attendance data
@@ -313,6 +336,11 @@ up.compiler('#attendance-controls', function(element) {
                 cardStyler.clearGrayoutedClasses(card);
             });
 
+            Array.from(document.querySelectorAll('.attendance-note')).forEach(input => {
+                input.classList.remove('hidden');
+            });
+            // Remove the value of apply_all_attendance_notes
+            document.querySelector('#apply_all_attendance_notes').value = '';
         }
         else {
             // reload the page
@@ -338,6 +366,14 @@ up.compiler('#attendance-controls', function(element) {
         if (attendanceControls.getAttribute('active') === 'true') {
             cardStyler.circleAttendanceState(card);
         }
+    });
+
+    document.querySelector('#apply_all_attendance_notes').addEventListener('input', function() {
+        // Apply the value of apply_all_attendance_notes to id="attendance_note_{{ record.id }}"
+        Array.from(document.querySelectorAll('[id^="attendance_note_"]')).forEach(input => {
+            input.value = document.querySelector('#apply_all_attendance_notes').value;
+        });
+
     });
 });
 

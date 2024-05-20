@@ -283,7 +283,12 @@ class AttendanceForm(forms.ModelForm):
                 'class': 'form-input'
             }),
         }
-
+    def __init__(self, *args, **kwargs):
+        school_id = kwargs.pop('school_id', None)
+        super().__init__(*args, **kwargs)
+        self.school_id = school_id
+        # Set the choices of the status field
+        self.fields['check_class'].choices = Class.objects.filter(school_id=self.school_id).values_list('id', 'name')
 
 
 

@@ -23,7 +23,7 @@ from django.db.models import Max
 from django.db import transaction
 
 class BaseModel(models.Model):
-    last_saved = models.DateTimeField(default=timezone.now)
+    last_saved = models.DateTimeField(default=timezone.now, blank=True, null=True)
     class Meta:
         abstract = True  # Specify this model as Abstract
 
@@ -53,7 +53,7 @@ class BaseModel(models.Model):
 
         # Create a Django InMemoryUploadedFile from the compressed image
         file_name = "%s.zwebp" % image_field.name.split('.')[0]
-        print(file_name)
+        #print(file_name)
         output_imagefield = InMemoryUploadedFile(output_io_stream, 'ImageField', 
                                                  file_name, 
                                                  'image/webp', output_io_stream.getbuffer().nbytes, None)
@@ -67,7 +67,7 @@ class BaseModel(models.Model):
             value = getattr(self, field.name)
             if isinstance(value, ImageFieldFile):
                 if value:  # If there's an image to compress
-                    print('\n\ncompressed')
+                    #print('\n\ncompressed')
                     compressed_image = self.compress_image(value)
                     setattr(self, field.name, compressed_image)
             elif isinstance(value, str):
@@ -152,7 +152,7 @@ class Student(SecondaryIDMixin, BaseModel):
     STATUS_CHOICES = list(STUDENT_STATUS) + list(CRM_STATUS)
 
     student_id = models.IntegerField(blank=True, null=True)
-    is_converted_to_student = models.BooleanField(blank=True, null=True)
+    is_converted_to_student = models.BooleanField(default=False, blank=True, null=True)
     school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)
     classes = models.ManyToManyField('Class', through='StudentClass', blank=True)
     name = models.CharField(max_length=255, default="")
@@ -246,6 +246,8 @@ class Attendance(SecondaryIDMixin, BaseModel):
     created_at = models.DateTimeField(default=timezone.now)
 
     def save(self, *args, **kwargs):
+        if self.status == 'not_checked':
+            self.is_payment_required = False
         self.learning_hours = float(self.learning_hours)
         # Set the microsecond part to zero before saving
         if self.check_date:
@@ -261,7 +263,6 @@ class Attendance(SecondaryIDMixin, BaseModel):
             self.price_per_hour = self.check_class.price_per_hour
 
         # get is_payment_required from the StudentClass
-        print(self.student, self.is_payment_required)
         if self.is_payment_required is None:
             if self.student and self.check_class:
                 try:
@@ -285,7 +286,7 @@ class Attendance(SecondaryIDMixin, BaseModel):
                 self.student.balance = self.student.balance + old_price_per_hour * old_learning_hours - self.price_per_hour * self.learning_hours
             self.student.save()
         super(Attendance, self).save(*args, **kwargs)
-        print(self)
+
 
     def delete(self, *args, **kwargs):
         if self.student and self.is_payment_required:

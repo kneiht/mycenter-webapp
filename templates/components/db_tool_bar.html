@@ -32,7 +32,7 @@
 
 
 
-        <div id='attendance-controls' class="grid grid-cols-1 min-[906px]:grid-cols-2 mt-2 mb-8 h-full p-2 bg-theme-200 dark:bg-theme-900 rounded-xl hidden">
+        <div id='attendance-controls' class="grid grid-cols-1 min-[906px]:grid-cols-3 mt-2 mb-8 h-full p-2 bg-theme-200 dark:bg-theme-900 rounded-xl hidden">
             <!-- Right controls for select -->
             <div id='left-controls' class="flex flex-col items-center justify-center gap-1 py-3">
                 <div class="flex justify-center items-center  gap-2">
@@ -43,6 +43,14 @@
                     <span class="py-1 px-2 rounded-lg left-early">Left Early</span>
                 </div>
                 <p>Click the student card to change the attendance color </p>
+            </div>
+
+
+            <div id='mid-controls' class="flex flex-col items-center justify-center w-auto">
+                <div class="px-2 mx-16">
+                    <p class="text-center">This note will be applied to all students</p>
+                    <input type="text" name="apply_all_attendance_notes" value="" placeholder="Write your note ..." class="form-input px-2 pt-2" id="apply_all_attendance_notes" onclick="event.stopPropagation();">
+                </div>
             </div>
 
             <!-- Right controls for view toggle and information display -->

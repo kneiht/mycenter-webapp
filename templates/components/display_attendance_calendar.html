@@ -84,37 +84,57 @@
                                     {% if request.mode != 'view' %}
                                         <a id="record_{{ attendance.pk }}" class="flex justify-center items-center" href="/schools/{{ school.pk }}/attendances/{{ attendance.pk }}?get=form" up-target="#modal" up-history="false">
                                             <!-- Example: You might want to customize this based on your attendance model -->
-                                            {% if attendance.status == 'present' %}
-                                                <span class="py-1 px-2 rounded-xl present">
-                                            {% elif attendance.status == 'absent' %}
-                                                <span class="py-1 px-2 rounded-xl absent">
-                                            {% elif attendance.status == 'late' %}
-                                                <span class="py-1 px-2 rounded-xl late">
-                                            {% elif attendance.status == 'left_early' %}
-                                                <span class="py-1 px-2 rounded-xl left-early">
-                                            {% elif attendance.status == 'just_added' %}
-                                                <span class="py-1 px-2 rounded-xl just_added">
+                                            {% if attendance.status == 'not_checked' and attendance.note %}
+                                                <span class="py-1 px-2 rounded-xl bg-yellow-500">
+                                                {{ attendance.check_class }} - {{ attendance.note }}
+                                                </span>
+                                            {% else %}
+                                                {% if attendance.status == 'present' %}
+                                                    <span class="py-1 px-2 rounded-xl present">
+                                                {% elif attendance.status == 'absent' %}
+                                                    <span class="py-1 px-2 rounded-xl absent">
+                                                {% elif attendance.status == 'late' %}
+                                                    <span class="py-1 px-2 rounded-xl late">
+                                                {% elif attendance.status == 'left_early' %}
+                                                    <span class="py-1 px-2 rounded-xl left-early">
+                                                {% elif attendance.status == 'just_added' %}
+                                                    <span class="py-1 px-2 rounded-xl just_added">
+                                                {% endif %}
+                                                {{ attendance.check_class }} 
+                                                {% if attendance.is_payment_required %} - Paid {% endif %} - {{ attendance.learning_hours }}h - {{ attendance.price_per_hour|multiply:attendance.learning_hours|format_vnd }}
+                                                {% if attendance.note %} <br> {{ attendance.note }} {% endif %}
+                                                </span>
                                             {% endif %}
-                                            {{ attendance.check_class }} 
-                                            {% if attendance.is_payment_required %} - Paid {% endif %} - {{ attendance.learning_hours }}h - {{ attendance.price_per_hour|multiply:attendance.learning_hours|format_vnd }}</span>
+
+
                                         </a>
                                     {% else %}
                                         <div class="flex justify-center items-center">
                                             <!-- Example: You might want to customize this based on your attendance model -->
-                                            {% if attendance.status == 'present' %}
-                                                <span class="py-1 px-2 rounded-xl present">
-                                            {% elif attendance.status == 'absent' %}
-                                                <span class="py-1 px-2 rounded-xl absent">
-                                            {% elif attendance.status == 'late' %}
-                                                <span class="py-1 px-2 rounded-xl late">
-                                            {% elif attendance.status == 'left_early' %}
-                                                <span class="py-1 px-2 rounded-xl left-early">
-                                            {% elif attendance.status == 'just_added' %}
-                                                <span class="py-1 px-2 rounded-xl just_added">
+                                            {% if attendance.status == 'not-checked' and attendance.note %}
+                                                <span class="py-1 px-2 rounded-xl bg-yellow-500">
+                                                {{ attendance.check_class }} - {{ attendance.note }}
+                                                </span>
+                                            {% else %}
+                                                {% if attendance.status == 'present' %}
+                                                    <span class="py-1 px-2 rounded-xl present">
+                                                {% elif attendance.status == 'absent' %}
+                                                    <span class="py-1 px-2 rounded-xl absent">
+                                                {% elif attendance.status == 'late' %}
+                                                    <span class="py-1 px-2 rounded-xl late">
+                                                {% elif attendance.status == 'left_early' %}
+                                                    <span class="py-1 px-2 rounded-xl left-early">
+                                                {% elif attendance.status == 'just_added' %}
+                                                    <span class="py-1 px-2 rounded-xl just_added">
+                                                {% endif %}
+                                                {{ attendance.check_class }} -
+                                                {{ attendance.learning_hours }}h
+                                                {% if attendance.is_payment_required %} - {{ attendance.price_per_hour|multiply:attendance.learning_hours|format_vnd }} {% else %} - 0 VNĐ {% endif %}  
+                                                {% if attendance.note %} <br> {{ attendance.note }} {% endif %}
+                                                </span>
                                             {% endif %}
-                                            {{ attendance.check_class }} -
-                                            {{ attendance.learning_hours }}h
-                                            {% if attendance.is_payment_required %} - {{ attendance.price_per_hour|multiply:attendance.learning_hours|format_vnd }} {% else %} - 0 VNĐ {% endif %}  </span>
+
+                                        
                                         </div>
                                     {% endif %}
                                 {% endfor %}

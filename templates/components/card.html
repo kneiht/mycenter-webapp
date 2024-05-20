@@ -16,7 +16,7 @@
     {% if record.is_payment_required %} - Paid {% endif %} - {{ record.learning_hours }}h</span>
 </a>
 
-    
+        
 {% else %}
 <div up-hungry id="record_{{ record.pk }}" record-id="{{ record.pk }}" class="relative card card-record {{ record.style }}">
     
@@ -69,7 +69,7 @@
         </div>
         <div class="menu relative text-sm">
 
-            <div class="menu-button flex flex-col justify-between items-center cursor-pointer gap-y-0.5 py-1.5 w-6 rounded-xl hover:bg-gray-200 hover:dark:bg-gray-700">
+            <div class="menu-button flex flex-col justify-between items-center cursor-pointer gap-y-0.5 py-1.5 w-6 rounded-xl hover:bg-gray-200 hover:dark:bg-gray-700" onclick="event.stopPropagation();">
                 <div class="w-1 h-1 bg-theme-900 dark:bg-theme-100 rounded-full"></div>
                 <div class="w-1 h-1 bg-theme-900 dark:bg-theme-100 rounded-full"></div>
                 <div class="w-1 h-1 bg-theme-900 dark:bg-theme-100 rounded-full"></div>
@@ -118,8 +118,14 @@
                 </ul>
             {% endif %}
         </div>
+
     </div>
-    
+    {% if select == 'classroom' %}
+        <div class="attendance-note px-2 pt-2 hidden">
+                    <input type="text" name="attendance_note_{{ record.id }}" value="" placeholder="Write your note ..." class="form-input px-2 pt-2" id="attendance_note_{{ record.id }}" onclick="event.stopPropagation();">
+        </div>
+    {% endif %}
+
     <div class="flex flex-col text-cyan-600 dark:text-cyan-500 text-sm px-4 pb-3">
         {% if select == 'schools' %}
             <!-- Keep <p> for paragraphs of text -->

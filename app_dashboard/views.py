@@ -314,7 +314,7 @@ class BaseViewSet(LoginRequiredMixin, View):
                 'student': student,
                 'check_date':check_date,
             }
-            form = self.form_class(instance=record) if record else self.form_class(initial = initial_data)
+            form = self.form_class(instance=record, school_id=school_id) if record else self.form_class(initial = initial_data, school_id=school_id)
             record_id = record.pk if record else None
 
         else:
@@ -601,6 +601,7 @@ class ClassViewSet(BaseViewSet):
             'status': record.status,
             'check_date': record.check_date.strftime('%Y-%m-%d'),
             'is_payment_required': record.is_payment_required,
+            'note': record.note,
         } for record in attendance_records]
         return JsonResponse({'status': 'success', 'attendance_data': attendance_data})
 
@@ -609,9 +610,13 @@ class ClassViewSet(BaseViewSet):
         # Parsing the JSON data
         class_id = pk
         data = request.POST
-        #print(data)
+        print(data)
         check_date_str = data.get('check_date')  # Assuming 'checkDate' is sent in the format 'YYYY-MM-DD HH:MM'
         learning_hours = data.get('learning_hours')
+        notes = data.get('notes')
+        # Convert notes to dict
+        if notes:
+            notes = json.loads(notes)
         # Assuming 'school_id' can be directly used to find a class, adjust as needed
         check_class = get_object_or_404(Class, id=class_id)
         if not check_class:
@@ -646,6 +651,7 @@ class ClassViewSet(BaseViewSet):
                             attendance.status = status
                             attendance.check_date = check_datetime  # Update check_datetime if needed
                             attendance.learning_hours = learning_hours
+                            attendance.note = notes[str(student.pk)] if str(student.pk) in notes.keys() else ''
                             attendance.save()
                         else:
                             # Create a new Attendance record if none exists for the same date
@@ -656,6 +662,7 @@ class ClassViewSet(BaseViewSet):
                                 check_date=check_datetime,  # Use the parsed check_datetime here
                                 learning_hours = learning_hours,
                                 status=status,
+                                note = notes[str(student.pk)] if str(student.pk) in notes.keys() else ''
                             )
 
         # Process each status
@@ -663,6 +670,9 @@ class ClassViewSet(BaseViewSet):
         process_students('absent', data.get('absent', ''))
         process_students('late', data.get('late', ''))
         process_students('left_early', data.get('left_early', ''))
+        process_students('not_checked', data.get('not_checked', ''))
+
+
 
         html_message = html_render('message', request, message='update attendance successfully')
         return HttpResponse(html_message)
