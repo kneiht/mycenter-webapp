@@ -778,9 +778,19 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
         student = get_object_or_404(Student, pk=student_id)
         payment_id = request.GET.get('payment_id')
         payments = FinancialTransaction.objects.filter(student=student).order_by('created_at')
-        attendances = Attendance.objects.filter(student=student).order_by('check_date')
+        all_attendances = Attendance.objects.filter(student=student).order_by('check_date')
 
-        if len(attendances)==0: #
+
+        # remove attendances at the beginning of the list with status = 'not_checked' to make sure they are not shown
+        # the list starts from the earliest attendance date with status != 'not_checked'
+        for attendance in all_attendances:
+            if attendance.status == 'not_checked':
+                # Remove this attendannce from the query
+                all_attendances = all_attendances.exclude(pk=attendance.pk)
+            else:
+                break
+
+        if len(all_attendances)==0: #
             context = {
                 'select': 'attendance',
                 'page': 'attendance',
@@ -791,11 +801,12 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
             return render(request, 'pages/single_page.html', context)
 
 
+
         if not payment_id or payment_id=="all":
             # Assume we fetch the earliest and latest attendance dates for the student to define the range
             # For demonstration, replace these with actual queries if available
-            earliest_attendance_date = Attendance.objects.filter(student=student).earliest('check_date').check_date
-            latest_attendance_date = Attendance.objects.filter(student=student).latest('check_date').check_date
+            earliest_attendance_date = all_attendances.earliest('check_date').check_date
+            latest_attendance_date = all_attendances.latest('check_date').check_date
 
 
         elif payment_id and (payment_id !="unpaid"):
@@ -814,7 +825,7 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
             cumulative_balance = 0
             filtered_attendance_ids = []
 
-            for attendance in attendances:
+            for attendance in all_attendances:
                 if attendance.is_payment_required:
                     cumulative_balance += attendance.price_per_hour * attendance.learning_hours
 
@@ -838,7 +849,7 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
             cumulative_balance = 0
             filtered_attendance_ids = []
 
-            for attendance in attendances:
+            for attendance in all_attendances:
                 if attendance.is_payment_required:
                     cumulative_balance += attendance.price_per_hour * attendance.learning_hours
 
@@ -861,11 +872,15 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
             student=student,
             check_date__range=(start_day, end_day + timedelta(days=1))  # Add 1 day to include the last day
         ).order_by('check_date')
-        
+
+
+
         # Organize attendances by date
         attendances_by_date = defaultdict(list)
         for attendance in attendances:
             attendances_by_date[attendance.check_date.date()].append(attendance)
+
+
 
         # Initialize data structure for months
         months = defaultdict(lambda: {'days': []})
@@ -893,7 +908,6 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
 
         # Convert months to a list if you want a sorted result
         months_list = [{'month': month, 'days': data['days']} for month, data in sorted(months.items())]
-        
 
         context = {
             'page': 'attendance',
