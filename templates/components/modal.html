@@ -145,20 +145,20 @@
                             <label for="students" class="text-theme">Students</label>
                             <div class="form-input flex flex-col h-52 gap-4 pt-4 pb-6 overflow-y-scroll">
                                 <div class="border-b pb-0.5 flex justify-between w-full font-semibold">
-                                    <span class="w-1/6"> ID </span>
-                                    <span class="w-3/6"> Name </span>
-                                    <span class="w-1/6 text-center"> Add </span>
-                                    <span class="w-1/6 text-center"> Paid class </span>
+                                    <span class="w-5/12"> ID. Name</span>
+                                    <span class="w-3/12 text-center"> Status </span>
+                                    <span class="w-2/12 text-center"> Add </span>
+                                    <span class="w-2/12 text-center"> Charge </span>
                                 </div>
                                 {% for student in form.get_students %}
                                     <div class="border-b pb-0.5 flex justify-between w-full">
-                                        <span class="w-1/6"> {{ student.pk }}</span>
-                                        <span class="w-3/6"> {{ student.name }} </span>
-                                        <span class="w-1/6 text-center">
+                                        <span class="w-5/12"> {% if student.student_id %}G{{ student.secondary_id|stringformat:"03d" }}{% else %}{{ student.secondary_id|stringformat:"04d" }}{% endif %}. {{ student.name }} </span>
+                                        <span class="w-3/12 text-center {{ student.status }} text-white p-1 rounded-md">{{ student.get_status_display }}</span>
+                                        <span class="w-2/12 text-center">
                                             <input type="checkbox" class="checkbox" name="students" value="{{ student.id }}" {% if student.in_class %} checked {% endif %}>
                                         </span>
                     
-                                        <span class="w-1/6 text-center">
+                                        <span class="w-2/12 text-center">
                                             <input type="checkbox" class="checkbox" name="payment_required" value="{{ student.id }}" {% if student.is_payment_required %} checked {% endif %}>
                                         </span>
                                     </div>

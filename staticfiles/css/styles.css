@@ -1608,6 +1608,11 @@ select {
   margin-right: 4rem;
 }
 
+.mx-5 {
+  margin-left: 1.25rem;
+  margin-right: 1.25rem;
+}
+
 .mb-0 {
   margin-bottom: 0px;
 }
@@ -1929,6 +1934,18 @@ select {
 
 .w-32 {
   width: 8rem;
+}
+
+.w-1\/12 {
+  width: 8.333333%;
+}
+
+.w-2\/6 {
+  width: 33.333333%;
+}
+
+.w-5\/12 {
+  width: 41.666667%;
 }
 
 .max-w-md {
