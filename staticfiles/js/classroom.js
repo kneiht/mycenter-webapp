@@ -508,3 +508,31 @@ up.compiler('.card', function(card) {
         card.querySelector('.image-profile').classList.remove('hidden');
     }
 });
+
+
+up.compiler('#id_image', function(image) {
+    image.addEventListener('change', function(event) {
+        const uploadedFile = event.target.files[0];
+        if (uploadedFile) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageUrl = e.target.result;
+                document.querySelector('.modal-avatar img').src = imageUrl;
+            };
+            reader.readAsDataURL(uploadedFile);
+        }
+    });
+});
+up.compiler('#id_image_portrait', function(image) {
+    image.addEventListener('change', function(event) {
+        const uploadedFile = event.target.files[0];
+        if (uploadedFile) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageUrl = e.target.result;
+                document.querySelector('.modal-portrait img').src = imageUrl;
+            };
+            reader.readAsDataURL(uploadedFile);
+        }
+    });
+});

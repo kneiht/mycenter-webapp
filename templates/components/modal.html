@@ -165,8 +165,24 @@
                                 {% endfor %}
                             </div>
                         </div>
-
-                    {% elif modal == 'modal_student' %}
+                    {% elif modal == 'modal_student' %} 
+                    <div class="flex pt-4 px-6 sm:w-[600px] gap-5 items-center justify-center">
+                        <div class="modal-avatar modal-image-container w-auto">
+                            {% if record.image %}
+                                <img src="{{ record.image.url }}" alt="student avatar" class="mx-auto rounded-xl border border-slate-300 dark:border-slate-600">
+                            {% else %}
+                                <img src="/media/images/default/default_profile.webp" alt="no image" class="mx-auto rounded-xl border border-slate-300 dark:border-slate-600">
+                            {% endif %}
+                        </div>
+                        <div class="modal-portrait modal-image-container w-auto">
+                            {% if record.image_portrait %}
+                                <img src="{{ record.image_portrait.url }}" alt="student portrait" class="mx-auto  rounded-xl border border-slate-300 dark:border-slate-600">
+                            {% else %}
+                                <img src="/media/images/default/default_profile.webp" alt="no image" class="mx-auto  rounded-xl border border-slate-300 dark:border-slate-600">
+                            {% endif %}
+                        </div>
+                    </div>
+                    
                     <div class="sm:w-[600px] pt-4 px-6">
                         <label for="students" class="text-theme">Classes</label>
                         <div class="form-input flex flex-col h-52 gap-4 pt-4 pb-6 overflow-y-scroll">

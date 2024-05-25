@@ -30,6 +30,20 @@
   /* Ensures image covers the entire container */
 }
 
+.modal-image-container {
+  width: 100%;
+  display: inline-block;
+  /* Needed for aspect-ratio property */
+}
+
+.modal-image-container img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  /* Sets the aspect ratio */
+  object-fit: cover;
+  /* Ensures image covers the entire container */
+}
+
 
 .meme-container {
   width: 100%;
