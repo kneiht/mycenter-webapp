@@ -487,3 +487,24 @@ up.compiler('#reward-controls', function(element) {
 });
 
 
+
+let isProfileImageToggled = false;
+up.compiler('#image-switch', function(imageSwitch) {
+    imageSwitch.addEventListener('click', function() {
+        const profileImages = document.querySelectorAll('.image-profile');
+        const portraitImages = document.querySelectorAll('.image-portrait');
+        profileImages.forEach(image => image.classList.toggle('hidden'));
+        portraitImages.forEach(image => image.classList.toggle('hidden'));
+        isProfileImageToggled = !isProfileImageToggled;
+    });
+});
+
+up.compiler('.card', function(card) {
+    if (isProfileImageToggled) {
+        card.querySelector('.image-portrait').classList.remove('hidden');
+        card.querySelector('.image-profile').classList.add('hidden');
+    } else {
+        card.querySelector('.image-portrait').classList.add('hidden');
+        card.querySelector('.image-profile').classList.remove('hidden');
+    }
+});

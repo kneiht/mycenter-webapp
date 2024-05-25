@@ -36,7 +36,13 @@ class SchoolForm(forms.ModelForm):
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
-        fields = ['name', 'status', 'gender', 'date_of_birth', 'parents', 'phones', 'reward_points', 'note', 'image', 'classes']
+        fields = ['name', 'status', 'gender', 'date_of_birth', 'parents', 'phones', 'reward_points', 'note', 'image', 'image_portrait', 'classes']
+        
+        help_texts = {
+            'image': 'Upload an image the student likes',
+            'image_portrait': 'Upload an student portrait. (Hình chân dung)',
+        }
+        
         widgets = {
             'name': forms.TextInput(attrs={
                 'placeholder': 'Student name',
@@ -69,6 +75,9 @@ class StudentForm(forms.ModelForm):
                 'class': 'form-input'
             }),
             'image': forms.FileInput(attrs={
+                'class': 'form-input-file',
+            }),
+            'image_portrait': forms.FileInput(attrs={
                 'class': 'form-input-file'
             }),
         }

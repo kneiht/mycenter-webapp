@@ -1744,6 +1744,14 @@ select {
   margin-top: 1.75rem;
 }
 
+.me-10 {
+  margin-inline-end: 2.5rem;
+}
+
+.me-20 {
+  margin-inline-end: 5rem;
+}
+
 .block {
   display: block;
 }

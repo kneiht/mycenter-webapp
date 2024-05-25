@@ -164,6 +164,7 @@ class Student(SecondaryIDMixin, BaseModel):
     reward_points = models.IntegerField(default=0, blank=True)
     balance = models.FloatField(default=0, blank=True)
     image = models.ImageField(upload_to='images/profiles/', blank=True, null=True, default='images/default/default_profile.webp')
+    image_portrait = models.ImageField(upload_to='images/portraits/', blank=True, null=True, default='images/default/default_profile.webp')
     note = models.TextField(default="", blank=True, null=True)
     last_note = models.TextField(default="", blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
