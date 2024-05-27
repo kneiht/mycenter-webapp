@@ -41,27 +41,32 @@
             </div>
         </a>
     {% elif select == 'classroom' %}
-        <div class="image-profile card-image-container relative">
-            {% if record.image %}
-                <img src="{{ record.image.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
-            {% else %}
-                <img src="/media/images/default/default_profile.webp" alt="Default Classroom Image" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
-            {% endif %}
-            <div class="absolute top-0 right-0 text-red-500 dark:text-red-600 m-2 px-2 py-1 font-bold text-4xl glow">
-                {{ record.reward_points }}
+    <div class="relative">
+        <div class="image-profile hidden">
+            <div class=" card-image-container">
+                {% if record.image %}
+                    <img src="{{ record.image.url }}" alt="{{ record.name }}" class="rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
+                {% else %}
+                    <img src="/media/images/default/default_profile.webp" alt="Default Classroom Image" class=" rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
+                {% endif %}
+                <div class="absolute top-0 right-0 text-red-500 dark:text-red-600 m-2 px-2 py-1 font-bold text-4xl glow">
+                    {{ record.reward_points }}
+                </div>
             </div>
         </div>
-        <div class="image-portrait card-image-container relative hidden">
-            {% if record.image %}
-                <img src="{{ record.image_portrait.url }}" alt="{{ record.name }}" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
-            {% else %}
-                <img src="/media/images/default/default_profile.webp" alt="Default Classroom Image" class="aspect-video object-cover rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
-            {% endif %}
-            <div class="absolute top-0 right-0 text-red-500 dark:text-red-600 m-2 px-2 py-1 font-bold text-4xl glow">
-                {{ record.reward_points }}
+        <div class="image-portrait hidden">
+            <div class="card-image-container hidden">
+                {% if record.image %}
+                    <img src="{{ record.image_portrait.url }}" alt="{{ record.name }}" class="rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
+                {% else %}
+                    <img src="/media/images/default/default_profile.webp" alt="Default Classroom Image" class="rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
+                {% endif %}
+                <div class="absolute top-0 right-0 text-red-500 dark:text-red-600 m-2 px-2 py-1 font-bold text-4xl glow">
+                    {{ record.reward_points }}
+                </div>
             </div>
         </div>
-
+    </div>
     {% else %}
         <div class="pt-3"></div>
     {% endif %}
