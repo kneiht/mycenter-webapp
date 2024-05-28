@@ -213,6 +213,11 @@ class Class(SecondaryIDMixin, BaseModel):
 
     def __str__(self):
         return f"{str(self.name)}"
+    def get_student_number(self):
+        return self.students.count()
+
+    def get_charge_student_number(self):
+        return StudentClass.objects.filter(_class=self, student__in=self.students.all(), is_payment_required=True).count()
 
 
 class StudentClass(models.Model):

@@ -55,7 +55,7 @@
             </div>
         </div>
         <div class="image-portrait hidden">
-            <div class="card-image-container hidden">
+            <div class="card-image-container">
                 {% if record.image %}
                     <img src="{{ record.image_portrait.url }}" alt="{{ record.name }}" class="rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
                 {% else %}
@@ -148,6 +148,20 @@
             <div class="note whitespace-pre-line"> {{ record.description }} </div>
 
         {% elif select == 'classes' %}
+            <!-- Use div for flex container, span for inline text elements -->
+            <div class="flex">
+                <div class="flex-1 mr-2 h-10 truncate flex items-center">
+                    <i class="fas fa-users w-6"></i>
+                    <span class="me-2">Total: </span>
+                    <span">{{ record.get_student_number }}</span>
+                </div>
+                <div class="flex-1 mr-2 h-10 truncate flex items-center">
+                    <i class="fas fa-users w-6"></i>
+                    <span class="me-2">Charged:</span>
+                    <span>{{ record.get_charge_student_number }}</span>
+                </div>
+            </div>
+
             <!-- Keep <p> for paragraphs of text -->
             <div class="note whitespace-pre-line"> {{ record.note }} </div>
 

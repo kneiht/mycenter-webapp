@@ -879,14 +879,16 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
         attendances_by_date = defaultdict(list)
         for attendance in attendances:
             attendances_by_date[attendance.check_date.date()].append(attendance)
+        print(attendances_by_date)
 
 
 
         # Initialize data structure for months
         months = defaultdict(lambda: {'days': []})
         current_day = start_day
-        while current_day <= end_day:
-
+        print(start_day, end_day)
+        while current_day.date() <= end_day.date():
+            print(current_day)
             day_data = {
                 'date': current_day,
                 'attendances': attendances_by_date.get(current_day.date(), []),
@@ -894,6 +896,9 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
             }
             months[current_day.strftime("%Y-%m")]['days'].append(day_data)
             current_day += timedelta(days=1)
+
+
+
 
         # iterate each month, then add leading empty days to make sure the first element in the list is monday
         for month, data in months.items():
