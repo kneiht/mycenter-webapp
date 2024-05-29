@@ -144,7 +144,7 @@ Todo:
 - kiểm tra lỗi đồng bộ ngày
 - ý tưởng khóa tên học viên, không cho thay đổi
 => các thay đổi phải có admin xác nhận
-- archived nếu không dùng đến record nữa
+- moved_to_trash nếu không dùng đến record nữa
 - thêm cách tính ngày lễ
 - làm message cho page
 

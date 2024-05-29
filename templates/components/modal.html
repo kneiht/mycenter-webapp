@@ -75,11 +75,26 @@
 
             <!-- Modal Content -->
             <div class="relative top-16 mb-10 mx-4 card h-fit w-full sm:w-fit">
+
                 {% if modal == 'modal_note' %}
                     <h3 class="mt-7 mb-8 text-xl font-bold leading-6 text-center text-theme">Add note to: {{ record }}</h3>
                 {% else %}
+                    {% if record_id %}
+                        <div class="absolute top-5 left-4">
+                            <a href="#" class="flex items-center gap-1">
+                                
+                                <button id='move-to-trash' type="button" class="btn btn-outline w-10 h-10 rounded-full border-0 text-theme" onclick="return confirm('Chức năng đang được phát triển');">
+                                    <i class="fas fa-trash-alt text-lg "></i>
+                                </button>
+                            </a>
+                        </div>
+                    {% endif %}
+
                     <h3 class="mt-7 mb-8 text-xl font-bold leading-6 text-center text-theme">{% if record_id %} Edit Information {% else %} Create New {% endif %}</h3>
-                {% endif %}
+                
+                
+                
+                    {% endif %}
                 <!-- Result could be a html card if success or a new form modal with error if fail, if success, the card will be added right after the div cards, else the form will be the same place but display as fixed -->
                 <form enctype="multipart/form-data" method="post"
                     {% if record_id %}

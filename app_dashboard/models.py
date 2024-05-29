@@ -101,6 +101,7 @@ class SecondaryIDMixin(models.Model):
 
 
 class School(BaseModel):
+    moved_to_trash = models.BooleanField(default=False)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True, default='')
     image = models.ImageField(upload_to='images/schools/', blank=True, null=True, default='images/default/default_school.webp')
@@ -150,7 +151,7 @@ class Student(SecondaryIDMixin, BaseModel):
     )
     # combine 2  status
     STATUS_CHOICES = list(STUDENT_STATUS) + list(CRM_STATUS)
-
+    moved_to_trash = models.BooleanField(default=False)
     student_id = models.IntegerField(blank=True, null=True)
     is_converted_to_student = models.BooleanField(default=False, blank=True, null=True)
     school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)
@@ -203,6 +204,7 @@ class Student(SecondaryIDMixin, BaseModel):
             return False
 
 class Class(SecondaryIDMixin, BaseModel):
+    moved_to_trash = models.BooleanField(default=False)
     school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=255, default="New class")
     students = models.ManyToManyField('Student', through='StudentClass', blank=True)
