@@ -22,8 +22,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 
-    
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/unpoly@3.7.3/unpoly.min.css">
+
     <link id="style" href="{% static 'css/styles.css' %}?v=14" rel="stylesheet" />
     <link id="style" href="{% static 'css/extra_styles.css' %}?v=14" rel="stylesheet" />
     <!-- JS -->
@@ -36,19 +35,6 @@
 
     {% block display %}
     {% endblock %}
-
-    <!-- js libs -->
-    <script>
-        document.body.addEventListener('htmx:configRequest', (event) => {
-        event.detail.headers['X-CSRF-Token'] = '{% csrf_token %}';
-        })
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/unpoly@3.7.3/unpoly.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
-    <script src="/static/js/main.js?v=14"></script>
-    <script src="/static/js/classroom.js?v=14"></script>
-
 
 
     {% block extra_script %}

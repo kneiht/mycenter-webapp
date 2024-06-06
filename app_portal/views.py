@@ -20,7 +20,7 @@ from app_dashboard.models import Student
 def phone_number_in_session(view_func):
     def wrapped_view(request, *args, **kwargs):
         if 'phonenumber' not in request.session:
-            return redirect('portal_login')
+            return redirect('portal_login') 
         return view_func(request, *args, **kwargs)
     return wrapped_view
 
