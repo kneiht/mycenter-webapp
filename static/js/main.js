@@ -20,7 +20,7 @@ function getCookie(name) {
         }
     }
     return cookieValue;
-}
+}   
 const csrftoken = getCookie('csrftoken');
 
 
@@ -37,6 +37,11 @@ up.compiler('body', function(element) {
         const moonIcon = document.getElementById('moon-icon');
         // Update theme class
         document.documentElement.classList.toggle('dark', isDark);
+
+        // Update data-theme attribute of the tag html
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        
+
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
 
         // Update icons for all sun and moon instances
@@ -524,10 +529,9 @@ up.compiler('#calculate-balance', function(element) {
                 map.set('1440000', 1800000);
                 map.set('1350000', 1800000);
                 map.set('1300000', 1800000);
-                map.set('3240000', 3240000);
-                map.set('2916000', 3240000);
-                map.set('5640000', 5640000);
-                map.set('5076000', 5640000);
+                map.set('3240000', 3600000);
+                map.set('2916000', 3600000);
+                map.set('5640000', 7200000);
                 let balance = map.get(amount);
                 element.innerText = Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(balance);
                 let balanceElement = document.getElementById('id_student_balance_increase');

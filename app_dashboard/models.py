@@ -173,6 +173,8 @@ class Student(SecondaryIDMixin, BaseModel):
         return str(self.name)
     
     def save(self, *args, **kwargs):
+        self.phones = self.phones.replace(" ", "")
+        self.phones = self.phones.replace(".", "")
         if self.is_converted_to_student:
             if self.status not in ['enrolled', 'on_hold', 'discontinued']:
                 self.status = "enrolled"

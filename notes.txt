@@ -189,3 +189,41 @@ xóa time ra khỏi check date
 -code user của trường mới được xem học sinh của trường đó cả trong CRM student hay calendar
 - bug, payment require không thay đổi trong calendar khi chỉnh sauwrf
 - cập nhật học phí trong finance, phải cập nhật luôn balance
+
+
+tìm hiểu GraphQL
+
+Update điểm thì không update last save
+
+cập nhật học phí trong finance, phải cập nhật luôn balance
+
+Code bỏ điểm danh nếu không chọn
+
+code user của trường mới được xem học sinh của trường đó cả trong CRM student hay calendar
+bug, payment require không thay đổi trong calendar khi chỉnh sauwrf
+
+Thêm thông tin nhóm lớp
+CRM không hiển thị lịch view only
+
+ví dụ, lọc enrolled => hiển thị tổng đang có bao nhiu enrolled thay vì đếm á
+
+
+lỗi chọn calendar xuất hiện lịch 2 chi nhánh
+
+fix lỗi ma số học sinh sai trường trong calendar vẫn hiện kết qủa
+CRM chuaw xem được view only, cần đưa về một link chung "students"
+
+phần điểm danh khi chuyển lại thành not-checked lịch vẫn hiển thị => cần fix
+
+thêm số lượng học sinh trong lớp, thêm giáo viên dạy lớp
+viết lại nội dung, nếu có cái ngày bù không bảo lưu
+
+Kiểm tra lại lúc điểm danh hay bị mất paid
+
+cần update balance theo tính toán mỗi lần update
+sort lại theo mã số học sinh
+thêm chọn chi nhánh nhanh
+
+
+web : xem lại học phí âm
+

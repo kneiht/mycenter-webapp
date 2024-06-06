@@ -1,0 +1,48 @@
+
+{% extends "layouts/base.html" %}
+{% load static %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block extra_head %}
+    <script src="https://unpkg.com/@themesberg/flowbite@1.1.1/dist/flowbite.bundle.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
+{% endblock %}
+
+
+
+
+
+{% block display %}
+    {% if page == 'select_students' %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {% for student in students %}
+                {% include 'components/card.html' with record=student select='students' %}
+            {% endfor %}
+        </div>
+    {% elif page == 'profile' %}
+        profile
+    {% endif %}
+{% endblock %}
+
+
+
+
+
+
+{% block extra_script %}
+    <script src="{% static 'js/portal.js' %}"></script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+

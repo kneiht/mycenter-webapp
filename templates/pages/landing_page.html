@@ -1,89 +1,33 @@
+
+{% extends "layouts/base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en" class="light"> 
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name='csrf-token' content='{{ csrf_token }}'>
-    <title>
-        GEN8 English Center
-    </title>
-
-    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/unpoly@3.7.3/unpoly.min.css">
-    <link id="style" href="{% static 'css/styles.css' %}?v=13" rel="stylesheet" />
-    <link id="style" href="{% static 'css/extra_styles.css' %}?v=13" rel="stylesheet" />
-    <!-- JS -->
-
-    {% block extra_head %}
-    {% endblock %}
-</head>
 
 
-<!-- Add CSRF token for htmx -->
-<body class="px-4 bg-[#F0F2F5] dark:bg-slate-900 min-h-full" style="font-family: 'Open Sans';">
-
-
-        <main class="flex mt-4 gap-3 mx-2 sm:mx-10 md:mx-20">
-            <!-- Keep the display fit the screen, only content inside can be scrolled -->
-            <div class="overflow-y-scroll w-full pr-2 pb-10 pt-10" style="height: 89vh;">
-                <div class="text-center text-3xl flex flex-col gap-5 justify-center items-center">
-                    <h1>Trang web của Anh Ngữ GEN8 đang được bảo trì và nâng cấp chức năng, website sẽ hoàn thành trong thời gian sớm nhất</h1>
-                    <p>Trong thời gian chờ đợi các quý phụ huynh và học sinh có thể truy cập facebook của Anh Ngữ GEN8 ở đường link bên dưới để cập nhật các thông tin về trung tâm nhé:</p>
-                    <a class="btn btn-primary w-fit p-5 text-2xl" href="https://www.facebook.com/anhngugen8/" target="_blank">Click vào đây để vào Facebook Anh Ngữ Gen8</a>
-                    <p>Cảm ơn các bạn rất nhiều</p>
-                </div>
-
-            </div>
-        </main>
-
-    
-   
-    <!-- js libs -->
-    <script>
-        document.body.addEventListener('htmx:configRequest', (event) => {
-        event.detail.headers['X-CSRF-Token'] = '{% csrf_token %}';
-        })
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/unpoly@3.7.3/unpoly.min.js"></script>
+{% block title %} Home {% endblock %}
 
 
 
-    <script>
-        // Initialize the JS client
-        import { createClient } from '@supabase/supabase-js'
-        const supabaseUrl = 'https://unizlrctyjwsrxufpdrh.supabase.co'
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+{% block display %}
+<main class="flex gap-3 mx-2 sm:mx-10 md:mx-20">
+    <!-- Keep the display fit the screen, only content inside can be scrolled -->
+    <div class="overflow-y-scroll w-full pr-2 pb-10 pt-10" style="height: 89vh;">
+        <div class="text-center text-3xl flex flex-col gap-5 justify-center items-center">
+            <h1>Trang web của Anh Ngữ GEN8 đang được bảo trì và nâng cấp chức năng, website sẽ hoàn thành trong thời gian sớm nhất</h1>
+            <p>Trong thời gian chờ đợi các quý phụ huynh và học sinh có thể truy cập facebook của Anh Ngữ GEN8 ở đường link bên dưới để cập nhật các thông tin về trung tâm nhé:</p>
+            <a class="btn btn-primary w-fit p-5 text-2xl" href="https://www.facebook.com/anhngugen8/" target="_blank">Click vào đây để vào Facebook Anh Ngữ Gen8</a>
+            <p>Cảm ơn các bạn rất nhiều</p>
+        </div>
 
-        // Create a function to handle inserts
-        const handleInserts = (payload) => {
-        console.log('Change received!', payload)
-        }
-
-        // Listen to inserts
-        supabase
-        .channel('todos')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'todos' }, handleInserts)
-        .subscribe()
-
-    </script>
+    </div>
+</main>
+{% endblock %}
 
 
 
 
 
 
-    {% block extra_script %}
-    {% endblock %}
-</body>
 
-</html>
 
 
 

@@ -1,29 +1,38 @@
 {% load static %}
+{% load pwa %}
 <!DOCTYPE html>
 <html lang="en" class="light"> 
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name='csrf-token' content='{{ csrf_token }}'>
+    {% progressive_web_app_meta %}
     <title>
         {% block title %}
-        {% endblock %} | Mycenter
+        {% endblock %} | GEN8
     </title>
+    <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico">
 
+    
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+
+
+
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- CSS -->
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/unpoly@3.7.3/unpoly.min.css">
     <link id="style" href="{% static 'css/styles.css' %}?v=13" rel="stylesheet" />
-
+    <link id="style" href="{% static 'css/extra_styles.css' %}?v=13" rel="stylesheet" />
     <!-- JS -->
-
+    
     {% block extra_head %}
     {% endblock %}
 </head>
 
-<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' class="bg-slate-100 dark:bg-slate-900 min-h-full" style="font-family: 'Roboto';">
-    <div id="onresize-hs" class="hidden"></div>
+<body class="px-4 bg-[#F0F2F5] dark:bg-slate-900 min-h-full" style="font-family: 'Open Sans';">
 
     {% block display %}
     {% endblock %}
@@ -34,12 +43,11 @@
         event.detail.headers['X-CSRF-Token'] = '{% csrf_token %}';
         })
     </script>
-    <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/unpoly@3.7.3/unpoly.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
     <script src="/static/js/main.js?v=13"></script>
-    
-    
-    
+    <script src="/static/js/classroom.js?v=13"></script>
 
 
 
@@ -48,6 +56,5 @@
 </body>
 
 </html>
-
 
 

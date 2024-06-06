@@ -82,6 +82,29 @@ def dashboard(request, school_id):
     return redirect('classes', school_id=school_id)
 
 
+def app(request):
+    context = {'page': 'app', 'title': 'Log in'}
+    # if post print data
+    if request.method == 'POST':
+        # Get phone number = username
+        phone_number = request.POST.get('username')
+        # Clean phone number
+        phone_number = phone_number.replace('+84', '0')
+        phone_number = phone_number.replace(' ', '')
+        # Get student from phone number
+        students = Student.objects.filter(phones__iexact=phone_number)
+        if students:
+            context['account_message'] = "OK"
+            #return redirect('student_dashboard', student_id=student.id)
+        else:
+            
+            context['account_message'] = "Số điện thoại này chưa được đăng ký ghi danh tại anh ngữ GEN8. Vui lòng nhập đúng số điện thoại hoặc liên hệ ngữ GEN8 để được hỗ trợ."
+
+    return render(request, 'pages/portal/student_login.html', context)
+
+
+
+
 @login_required
 def calculate_student_balance(request):
     students = Student.objects.all()
@@ -258,7 +281,10 @@ class BaseViewSet(LoginRequiredMixin, View):
                 records = records.order_by('balance')
 
             else:
-                records = records.order_by('-pk')
+                if hasattr(self.model_class, 'student_id'):
+                    records = records.order_by('-student_id')
+                else:
+                    records = records.order_by('-pk')
 
         context = {
             'select': self.page, 
@@ -986,5 +1012,4 @@ class TuitionPaymentSpecialViewSet(BaseViewSet):
             return self.create_form(request, school_id=school_id, student_id=student_id, pk=pk)
     def post(self, request, school_id=None, student_id=None, pk=None):
         return super().post(request, school_id, pk)
-
 
