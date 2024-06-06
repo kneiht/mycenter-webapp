@@ -63,7 +63,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_unicorn',
     'app_accounts',
     'app_dashboard',
     'app_portal',

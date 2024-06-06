@@ -7,7 +7,6 @@ from django.conf.urls.static import static
 from django.views.generic import RedirectView
 
 urlpatterns = [
-    path("unicorn/", include("django_unicorn.urls")),
     path('', include('app_accounts.urls')),
     path('', include('app_dashboard.urls')),
     path('', include('app_portal.urls')),
