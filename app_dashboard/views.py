@@ -281,7 +281,7 @@ class BaseViewSet(LoginRequiredMixin, View):
                 records = records.order_by('balance')
 
             else:
-                if hasattr(self.model_class, 'student_id'):
+                if hasattr(self.page, 'students'):
                     records = records.order_by('-student_id')
                 else:
                     records = records.order_by('-pk')
