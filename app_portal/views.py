@@ -31,7 +31,7 @@ def portal_login(request):
     if 'phonenumber' in request.session:
         print (request.session['phonenumber'])
         if Student.objects.filter(phones__iexact=request.session['phonenumber']).exists():
-            return redirect('portal_home')
+            return redirect('portal_profile')
         
 
     context = {'title': 'Đăng nhập'}
@@ -47,17 +47,21 @@ def portal_login(request):
         if students:
             # Log in the user
             request.session['phonenumber'] = phone_number
-            return redirect('portal_home')
+            return redirect('portal_profile')
         else:
             context['account_message'] = "Số điện thoại này chưa được đăng ký ghi danh tại anh ngữ GEN8. Vui lòng nhập đúng số điện thoại hoặc liên hệ ngữ GEN8 để được hỗ trợ."
 
     return render(request, 'portal/portal_login.html', context)
 
 
+@phone_number_in_session
+def portal_app(request):
+    return render(request, 'portal/portal_app.html')
+
 
 
 @phone_number_in_session
-def portal_home(request):
+def portal_profile(request):
     context = {'title': 'GEN8 Portal'}
 
     students = Student.objects.filter(phones__iexact=request.session['phonenumber'])
@@ -68,6 +72,15 @@ def portal_home(request):
         context['page'] = 'select_students'
         context['students'] = students
 
-    return render(request, 'portal/portal_home.html', context)
+    return render(request, 'portal/portal_profile.html', context)
+
+@phone_number_in_session
+def portal_calendar(request):
+    return render(request, 'portal/portal_calendar.html', context)
+
+@phone_number_in_session
+def portal_zalo(request):
+    return render(request, 'portal/portal_zalo.html', context)
+
 
 
