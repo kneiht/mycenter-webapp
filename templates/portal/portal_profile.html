@@ -1,6 +1,7 @@
 
 {% extends "layouts/base_portal.html" %}
 {% load static %}
+{% load custom_tags %}
 
 
 {% block title %} {{ title }} {% endblock %}
@@ -8,23 +9,98 @@
 
 
 {% block display %}
-    
-    {% if page == 'select_students' %}
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {% for student in students %}
-                {% include 'components/card.html' with record=student select='students' %}
-            {% endfor %}
-        </div>
-    {% elif page == 'profile' %}
-        profile
-    {% endif %}
+    <main class="pt-5 mb-32 flex flex-col justify-center items-center px-4 mt-16">
+        <p class="text-theme text-2xl font-bold"> Thông tin học sinh</p>
 
+        <div class="card text-theme mt-3 flex flex-col items-center w-full px-3 py-3">
+            <span class="flex justify-start items-center gap-3">
+                <img src="/static/images/icons/school.png" alt="school icon" class="inline-block w-8">
+                <span class="text-theme text-md font-bold">{{ student.school }}</span>
+            </span>
+        </div>
+
+        <div class="card text-theme mt-3 flex flex-col items-center w-full px-3 py-3">
+            <div class="flex justify-center items-center w-full gap-10">
+                <div class="w-24 sm:w-24">
+                    <div class="protal-profile-image-container ">
+                        {% if student.image_portrait.url %}
+                            <img src="{{ student.image_portrait.url }}" alt="{{ student.name }}" class="rounded-full border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
+                        {% else %}
+                            <img src="/static/images/default/default_profile.webp" alt="Defaults Image" class="rounded-full border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
+                        {% endif %}
+                    </div>
+                </div>
+                <span class="flex flex-col justify-start items-center">
+                        <img src="/static/images/icons/star.png" alt="star icon" class="inline-block w-8">
+                        <span class="text-green-500 text-3xl font-extrabold">{{ student.reward_points }}</span>
+                </span>
+            </div>
+
+
+            <h2 class="text-lg font-bold space mb-2 text-center">{{ student.name }}</h2>
+            <div class="w-full flex-1 flex text-center justify-center items-center p-1  rounded-lg text-white
+                {% if student.balance <= 0 %}bg-red-500{% else %}bg-green-600{% endif %}">
+                Học phí còn lại: {{ student.balance|format_vnd }} {% if student.balance < 0 %}(nợ học phí) {% endif %}
+            </div>
+        </div>
+
+
+        <div class="card text-theme mt-3 flex flex-col w-full px-3 py-3 gap-4">
+            <h2 class="text-lg font-semibold space text-center">Phụ huynh</h2>
+            <span class="flex justify-start items-center gap-3">
+                <img src="/static/images/icons/woman.png" alt="mother icon" class="inline-block w-8">
+                {% if student.mother_phone %}
+                    <span class="text-theme text-md w-5/12">{{ student.mother }}</span>
+                    <span class="text-theme text-md w-5/12">{{ student.mother_phone }}</span>
+                {% else %}
+                    <span class="text-theme text-md w-5/12">Chưa nhập thông tin, quý phụ huynh vui lòng vào phần chat để cung cấp thông tin</span>
+                {% endif %}
+            </span>
+
+            <span class="flex justify-start items-start gap-3">
+                <img src="/static/images/icons/man.png" alt="father icon" class="inline-block w-8">
+                {% if student.father_phone %}
+                    <span class="text-theme text-md w-5/12">{{ student.father }}</span>
+                    <span class="text-theme text-md w-5/12">{{ student.father_phone }}</span>
+                {% else %}
+                    <span class="text-theme text-md">Chưa nhập thông tin, quý phụ huynh vui lòng vào phần chat để cung cấp thông tin</span>
+                {% endif %}
+            </span>
+        </div>
+
+        <div class="card text-theme mt-3 flex flex-col w-full px-3 py-3 gap-4">
+            <h2 class="text-lg font-semibold space text-center">Các lớp học</h2>
+            {% if student.get_student_classes %}
+                {% for class in student.get_student_classes %}
+                    <span class="flex justify-start items-center gap-3">
+                        <span class="bg-blue-500 w-2 h-2 rounded-full"></span>
+                        {% if student.mother_phone %}
+                            <span class="text-theme text-md w-5/12">{{ student.mother }}</span>
+                            <span class="text-theme text-md w-5/12">{{ student.mother_phone }}</span>
+                        {% else %}
+                            <span class="text-theme text-md w-5/12">Chưa nhập thông tin, quý phụ huynh vui lòng vào phần chat để cung cấp thông tin</span>
+                        {% endif %}
+                    </span>
+                {% endfor %}
+            {% else %}
+                <span class="text-theme text-md text-justify whitespace-pre-line">Hiện {{ student.name }} chưa được đưa vào danh sách bất kỳ lớp học nào, có thể học sinh đang chờ lớp sắp mở, hoặc trung tâm chưa sắp xếp được lớp học đúng trình độ của học sinh.
+                    
+                Nếu đây là lỗi hệ thống, quý phụ huynh vui lòng vào phần chat để nhờ nhân viên trung tâm hỗ trợ. GEN8 chân thành cảm ơn quý phụ huynh.</span>
+            {% endif %}
+        </div>
+
+
+
+
+
+
+    </main>
 {% endblock %}
 
 
 
 
-
+    
 
 
 

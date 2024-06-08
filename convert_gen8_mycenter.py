@@ -101,8 +101,8 @@ transformed_data = {
     'name': df_gen8['name'],
     'gender': df_gen8['gender'],
     'date_of_birth': pd.to_datetime(df_gen8['date_of_birth']),
-    'parents': df_gen8['parents'],
-    'phones': df_gen8['phone'],
+    'mother': df_gen8['mother'],
+    'mother_phone': df_gen8['mother_phone'],
     'status': df_gen8['status'],  # Assuming the status directly maps to the new status field
     'reward_points': df_gen8['money'],  # Assuming a fixed value for all entries
     'balance': 0,  # Assuming a fixed value for all entries

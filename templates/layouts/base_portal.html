@@ -34,12 +34,20 @@
 </head>
 
 <body class="bg-[#F0F2F5] dark:bg-slate-900 min-h-full" style="font-family: 'Open Sans';">
-    {% include 'portal/components/header.html' %}
+    
+    {% if page != 'login' and page != 'app' %}
+        {% include 'portal/components/header.html' %}
+    {% endif %}
 
     {% block display %}
     {% endblock %}
 
-    {% include 'portal/components/nav_bar.html' %}
+
+    {% if page != 'login' and page != 'app' %}
+        {% include 'portal/components/nav_bar.html' %}
+    {% endif %}
+
+    
 
     <script src="https://cdn.jsdelivr.net/npm/unpoly@3.7.3/unpoly.min.js"></script>
     <script src="{% static 'js/main.js' %}"></script>

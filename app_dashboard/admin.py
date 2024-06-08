@@ -1,7 +1,7 @@
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import School, SchoolUser, UserProfile, Values, Student, Class, StudentClass, Attendance, FinancialTransaction
+from .models import School, SchoolUser, UserProfile, FilterValues, Student, Class, StudentClass, Attendance, FinancialTransaction
 from django.utils.safestring import mark_safe
 from django import forms
 
@@ -18,13 +18,13 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_filter = ('created_at',)
     search_fields = ('name', 'phone', 'bio')
 
-class ValuesAdmin(admin.ModelAdmin):
-    list_display = ('user', 'school', 'key', 'value')
+class FilterValuesAdmin(admin.ModelAdmin):
+    list_display = ('user', 'school', 'filter', 'value')
 
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'gender', 'date_of_birth', 'parents', 'phones', 'status', 'reward_points', 'balance', 'image', 'image_portrait', 'note', 'last_note', 'created_at')
+    list_display = ('name', 'gender', 'date_of_birth', 'mother', 'mother_phone', 'status', 'reward_points', 'balance', 'image', 'image_portrait', 'note', 'last_note', 'created_at')
     list_filter = ('created_at', 'status')
-    search_fields = ('name', 'parents', 'phones')
+    search_fields = ('name', 'mother', 'mother_phone')
 
 class ClassAdmin(admin.ModelAdmin):
     list_display = ('name', 'school', 'price_per_hour', 'note', 'created_at')
@@ -47,7 +47,7 @@ class FinancialTransactionAdmin(admin.ModelAdmin):
 admin.site.register(School, SchoolAdmin)
 admin.site.register(SchoolUser, SchoolUserAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
-admin.site.register(Values, ValuesAdmin)
+admin.site.register(FilterValues, FilterValuesAdmin)
 admin.site.register(Student, StudentAdmin)
 admin.site.register(Class, ClassAdmin)
 admin.site.register(StudentClass, StudentClassAdmin)

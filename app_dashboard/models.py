@@ -22,6 +22,7 @@ from django.contrib.auth.models import User
 from django.db.models import Max
 from django.db import transaction
 
+
 class BaseModel(models.Model):
     last_saved = models.DateTimeField(default=timezone.now, blank=True, null=True)
     class Meta:
@@ -123,18 +124,18 @@ class UserProfile(models.Model):
     phone = models.CharField(max_length=50, blank=True, null=True)
     bio = models.TextField(default="", blank=True)
     image = models.ImageField(upload_to='images/profiles/', blank=True, null=True, default='images/default/default_profile.webp')
-    settings = models.ForeignKey('Values', on_delete=models.SET_NULL, null=True, blank=True)
+    settings = models.ForeignKey('FilterValues', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     def __str__(self):
         return self.name
 
-class Values(models.Model):
+class FilterValues(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=True)
-    key = models.CharField(max_length=255, default="")
-    value = models.CharField(max_length=255, default="")
+    filter = models.CharField(max_length=255, default="nothing to filter")
+    value = models.TextField(default="", blank=True)
     def __str__(self):
-        return self.key
+        return self.filter
 
 class Student(SecondaryIDMixin, BaseModel):
     GENDER_CHOICES = (("male", "Male"), ("female", "Female"), ("other", "Other"))
@@ -159,8 +160,13 @@ class Student(SecondaryIDMixin, BaseModel):
     name = models.CharField(max_length=255, default="")
     gender = models.CharField(max_length=20, choices=GENDER_CHOICES, default="other")
     date_of_birth = models.DateField(null=True, blank=True)
-    parents = models.CharField(max_length=255, default="", blank=True, null=True)
-    phones = models.CharField(max_length=50, default="", blank=True, null=True)
+    mother = models.CharField(max_length=255, default="", blank=True, null=True)
+    mother_phone = models.CharField(max_length=50, default="", blank=True, null=True)
+
+    father = models.CharField(max_length=255, default="", blank=True, null=True)
+    father_phone = models.CharField(max_length=50, default="", blank=True, null=True)
+
+
     status =  models.CharField(max_length=50, choices=STATUS_CHOICES, default="just_added")
     reward_points = models.IntegerField(default=0, blank=True)
     balance = models.FloatField(default=0, blank=True)
@@ -173,11 +179,19 @@ class Student(SecondaryIDMixin, BaseModel):
         return str(self.name)
     
     def save(self, *args, **kwargs):
-        if self.phones is None:
-            self.phones = ""
+        if self.mother_phone is None:
+            self.mother_phone = ""
+        self.mother_phone = str(self.mother_phone).replace(" ", "")
+        self.mother_phone = str(self.mother_phone).replace(".", "")
 
-        self.phones = str(self.phones).replace(" ", "")
-        self.phones = str(self.phones).replace(".", "")
+        if self.father_phone is None:
+            self.father_phone = ""
+        self.father_phone = str(self.father_phone).replace(" ", "")
+        self.father_phone = str(self.father_phone).replace(".", "")
+
+
+
+
         if self.is_converted_to_student:
             if self.status not in ['enrolled', 'on_hold', 'discontinued']:
                 self.status = "enrolled"

@@ -539,10 +539,13 @@ up.compiler('#id_image_portrait', function(image) {
 
 
 up.compiler('form button[type="submit"]', function(button) {
-    button.addEventListener('click', preventDoubleClick);
-    button.addEventListener('click', function(event) {
-        event.target.form.requestSubmit();
-    });
+    if (button.id !== 'search-button') {
+        button.addEventListener('click', preventDoubleClick);
+        button.addEventListener('click', function(event) {
+            event.target.form.requestSubmit();
+        });
+    }
+
 });
 
 function preventDoubleClick(event) {

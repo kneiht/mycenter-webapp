@@ -192,14 +192,26 @@
             <div class="flex">
                 <div class="flex-1 mr-2 h-10 truncate flex items-center">
                     <i class="fas fa-users w-6"></i>
-                    <span class="truncate-start">{{ record.parents }}</span>
+                    <span class="truncate-start">{{ record.mother }}</span>
                 </div>
                 <div class="flex-1 mr-2 h-10 truncate flex items-center">
                     <i class="fas fa-phone w-6"></i>
-                    <span>{{ record.phones }}</span>
+                    <span>{{ record.mother_phone }}</span>
                 </div>
             </div>
-    
+
+            <div class="flex">
+                <div class="flex-1 mr-2 h-10 truncate flex items-center">
+                    <i class="fas fa-users w-6"></i>
+                    <span class="truncate-start">{{ record.father }}</span>
+                </div>
+                <div class="flex-1 mr-2 h-10 truncate flex items-center">
+                    <i class="fas fa-phone w-6"></i>
+                    <span>{{ record.father_phone }}</span>
+                </div>
+            </div>
+            
+
             <div class="flex">
                 <div class="flex-1 mr-2 h-10 truncate flex items-center">
                     <i class="fas fa-dollar-sign w-6"></i>

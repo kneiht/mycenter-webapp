@@ -36,7 +36,7 @@ class SchoolForm(forms.ModelForm):
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
-        fields = ['name', 'status', 'gender', 'date_of_birth', 'parents', 'phones', 'reward_points', 'note', 'image', 'image_portrait', 'classes']
+        fields = ['name', 'status', 'gender', 'date_of_birth', 'mother', 'mother_phone', 'father', 'father_phone', 'reward_points', 'note', 'image', 'image_portrait', 'classes']
         
         help_texts = {
             'image': 'Upload an image the student likes',
@@ -56,14 +56,25 @@ class StudentForm(forms.ModelForm):
                 'class': 'form-input',
                 'type': 'date'
             }),
-            'parents': forms.TextInput(attrs={
-                'placeholder': 'Student parents',
+            'mother': forms.TextInput(attrs={
+                'placeholder': "Student's mother",
                 'class': 'form-input'
             }),
-            'phones': forms.TextInput(attrs={
-                'placeholder': 'Student phones',
+            'mother_phone': forms.TextInput(attrs={
+                'placeholder': 'Mother\'s phone number',
                 'class': 'form-input'
             }),
+
+            'father': forms.TextInput(attrs={
+                'placeholder': "Student's father",
+                'class': 'form-input'
+            }),
+            'father_phone': forms.TextInput(attrs={
+                'placeholder': 'Father\'s phone number',
+                'class': 'form-input'
+            }),
+
+
             'status': forms.Select(attrs={
                 'class': 'form-input'
             }),
