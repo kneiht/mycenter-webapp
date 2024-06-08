@@ -60,6 +60,21 @@
 }
 
 
+.protal-profile-image-container {
+  width: 100%;
+  display: inline-block;
+  /* Needed for aspect-ratio property */
+}
+
+.protal-profile-image-container img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  /* Sets the aspect ratio */
+  object-fit: cover;
+  /* Ensures image covers the entire container */
+}
+
+
 
 .glow {
   text-shadow: 0 0 5px #fff, 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #fff, 0 0 50px #fff, 0 0 60px #fff, 0 0 70px #fff, 0 0 80px #fff;
