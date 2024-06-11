@@ -1,9 +1,24 @@
 <header class="fixed top-0 left-0 w-full">
     <nav class="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800 shadow-lg">
-        <div class="flex flex-wrap justify-between items-center">
+        <div class="flex justify-between items-center">
             
-            <img src="/static/images/logo-ct-dark.png" class="mr-3 h-6 sm:h-9" alt="Flowbite Logo" />
+            <img src="/static/images/logo-ct-dark.png?v=17" class="mr-3 h-6 sm:h-9" alt="Flowbite Logo" />
             
+            <div id="student-select" class="menu w-full">
+                <!-- Profile picture dropdown button. -->
+                <button class="menu-button cursor-pointer btn btn-outline py-1">
+                    Chọn học sinh
+                </button>
+                <!-- Dropdown Menu -->
+                <ul id="menu-students" class="dropdown-menu mr-4 hidden fixed">
+                    {% for student in students %}
+                        <a href="{% url 'portal_profile' student.school_id student.pk %}" class="whitespace-normal">
+                            {{ student.name }} - {{ student.school.name }}
+                        </a>
+                    {% endfor %}
+                </ul>
+            </div>
+
             <div class="flex items-center justify-end gap-x-4">
                 <div id="quick-settings" class="px-2">
 

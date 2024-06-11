@@ -71,3 +71,10 @@ def qr_from_text(text):
     factory = qrcode.image.svg.SvgPathImage
     img = qrcode.make(text, image_factory = factory)
     return mark_safe(img.to_string(encoding='unicode'))
+
+
+@register.simple_tag
+def convert_zalo_link(link):
+    link = link.replace('https://','').replace('zalo.me/g/','')
+    new_link = f'https://zaloapp.com/qr/g/{link}?src=qr'
+    return new_link

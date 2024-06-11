@@ -222,6 +222,12 @@ class Student(SecondaryIDMixin, BaseModel):
         else:
             return False
 
+
+class TimeFrame(models.Model):
+    time_frame = models.CharField(max_length=255, default="", blank=True, null=True)
+    def __str__(self):
+        return self.time_frame
+
 class Class(SecondaryIDMixin, BaseModel):
     moved_to_trash = models.BooleanField(default=False)
     school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)
@@ -231,6 +237,9 @@ class Class(SecondaryIDMixin, BaseModel):
     price_per_hour =  models.IntegerField(default=0, null=True, blank=True)
     note = models.TextField(default="", blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
+    # Add time_frame to class by foreign key TimeFrame
+    time_frame = models.ForeignKey(TimeFrame, on_delete=models.SET_NULL, null=True, blank=True)
+    zalo = models.CharField(max_length=255, default="", blank=True, null=True)
 
     def __str__(self):
         return f"{str(self.name)}"
@@ -250,8 +259,13 @@ class StudentClass(models.Model):
 
     def __str__(self):
         return f"{self.student.name} - {self._class.name}"
+    
+
     def class_name(self):
         return self._class.name
+
+    def get_class(self):
+        return self._class
 
 class Attendance(SecondaryIDMixin, BaseModel):
     STATUS_CHOICES = (
@@ -328,7 +342,14 @@ class Attendance(SecondaryIDMixin, BaseModel):
         return "{} - {} - {} - {}".format(str(self.student), str(self.check_class), str(self.check_date), str(self.is_payment_required), str(self.status))
 
 
-
+class TuitionPlan(models.Model):
+    name = models.CharField(max_length=255, default="", blank=True, null=True)
+    amount = models.FloatField(default=0, null=True, blank=True)
+    balance_increase = models.FloatField(default=0, null=True, blank=True)
+    def __str__(self):
+        return self.name + " - " + str(self.amount)
+    def to_amount_selections(self):
+        pass
 
 class FinancialTransaction(SecondaryIDMixin, BaseModel):
     school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)

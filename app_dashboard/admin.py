@@ -1,7 +1,7 @@
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import School, SchoolUser, UserProfile, FilterValues, Student, Class, StudentClass, Attendance, FinancialTransaction
+from .models import School, SchoolUser, UserProfile, FilterValues, Student, Class, StudentClass, Attendance, FinancialTransaction, TimeFrame
 from django.utils.safestring import mark_safe
 from django import forms
 
@@ -44,7 +44,13 @@ class FinancialTransactionAdmin(admin.ModelAdmin):
     list_filter = ('created_at', 'income_or_expense', 'transaction_type')
     search_fields = ('student__name', 'receiver')
 
+
+class TimeFrameAdmin(admin.ModelAdmin):
+    list_display = ('time_frame',)
+    search_fields = ('time_frame',)
+
 admin.site.register(School, SchoolAdmin)
+admin.site.register(TimeFrame, TimeFrameAdmin)
 admin.site.register(SchoolUser, SchoolUserAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(FilterValues, FilterValuesAdmin)

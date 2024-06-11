@@ -1,46 +1,41 @@
 
-{% extends "layouts/base_portal.html" %}
-{% load static %}
+{% load custom_tags %}
 
+    <main class="content pt-5 mb-32 flex flex-col justify-center items-center px-4 mt-16">
+        <p class="text-theme text-2xl font-bold text-center"> Danh sách các nhóm Zalo các lớp học viên đang học </p>
+        <ul class="list-disc list-inside mt-3 text-md text-theme">
+            <li>GEN8 chỉ duyệt người mới vào nhóm sau khi nhân viên đã nhắn tin và xác nhận không phải tài khoản người lạ. </li>
+            <li>Nhóm Zalo chỉ được dùng với mục đích thông báo các vấn đề liên quan đến lớp học và gửi nhận bài tập cho học viên.</li>
+        </ul>
 
-{% block title %} {{ title }} {% endblock %}
-
-
-{% block extra_head %}
-    <script src="https://unpkg.com/@themesberg/flowbite@1.1.1/dist/flowbite.bundle.js"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
-{% endblock %}
-
-
-
-
-
-{% block display %}
-    {% if page == 'select_students' %}
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {% for student in students %}
-                {% include 'components/card.html' with record=student select='students' %}
+        {% if student.get_student_classes %}
+            {% for student_class in student.get_student_classes %}
+                <div class="card text-theme mt-3 flex flex-col justify-center items-center w-full px-3 py-3 gap-4">
+                    <div>
+                        <span class="text-theme text-md w-5/12">{{ student_class.get_class.name }}</span>
+                        <span class="text-theme text-md w-5/12"> - {{ student_class.get_class.time_frame }}</span>
+                    </div>
+                    {% if student_class.get_class.zalo %}
+                        <a class="btn btn-primary mx-10" href="{{ student_class.get_class.zalo }}" target="_blank" rel="noopener noreferrer">Nhấn vào đây để đi đến nhóm Zalo, hoặc quét mã QR bên dưới</a>
+                        <div class="bg-white  gap-4 px-6 py-5 flex justify-center w-fit rounded-lg">
+                            {% qr_from_text student_class.get_class.zalo %}
+                        </div>
+                    {% else %}
+                        <span class="text-theme text-md">Lớp học này chưa được tạo nhóm zalo. Vui lòng liên hệ Anh Ngữ GEN8 để giải quyết</span>
+                    {% endif %}
+                </div>
+            </div>
             {% endfor %}
-        </div>
-    {% elif page == 'profile' %}
-        profile
-    {% endif %}
-{% endblock %}
+        {% else %}
+            <span class="text-theme text-md text-justify whitespace-pre-line mt-4">Hiện {{ student.name }} chưa được đưa vào danh sách bất kỳ lớp học nào, có thể học sinh đang chờ lớp sắp mở, hoặc trung tâm chưa sắp xếp được lớp học đúng trình độ của học sinh.
+            Nếu đây là lỗi hệ thống, quý phụ huynh vui lòng vào phần chat để nhờ nhân viên trung tâm hỗ trợ. GEN8 chân thành cảm ơn quý phụ huynh.</span>
+        {% endif %}
+    </main>
 
 
 
 
-
-
-{% block extra_script %}
-    <script src="{% static 'js/portal.js' %}"></script>
-{% endblock %}
-
-
-
-
-
-
+    
 
 
 

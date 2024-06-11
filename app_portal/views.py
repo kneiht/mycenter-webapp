@@ -12,9 +12,9 @@
 from django.apps import apps
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
-from app_dashboard.models import Student
+from app_dashboard.models import Student, StudentClass
 from django.db.models import Q
-
+from app_dashboard.views import StudentAttendanceCalendarViewSet
 
 
 def filter_students_by_phone_number(phone_number):
@@ -63,7 +63,6 @@ def portal_login(request):
                 if students.exists():
                     return redirect('portal_profile')
 
-    
     return render(request, 'portal/portal_login.html', context)
 
 
@@ -76,32 +75,42 @@ def portal_logout(request):
             request.session['phonenumber'] = None
     return redirect('portal_login')
 
-@phone_number_in_session
+
+
 def portal_app(request):
-    context = {'title': 'GEN8 Portal',
-               'page': 'app'}
-    return render(request, 'portal/portal_app.html')
-
+    context = {'title': 'GEN8 Portal'}
+    return render(request, 'portal/portal_app.html', context)
 
 
 @phone_number_in_session
-def portal_profile(request):
-    context = {'title': 'GEN8 Portal'}
+def portal_profile(request, school_id=None, student_id=None):
     students = filter_students_by_phone_number(request.session['phonenumber'])
-    
-    
-    context['page'] = 'profile'
-    context['student'] = students[0]
-
+    if student_id is None:
+        student = students[0]
+    else:
+        student = get_object_or_404(Student, pk=student_id)
+    context = {'title': 'GEN8', 
+                'page': 'profile', 
+                'students': students,
+                'student': student,}
     return render(request, 'portal/portal_profile.html', context)
 
+
+
 @phone_number_in_session
-def portal_calendar(request):
+def portal_calendar(request, school_id, student_id):
+    request.mode = "view"
+    context = StudentAttendanceCalendarViewSet.student_attendance_calendar_context(request, school_id, student_id)
     return render(request, 'portal/portal_calendar.html', context)
 
 @phone_number_in_session
-def portal_zalo(request):
+def portal_zalo(request, school_id=None, student_id=None):
+    student = get_object_or_404(Student, pk=student_id)
+    context = {'student': student}
     return render(request, 'portal/portal_zalo.html', context)
 
 
+@phone_number_in_session
+def portal_rules_benefits(request):
+    return render(request, 'portal/portal_rules_benefits.html')
 

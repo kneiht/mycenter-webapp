@@ -532,6 +532,16 @@ up.compiler('#calculate-balance', function(element) {
                 map.set('3240000', 3600000);
                 map.set('2916000', 3600000);
                 map.set('5640000', 7200000);
+                map.set('5076000', 7200000);
+
+                map.set('2200000', 2200000);
+                map.set('1980000', 2200000);
+                map.set('3960000', 4400000);
+                map.set('3564000', 4400000);
+                map.set('7080000', 8800000);
+                map.set('6372000', 2200000);
+
+
                 let balance = map.get(amount);
                 element.innerText = Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(balance);
                 let balanceElement = document.getElementById('id_student_balance_increase');

@@ -25,15 +25,20 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/unpoly@3.7.3/unpoly.min.css">
 
-    <link id="style" href="{% static 'css/styles.css' %}?v=16" rel="stylesheet" />
-    <link id="style" href="{% static 'css/extra_styles.css' %}?v=16" rel="stylesheet" />
+    <link id="style" href="{% static 'css/styles.css' %}?v=17" rel="stylesheet" />
+    <link id="style" href="{% static 'css/extra_styles.css' %}?v=17" rel="stylesheet" />
     <!-- JS -->
-    
+
+    <style>
+        /* body {
+            overscroll-behavior: none;
+        } */
+    </style>
     {% block extra_head %}
     {% endblock %}
 </head>
 
-<body class="bg-[#F0F2F5] dark:bg-slate-900 min-h-full" style="font-family: 'Open Sans';">
+<body class="all bg-[#F0F2F5] dark:bg-slate-900 min-h-full" style="font-family: 'Open Sans';">
     
     {% if page != 'login' and page != 'app' %}
         {% include 'portal/components/header.html' %}
@@ -47,7 +52,6 @@
         {% include 'portal/components/nav_bar.html' %}
     {% endif %}
 
-    
 
     <script src="https://cdn.jsdelivr.net/npm/unpoly@3.7.3/unpoly.min.js"></script>
     <script src="{% static 'js/main.js' %}"></script>

@@ -200,17 +200,28 @@ class StudentConvertForm(forms.ModelForm):
 class ClassForm(forms.ModelForm):
     class Meta:
         model = Class
-        fields = ['name', 'price_per_hour', 'image',  'note', 'students']
+        fields = ['name', 'price_per_hour', 'time_frame', 'image',  'zalo', 'note', 'students', ]
         widgets = {
             'name': forms.TextInput(attrs={
                 'placeholder': 'Class name',
                 'required': 'required',
                 'class': 'form-input'
             }),
+            'time_frame': forms.Select(attrs={
+                'placeholder': 'Schedule',
+                'required': 'required',
+                'class': 'form-input'
+            }),
+
             'image': forms.FileInput(attrs={
                 'class': 'form-input-file'
             }),
             'price_per_hour': forms.NumberInput(attrs={
+                'class': 'form-input'
+            }),
+            'zalo': forms.TextInput(attrs={
+                'placeholder': 'Zalo link',
+                'required': 'required',
                 'class': 'form-input'
             }),
             'note': forms.Textarea(attrs={
@@ -430,15 +441,27 @@ class TuitionPaymentOldForm(forms.ModelForm):
             }),
             'amount': forms.Select(
                 choices = [(0, "Chọn gói học phí"),
-                           (1800000, "Quý 1.800.000 VNĐ (gốc)"),
-                           (1620000, "Quý 1.620.000 VNĐ (gốc - 10%)"),
-                           (1440000, "Quý 1.440.000 VNĐ (gốc - 20%)"),
-                           (1350000, "Quý 1.350.000 VNĐ (gốc - 25%)"),
-                           (1300000, "Quý 1.300.000 VNĐ (Hp chính sách cũ)"),
-                           (3240000, "Nửa năm 3.240.000 VNĐ (gốc)"),
-                           (2916000, "Nửa năm 2.916.000 VNĐ (gốc - 10%)"),
-                           (5640000, "Năm 5.640.000 VNĐ (gốc)"),
-                           (5076000, "Năm 5.076.000 VNĐ (gốc - 10%)"),],
+                           (1800000, "Mầm non và tiểu học - Quý 1.800.000 VNĐ (gốc)"),
+                           (1620000, "Mầm non và tiểu học - Quý 1.620.000 VNĐ (gốc - 10%)"),
+                           (1440000, "Mầm non và tiểu học - Quý 1.440.000 VNĐ (gốc - 20%)"),
+                           (1350000, "Mầm non và tiểu học - Quý 1.350.000 VNĐ (gốc - 25%)"),
+                           (1300000, "Mầm non và tiểu học - Quý 1.300.000 VNĐ (Hp chính sách cũ)"),
+                           (3240000, "Mầm non và tiểu học - Nửa năm 3.240.000 VNĐ (gốc)"),
+                           (2916000, "Mầm non và tiểu học - Nửa năm 2.916.000 VNĐ (gốc - 10%)"),
+                           (5640000, "Mầm non và tiểu học - Năm 5.640.000 VNĐ (gốc)"),
+                           (5076000, "Mầm non và tiểu học - Năm 5.076.000 VNĐ (gốc - 10%)"),
+                           
+
+                           (2200000, "Trung học và giao tiếp - Quý 2.200.000 VNĐ (gốc)"),
+                           (1980000, "Trung học và giao tiếp - Quý 1.980.000 VNĐ (gốc - 10%)"),
+                           (3960000, "Trung học và giao tiếp - Nửa năm 3.960.000 VNĐ (gốc)"),
+                           (3564000, "Trung học và giao tiếp - Nửa năm 3.564.000 VNĐ (gốc - 10%)"),
+                           (7080000, "Trung học và giao tiếp - Năm 7.080.000 VNĐ (gốc)"),
+                           (6372000, "Trung học và giao tiếp - Năm 6.372.000 VNĐ (gốc - 10%)"),
+                           ],
+
+
+
                 attrs={
                 'class': 'form-input'
             }),

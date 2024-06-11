@@ -778,7 +778,7 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
 
 
     @staticmethod
-    def student_attendance_calendar(request, school_id, student_id):
+    def student_attendance_calendar_context(request, school_id, student_id):
         student = get_object_or_404(Student, pk=student_id)
         payment_id = request.GET.get('payment_id')
         payments = FinancialTransaction.objects.filter(student=student).order_by('created_at')
@@ -802,7 +802,7 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
                 'school': School.objects.filter(pk=school_id).first(),
                 'student': student,
             }
-            return render(request, 'pages/single_page.html', context)
+            return context
 
 
 
@@ -901,9 +901,6 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
             months[current_day.strftime("%Y-%m")]['days'].append(day_data)
             current_day += timedelta(days=1)
 
-
-
-
         # iterate each month, then add leading empty days to make sure the first element in the list is monday
         for month, data in months.items():
             while data['days'][0]['date'].weekday() != 0:
@@ -931,9 +928,12 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
             'view_only_url': request.build_absolute_uri(f'/schools/{school_id}/students/{student_id}/view/')
         }
 
+        return context
+
+    @staticmethod
+    def student_attendance_calendar(request, school_id, student_id):
+        context = StudentAttendanceCalendarViewSet.student_attendance_calendar_context(request, school_id, student_id)
         return render(request, 'pages/single_page.html', context)
-
-
 
 
 class FinancialTransactionViewSet(BaseViewSet):

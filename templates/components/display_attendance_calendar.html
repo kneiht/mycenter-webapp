@@ -18,16 +18,15 @@
     <div class="pb-5 px-0 lg:px-10">
         <p class="text-lg text-theme font-semibold">Quý Phụ Huynh Lưu ý:</p>
         <ol class="text-md text-theme">
-            <li>1. Quý Phụ Huynh và học viên xem quy định về quyền lợi và trách nhiệm của học viên tại đây.
-                <a href="/quyen-loi-va-trach-nhiem.html" target="_blank" style="color: blue; text-decoration: underline;">Xem quy định</a>
+            <li>1. Quý Phụ Huynh và học viên xem quy định về quyền lợi và trách nhiệm của học viên.
             </li>
             <li>2. Ngày hiển thị trong khung chọn kì học phí không phải là ngày đóng phí, đây là ngày nhân viên tại trung tâm nhập dữ liệu vào hệ thống, ngày này có thể trễ hơn so với ngày đóng học phí.</li>
             <li>3. Ngày đóng học phí là ngày bắt đầu mà lịch điểm danh hiển thị khi chọn kì học phí.</li>
             <li>4. Đối với kì học phí hiện tại, lịch điểm danh có thể chưa chính xác do nhiều lý do như chưa điểm danh, điểm danh sai ngày ... Cuối kì học phí giáo viên sẽ rà roát để nhập lại dữ liệu chính xác.</li>
-            <li>5. Nếu Quý Phụ Huynh có vấn đề cần hỏi về lịch điểm danh, có thể liên hệ trực tiếp với nhân viên tư vấn tại trung tâm, hoặc qua số điện thoại thầy Thiện 0393.593.905</li>
+            <li>5. Nếu có sai sót về điểm danh, Quý Phụ Huynh có thể liên hệ trực tiếp với nhân viên tư vấn tại trung tâm để được giải quyết.</li>
         </ol>
     </div>
-    <div class="md:flex gap-5">
+    <div class="md:flex gap-5 w-full">
         <div class="flex-1">
             <select id="paymentFilter" class="form-input" onchange="window.location.href = '{{ request.path }}?payment_id=' + this.value;">
                 <option value="all">Chọn kì phí (đang hiển thị tất cả)</option>
@@ -43,7 +42,7 @@
             </select>
         </div>
         <div class="flex-1 flex text-center justify-center items-center h-10 max-md:my-2 border border-1 rounded-lg text-white
-            {% if student.balance < 0 %}bg-red-500{% else %}bg-green-600{% endif %}">
+            {% if student.balance <= 0 %}bg-red-500{% else %}bg-green-600{% endif %}">
             Học phí còn lại: {{ student.balance|format_vnd }} {% if student.balance < 0 %}(nợ học phí) {% endif %}
         </div>
     </div>
@@ -71,7 +70,7 @@
                 {% for day in month.days %}
                     <div class="text-center py-2">
                         {% if day.display %}
-                            <div class="flex justify-center items-center gap-3">
+                            <div class="flex justify-center items-center gap-3 text-theme">
                                 <div class="py-2">{{ day.date.day }}</div>
                                 {% if request.mode != 'view' %}
                                     <a href="/schools/{{ school.pk }}/attendances/?get=form&student_id={{ student.pk }}&check_date={{ day.date|date:'Y-m-d' }}" class="btn btn-primary w-12 h-6 opacity-30 rounded-full flex justify-center items-center text-center max-sm:hidden" up-target="#modal" up-history="false">
@@ -79,26 +78,26 @@
                                     </a>
                                 {% endif %} 
                             </div>
-                            <div class="py-2 flex flex-col gap-3 m-2 text-xs md:text-sm">
+                            <div class="py-2 flex flex-col gap-3 text-xs md:text-sm">
                                 {% for attendance in day.attendances %}
                                     {% if request.mode != 'view' %}
                                         <a id="record_{{ attendance.pk }}" class="flex justify-center items-center" href="/schools/{{ school.pk }}/attendances/{{ attendance.pk }}?get=form" up-target="#modal" up-history="false">
                                             <!-- Example: You might want to customize this based on your attendance model -->
                                             {% if attendance.status == 'not_checked' and attendance.note %}
-                                                <span class="py-1 px-2 rounded-xl bg-yellow-500">
+                                                <span class="py-1 px-1 rounded-xl bg-yellow-500">
                                                 {{ attendance.check_class }} - {{ attendance.note }}
                                                 </span>
                                             {% else %}
                                                 {% if attendance.status == 'present' %}
-                                                    <span class="py-1 px-2 rounded-xl present">
+                                                    <span class="py-1 px-1 rounded-xl present">
                                                 {% elif attendance.status == 'absent' %}
-                                                    <span class="py-1 px-2 rounded-xl absent">
+                                                    <span class="py-1 px-1 rounded-xl absent">
                                                 {% elif attendance.status == 'late' %}
-                                                    <span class="py-1 px-2 rounded-xl late">
+                                                    <span class="py-1 px-1 rounded-xl late">
                                                 {% elif attendance.status == 'left_early' %}
-                                                    <span class="py-1 px-2 rounded-xl left-early">
+                                                    <span class="py-1 px-1 rounded-xl left-early">
                                                 {% elif attendance.status == 'just_added' %}
-                                                    <span class="py-1 px-2 rounded-xl just_added">
+                                                    <span class="py-1 px-1 rounded-xl just_added">
                                                 {% endif %}
                                                 {{ attendance.check_class }} 
                                                 {% if attendance.is_payment_required %} - Paid {% endif %} - {{ attendance.learning_hours }}h - {{ attendance.price_per_hour|multiply:attendance.learning_hours|format_vnd }}
@@ -112,20 +111,20 @@
                                         <div class="flex justify-center items-center">
                                             <!-- Example: You might want to customize this based on your attendance model -->
                                             {% if attendance.status == 'not_checked' and attendance.note %}
-                                                <span class="py-1 px-2 rounded-xl bg-yellow-500">
+                                                <span class="py-1 px-1 rounded-xl bg-yellow-500">
                                                 {{ attendance.check_class }} - {{ attendance.note }}
                                                 </span>
                                             {% else %}
                                                 {% if attendance.status == 'present' %}
-                                                    <span class="py-1 px-2 rounded-xl present">
+                                                    <span class="py-1 px-1 rounded-xl present">
                                                 {% elif attendance.status == 'absent' %}
-                                                    <span class="py-1 px-2 rounded-xl absent">
+                                                    <span class="py-1 px-1 rounded-xl absent">
                                                 {% elif attendance.status == 'late' %}
-                                                    <span class="py-1 px-2 rounded-xl late">
+                                                    <span class="py-1 px-1 rounded-xl late">
                                                 {% elif attendance.status == 'left_early' %}
-                                                    <span class="py-1 px-2 rounded-xl left-early">
+                                                    <span class="py-1 px-1 rounded-xl left-early">
                                                 {% elif attendance.status == 'just_added' %}
-                                                    <span class="py-1 px-2 rounded-xl just_added">
+                                                    <span class="py-1 px-1 rounded-xl just_added">
                                                 {% endif %}
                                                 {{ attendance.check_class }} -
                                                 {{ attendance.learning_hours }}h
