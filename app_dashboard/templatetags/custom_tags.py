@@ -11,7 +11,13 @@ def format_vnd(amount):
     if amount is None:
         return 'errorNontype'
     # Convert the number to a string and reverse it
-    amount_str = str(int(amount))[::-1]
+    try:
+        amount_str = str(int(amount))[::-1]
+    except Exception as e:
+        return e
+
+
+
     
     # Insert a dot every 3 digits
     formatted_str = '.'.join(amount_str[i:i+3] for i in range(0, len(amount_str), 3))

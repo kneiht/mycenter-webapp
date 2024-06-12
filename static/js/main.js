@@ -620,3 +620,26 @@ document.getElementById('showQRcode').addEventListener('click', function() {
 document.getElementById('hideQRcode').addEventListener('click', function() {
     document.getElementById('qrcode_modal').classList.add('hidden');
 });
+
+
+
+up.compiler('form button[type="submit"]', function(button) {
+    if (button.id !== 'search-button') {
+        button.addEventListener('click', preventDoubleClick);
+        button.addEventListener('click', function(event) {
+            event.target.form.requestSubmit();
+        });
+    }
+
+});
+
+function preventDoubleClick(event) {
+    console.log('hello');
+    event.target.disabled = true;
+    console.log(event.target);
+    setTimeout(() => {
+        event.target.disabled = false;
+    }, 5000); // Disable button for 5 seconds
+
+}
+

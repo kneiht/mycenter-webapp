@@ -107,6 +107,7 @@ class School(BaseModel):
     description = models.TextField(blank=True, null=True, default='')
     image = models.ImageField(upload_to='images/schools/', blank=True, null=True, default='images/default/default_school.webp')
     users = models.ManyToManyField(User, through='SchoolUser')
+    zalo = models.CharField(max_length=255, default="No zalo", blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     def __str__(self):
         return self.name
@@ -229,6 +230,14 @@ class TimeFrame(models.Model):
         return self.time_frame
 
 class Class(SecondaryIDMixin, BaseModel):
+    STATUS_CHOICES = (
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+        ('pending', 'Pending'),
+        ('archived', 'Archived'),
+    )
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="active")
     moved_to_trash = models.BooleanField(default=False)
     school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=255, default="New class")
@@ -239,7 +248,7 @@ class Class(SecondaryIDMixin, BaseModel):
     created_at = models.DateTimeField(default=timezone.now)
     # Add time_frame to class by foreign key TimeFrame
     time_frame = models.ForeignKey(TimeFrame, on_delete=models.SET_NULL, null=True, blank=True)
-    zalo = models.CharField(max_length=255, default="", blank=True, null=True)
+    zalo = models.CharField(max_length=255, default="No zalo", blank=True, null=True)
 
     def __str__(self):
         return f"{str(self.name)}"

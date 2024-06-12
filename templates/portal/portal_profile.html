@@ -53,7 +53,7 @@
                     <span class="text-theme text-md w-5/12">{{ student.mother }}</span>
                     <span class="text-theme text-md w-5/12">{{ student.mother_phone }}</span>
                 {% else %}
-                    <span class="text-theme text-md">Chưa nhập thông tin, quý phụ huynh vui lòng liên hệ GEN8 để cung cấp thông tin</span>
+                    <span class="text-theme text-md">Chưa nhập thông tin, quý phụ huynh vui lòng liên hệ Zalo GEN8 để cung cấp thông tin</span>
                 {% endif %}
             </span>
 
@@ -63,7 +63,7 @@
                     <span class="text-theme text-md w-5/12">{{ student.father }}</span>
                     <span class="text-theme text-md w-5/12">{{ student.father_phone }}</span>
                 {% else %}
-                    <span class="text-theme text-md">Chưa nhập thông tin, quý phụ huynh vui lòng liên hệ GEN8 để cung cấp thông tin</span>
+                    <span class="text-theme text-md">Chưa nhập thông tin, quý phụ huynh vui lòng liên hệ Zalo GEN8 để cung cấp thông tin</span>
                 {% endif %}
             </span>
         </div>
@@ -72,19 +72,21 @@
             <h2 class="text-lg font-semibold space text-center">Các lớp học</h2>
             {% if student.get_student_classes %}
                 {% for student_class in student.get_student_classes %}
-                    <div>
-                        <div class="flex justify-start items-center gap-3">
-                            <span class="bg-blue-500 w-2 h-2 rounded-full me-3"></span>
-                            <span class="text-theme text-md me-5">{{ student_class.get_class.name }}</span>
-                            <span class="text-theme text-md">{% if student_class.is_payment_required %} Có thu phí {% else %} Miễn phí {% endif %}</span>
+                    {% if student_class.get_class.status != 'inactive' and student_class.get_class.status != 'archived' %}
+                        <div>
+                            <div class="flex justify-start items-center gap-3">
+                                <span class="bg-blue-500 w-2 h-2 rounded-full me-3"></span>
+                                <span class="text-theme text-md me-5">{{ student_class.get_class.name }}</span>
+                                <span class="text-theme text-md">{% if student_class.is_payment_required %} Có thu phí {% else %} Miễn phí {% endif %}</span>
+                            </div>
+                            <span class="text-theme text-md">Lịch học: {{ student_class.get_class.time_frame }}</span>
                         </div>
-                        <span class="text-theme text-md">Lịch học: {{ student_class.get_class.time_frame }}</span>
-                    </div>
+                    {% endif %}
                 {% endfor %}
             {% else %}
                 <span class="text-theme text-md text-justify whitespace-pre-line">Hiện {{ student.name }} chưa được đưa vào danh sách bất kỳ lớp học nào, có thể học sinh đang chờ lớp sắp mở, hoặc trung tâm chưa sắp xếp được lớp học đúng trình độ của học sinh.
                     
-                Nếu đây là lỗi hệ thống, quý phụ huynh vui lòng vào phần chat để nhờ nhân viên trung tâm hỗ trợ. GEN8 chân thành cảm ơn quý phụ huynh.</span>
+                Nếu đây là lỗi hệ thống, quý phụ huynh vui lòng vào chức năng Zalo để nhờ nhân viên trung tâm hỗ trợ. GEN8 chân thành cảm ơn quý phụ huynh.</span>
             {% endif %}
         </div>
     </main>

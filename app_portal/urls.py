@@ -6,7 +6,7 @@ from django.urls import path
 
 urlpatterns = [
     path('portal/', views.portal_app, name='portal'),
-    path('portal/profile/', views.portal_profile, name='portal_profile'),
+    path('portal/profile/', views.portal_profile, name='portal_profile_default'),
     path('portal/profile/<int:school_id>/<int:student_id>/', views.portal_profile, name='portal_profile'),
     
     

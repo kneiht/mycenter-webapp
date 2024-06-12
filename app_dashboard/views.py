@@ -801,6 +801,8 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
                 'title': 'Attendance - ' + student.name,
                 'school': School.objects.filter(pk=school_id).first(),
                 'student': student,
+                'payments': payments,
+                'selected_payment_id': payment_id,
             }
             return context
 
@@ -839,8 +841,22 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
                 elif cumulative_balance > balance_up_to_payment:
                     break
                 
-
             attendances = Attendance.objects.filter(id__in=filtered_attendance_ids)
+            if len(attendances)==0:
+                context = {
+                    'select': 'attendance',
+                    'page': 'attendance',
+                    'title': 'Attendance - ' + student.name,
+                    'school': School.objects.filter(pk=school_id).first(),
+                    'student': student,
+                    'payments': payments,
+                    'selected_payment_id': payment_id,
+
+                }
+                return context
+
+
+
             earliest_attendance_date = attendances.earliest('check_date').check_date
             latest_attendance_date = attendances.filter(student=student).latest('check_date').check_date
 

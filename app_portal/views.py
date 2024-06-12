@@ -51,7 +51,7 @@ def portal_login(request):
         if students:
             # Log in the user
             request.session['phonenumber'] = phone_number
-            return redirect('portal_profile')
+            return redirect('portal_profile_default')
         else:
             context['account_message'] = "Số điện thoại này chưa được đăng ký ghi danh tại anh ngữ GEN8. Vui lòng nhập đúng số điện thoại hoặc liên hệ ngữ GEN8 để được hỗ trợ."
     else:
@@ -61,7 +61,7 @@ def portal_login(request):
             if request.session['phonenumber']:
                 students = filter_students_by_phone_number(request.session['phonenumber'])
                 if students.exists():
-                    return redirect('portal_profile')
+                    return redirect('portal_profile_default')
 
     return render(request, 'portal/portal_login.html', context)
 
@@ -86,7 +86,13 @@ def portal_app(request):
 def portal_profile(request, school_id=None, student_id=None):
     students = filter_students_by_phone_number(request.session['phonenumber'])
     if student_id is None:
-        student = students[0]
+        student = students.filter(status='enrolled').first()
+        if student is None:
+            student = students.filter(status='potential').first()
+            if student is None:
+                student = students[0]
+        print('\n\n\n>>>>>', student)
+        
     else:
         student = get_object_or_404(Student, pk=student_id)
     context = {'title': 'GEN8', 
@@ -101,6 +107,12 @@ def portal_profile(request, school_id=None, student_id=None):
 def portal_calendar(request, school_id, student_id):
     request.mode = "view"
     context = StudentAttendanceCalendarViewSet.student_attendance_calendar_context(request, school_id, student_id)
+    
+    students = filter_students_by_phone_number(request.session['phonenumber'])
+    context['title'] = 'GEN8'
+    context['page'] = 'Calendar'
+    context['students'] = students
+    
     return render(request, 'portal/portal_calendar.html', context)
 
 @phone_number_in_session

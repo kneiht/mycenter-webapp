@@ -71,7 +71,7 @@
         <div class="pt-3"></div>
     {% endif %}
     
-    <div class="flex justify-between items-start px-2">
+    <div class="flex justify-between items-start px-2 relative">
         <div class="w-11/12">
             <h3 class="text-md font-semibold text-theme text-center pl-1 truncate">
                 {% if select == 'schools' or select == 'classroom' %}
@@ -142,13 +142,14 @@
         </div>
     {% endif %}
 
-    <div class="flex flex-col text-cyan-600 dark:text-cyan-500 text-sm px-4 pb-3">
+    <div class="flex flex-col text-cyan-600 dark:text-cyan-500 text-sm px-4 pb-3 ">
         {% if select == 'schools' %}
             <!-- Keep <p> for paragraphs of text -->
             <div class="note whitespace-pre-line"> {{ record.description }} </div>
 
         {% elif select == 'classes' %}
             <!-- Use div for flex container, span for inline text elements -->
+            <span class="{{ record.status }} text-white p-1 rounded-md absolute shadow-2xl top-5 right-5 px-2">{{ record.get_status_display }}</span>
             <div class="flex">
                 <div class="flex-1 mr-2 h-10 truncate flex items-center">
                     <i class="fas fa-users w-6"></i>
@@ -161,9 +162,12 @@
                     <span>{{ record.get_charge_student_number }}</span>
                 </div>
             </div>
-
+            <div class="flex-1 mr-2 h-10 truncate flex items-center">
+                <i class="fas fa-clock w-6"></i>
+                <span>{{ record.time_frame }}</span>
+            </div>
             <!-- Keep <p> for paragraphs of text -->
-            <div class="note whitespace-pre-line"> {{ record.note }} </div>
+            <div class="mt-2 note whitespace-pre-line"> {{ record.note }} </div>
 
         {% elif select == 'students' or select == 'CRM' %}
             <!-- Use div for flex container, span for inline text elements -->

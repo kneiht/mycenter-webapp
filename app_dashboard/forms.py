@@ -12,7 +12,7 @@ from .models import (School, Student, Class,
 class SchoolForm(forms.ModelForm):
     class Meta:
         model = School
-        fields = ['name', 'description', 'image']
+        fields = ['name', 'description', 'image', 'zalo']
         help_texts = {
             'abbreviation': 'This is used as a prefix to student ID',
         }
@@ -30,6 +30,12 @@ class SchoolForm(forms.ModelForm):
                     'rows': 2}),
             'image': forms.FileInput(attrs={
                     'class': 'form-input-file',}),
+
+            'zalo': forms.TextInput(attrs={
+                    'placeholder': 'Zalo link',
+                    'required': 'required',
+                    'class': 'form-input'}),
+
         }
 
 
@@ -200,13 +206,17 @@ class StudentConvertForm(forms.ModelForm):
 class ClassForm(forms.ModelForm):
     class Meta:
         model = Class
-        fields = ['name', 'price_per_hour', 'time_frame', 'image',  'zalo', 'note', 'students', ]
+        fields = ['name', 'status', 'price_per_hour', 'time_frame', 'image',  'zalo', 'note', 'students', ]
         widgets = {
             'name': forms.TextInput(attrs={
                 'placeholder': 'Class name',
                 'required': 'required',
                 'class': 'form-input'
             }),
+            'status': forms.Select(attrs={
+                'class': 'form-input'
+            }),
+
             'time_frame': forms.Select(attrs={
                 'placeholder': 'Schedule',
                 'required': 'required',

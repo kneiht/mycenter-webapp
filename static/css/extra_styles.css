@@ -190,3 +190,24 @@
 .expense {
   background-image: linear-gradient(310deg, #ea0606 0%, #ff667c 100%);
 }
+
+
+
+
+
+/* STATUS STYLES */
+.active {
+  background-image: linear-gradient(310deg, #17ad37 0%, #98ec2d 100%);
+}
+
+.pending {
+  background-image: linear-gradient(310deg, #a68819 0%, #fbcf33 100%);
+}
+
+.inactive {
+  background-image: linear-gradient(310deg, #ea0606 0%, #ff667c 100%);
+}
+
+.archived {
+  background-image: linear-gradient(310deg, #000000 0%, #808080 100%);
+}

@@ -12,8 +12,11 @@
                 <!-- Dropdown Menu -->
                 <ul id="menu-students" class="dropdown-menu mr-4 hidden fixed">
                     {% for student in students %}
-                        <a href="{% url 'portal_profile' student.school_id student.pk %}" class="whitespace-normal">
+                        <a href="{% url 'portal_profile' student.school_id student.pk %}" class="flex flex-col whitespace-normal">
                             {{ student.name }} - {{ student.school.name }}
+                            {% if student.status == 'discontinued' %}
+                                <span class="{{ student.status }} text-white p-1 rounded-md"> {{ student.get_status_display }}</span>
+                            {% endif %}
                         </a>
                     {% endfor %}
                 </ul>
