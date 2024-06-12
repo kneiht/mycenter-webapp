@@ -537,24 +537,3 @@ up.compiler('#id_image_portrait', function(image) {
     });
 });
 
-
-up.compiler('form button[type="submit"]', function(button) {
-    if (button.id !== 'search-button') {
-        button.addEventListener('click', preventDoubleClick);
-        button.addEventListener('click', function(event) {
-            event.target.form.requestSubmit();
-        });
-    }
-
-});
-
-function preventDoubleClick(event) {
-    console.log('hello');
-    event.target.disabled = true;
-    console.log(event.target);
-    setTimeout(() => {
-        event.target.disabled = false;
-    }, 100000); // Disable button for 100 seconds
-
-}
-
