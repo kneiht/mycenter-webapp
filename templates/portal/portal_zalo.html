@@ -26,7 +26,7 @@
             {% for student_class in student.get_student_classes %}
                 {% if student_class.get_class.status != 'inactive' and student_class.get_class.status != 'archived' %}
                     <div class="card text-theme mt-3 flex flex-col justify-center items-center w-full px-3 py-3 gap-4">
-                        <div class="text-center"></div>
+                        <div class="text-center">
                             <span class="text-theme text-md w-5/12">Zalo nhóm lớp {{ student_class.get_class.name }}</span>
                             <span class="text-theme text-md w-5/12"> - {{ student_class.get_class.time_frame }}</span>
                         </div>
