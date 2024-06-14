@@ -510,6 +510,7 @@ up.compiler('.card', function(card) {
 });
 
 
+
 up.compiler('#id_image', function(image) {
     image.addEventListener('change', function(event) {
         const uploadedFile = event.target.files[0];
@@ -537,3 +538,60 @@ up.compiler('#id_image_portrait', function(image) {
     });
 });
 
+
+
+up.compiler('#id_image1', function(image) {
+    image.addEventListener('change', function(event) {
+        const uploadedFile = event.target.files[0];
+        if (uploadedFile) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageUrl = e.target.result;
+                document.querySelector('.modal-image1 img').src = imageUrl;
+            };
+            reader.readAsDataURL(uploadedFile);
+        }
+    });
+});
+
+up.compiler('#id_image2', function(image) {
+    image.addEventListener('change', function(event) {
+        const uploadedFile = event.target.files[0];
+        if (uploadedFile) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageUrl = e.target.result;
+                document.querySelector('.modal-image2 img').src = imageUrl;
+            };
+            reader.readAsDataURL(uploadedFile);
+        }
+    });
+});
+
+up.compiler('#id_image3', function(image) {
+    image.addEventListener('change', function(event) {
+        const uploadedFile = event.target.files[0];
+        if (uploadedFile) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageUrl = e.target.result;
+                document.querySelector('.modal-image3 img').src = imageUrl;
+            };
+            reader.readAsDataURL(uploadedFile);
+        }
+    });
+});
+
+up.compiler('#id_image4', function(image) {
+    image.addEventListener('change', function(event) {
+        const uploadedFile = event.target.files[0];
+        if (uploadedFile) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageUrl = e.target.result;
+                document.querySelector('.modal-image4 img').src = imageUrl;
+            };
+            reader.readAsDataURL(uploadedFile);
+        }
+    });
+});

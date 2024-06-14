@@ -2,7 +2,7 @@
 from django import template
 from django.urls import reverse
 
-
+from app_dashboard.models import Thumbnail
 
 register = template.Library()
 
@@ -84,3 +84,16 @@ def convert_zalo_link(link):
     link = link.replace('https://','').replace('zalo.me/g/','')
     new_link = f'https://zaloapp.com/qr/g/{link}?src=qr'
     return new_link
+
+@register.simple_tag
+def get_thumbnail(image_url):
+    if Thumbnail.objects.filter(reference_url=image_url).exists():
+        try:
+            thumbnail_url = Thumbnail.objects.filter(reference_url=image_url).first().thumbnail.url
+        except Exception as e:
+            thumbnail_url = str(e)
+       
+    else:
+        thumbnail_url = 'no_thumbnail_found'
+     
+    return thumbnail_url

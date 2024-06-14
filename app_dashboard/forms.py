@@ -336,7 +336,10 @@ class AttendanceForm(forms.ModelForm):
 class FinancialTransactionForm(forms.ModelForm):
     class Meta:
         model = FinancialTransaction
-        fields = ['income_or_expense', 'transaction_type', 'giver', 'receiver', 'amount', 'student', 'bonus', 'student_balance_increase', 'created_at','note']
+        fields = ['income_or_expense', 'transaction_type', 
+                  'giver', 'receiver', 'amount', 'student', 
+                  'bonus', 'student_balance_increase', 'created_at','note',
+                  'image1', 'image2', 'image3', 'image4']
         widgets = {
             'income_or_expense': forms.Select(attrs={
                 'class': 'form-input'
@@ -374,7 +377,16 @@ class FinancialTransactionForm(forms.ModelForm):
                 'class': 'form-input',
             }),
 
-
+            'image1': forms.FileInput(attrs={
+                    'class': 'form-input-file',}),
+            'image2': forms.FileInput(attrs={
+                    'class': 'form-input-file',}),
+            'image3': forms.FileInput(attrs={
+                    'class': 'form-input-file',}),
+            'image4': forms.FileInput(attrs={
+                    'class': 'form-input-file',}),
+            'image5 ': forms.FileInput(attrs={
+                    'class': 'form-input-file',}),
         }
 
 class TuitionPaymentForm(forms.ModelForm):

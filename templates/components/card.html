@@ -320,6 +320,38 @@
                 <i class="fas fa-comment w-5"></i>
                 <span>{{ record.note }}</span>
             </div>
+
+            <div class="grid grid-cols-4 pt-2 gap-2 items-center justify-center">
+                {% if record.image1 and 'default' not in record.image1.url%}
+                    <div class="modal-image-container">
+                        <a target="_blank" href="{{ record.image1.url }}">
+                            <img src="{% get_thumbnail record.image1.url %}" alt="transaction image" class="mx-auto rounded-xl border border-slate-300 dark:border-slate-600">
+                        </a>
+                    </div>
+                {% endif %}
+                {% if record.image2 and 'default' not in record.image2.url%}
+                    <div class="modal-image-container">
+                        <a target="_blank" href="{{ record.image2.url }}">
+                            <img src="{% get_thumbnail record.image2.url %}" alt="transaction image" class="mx-auto rounded-xl border border-slate-300 dark:border-slate-600">
+                        </a>
+                    </div>
+                {% endif %}
+                {% if record.image3 and 'default' not in record.image3.url%}
+                <div class="modal-image-container">
+                    <a target="_blank" href="{{ record.image3.url }}">
+                        <img src="{% get_thumbnail record.image3.url %}" alt="transaction image" class="mx-auto rounded-xl border border-slate-300 dark:border-slate-600">
+                    </a>
+                </div>
+                {% endif %}
+                {% if record.image4 and 'default' not in record.image4.url%}
+                <div class="modal-image-container">
+                    <a target="_blank" href="{{ record.image4.url }}">
+                        <img src="{% get_thumbnail record.image4.url %}" alt="transaction image" class="mx-auto rounded-xl border border-slate-300 dark:border-slate-600">
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
         {% endif %}
     </div>
     

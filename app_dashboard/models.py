@@ -23,27 +23,28 @@ from django.db.models import Max
 from django.db import transaction
 from django.db.models import Q, Count, Sum, F, FloatField  # 'Sum' is imported here
 
+
+
 class BaseModel(models.Model):
     last_saved = models.DateTimeField(default=timezone.now, blank=True, null=True)
     class Meta:
         abstract = True  # Specify this model as Abstract
 
-    def compress_image(self, image_field):
+    def compress_image(self, image_field, max_width):
         try:
             # Open the uploaded image using PIL
             image_temp = Image.open(image_field)
         except FileNotFoundError:
             return  # Return from the method if the file is not found
 
-        if 'zwebp' in image_field.name:
+        if '_compressed' in image_field.name:
             return image_field
 
         # Resize the image if it is wider than 600px
-        MAX_WIDTH = 500
-        if image_temp.width > MAX_WIDTH:
+        if image_temp.width > max_width:
             # Calculate the height with the same aspect ratio
-            height = int((image_temp.height / image_temp.width) * MAX_WIDTH)
-            image_temp = image_temp.resize((MAX_WIDTH, height), Image.Resampling.LANCZOS)
+            height = int((image_temp.height / image_temp.width) * max_width)
+            image_temp = image_temp.resize((max_width, height), Image.Resampling.LANCZOS)
 
         # Define the output stream for the compressed image
         output_io_stream = io.BytesIO()
@@ -53,12 +54,37 @@ class BaseModel(models.Model):
         output_io_stream.seek(0)
 
         # Create a Django InMemoryUploadedFile from the compressed image
-        file_name = "%s.zwebp" % image_field.name.split('.')[0]
-        #print(file_name)
+        file_name = "%s_compressed.webp" % image_field.name.split('.')[0]
+        print('\n\n\n>>>>>' , file_name)
         output_imagefield = InMemoryUploadedFile(output_io_stream, 'ImageField', 
                                                  file_name, 
                                                  'image/webp', output_io_stream.getbuffer().nbytes, None)
         
+        return output_imagefield
+
+    def create_thumbnail(self, image_field):
+        max_width = 60
+        try:
+            # Open the uploaded image using PIL
+            image_temp = Image.open(image_field)
+        except FileNotFoundError:
+            return  # Return from the method if the file is not found
+
+        height = int((image_temp.height / image_temp.width) * max_width)
+        image_temp = image_temp.resize((max_width, height), Image.Resampling.LANCZOS)
+        output_io_stream = io.BytesIO()
+
+        # Save the image to the output stream with desired quality
+        image_temp.save(output_io_stream, format='WEBP', quality=40)
+        output_io_stream.seek(0)
+
+        # Create a Django InMemoryUploadedFile from the compressed image
+        file_name = "%s.thumbnail" % image_field.name.split('.')[0]
+        print('>>>>>' , file_name)
+        output_imagefield = InMemoryUploadedFile(output_io_stream, 'ImageField', 
+                                                 file_name, 
+                                                 'image/webp', output_io_stream.getbuffer().nbytes, None)
+
         return output_imagefield
 
 
@@ -69,8 +95,18 @@ class BaseModel(models.Model):
             if isinstance(value, ImageFieldFile):
                 if value:  # If there's an image to compress
                     #print('\n\ncompressed')
-                    compressed_image = self.compress_image(value)
+                    compressed_image = self.compress_image(value, 500)
                     setattr(self, field.name, compressed_image)
+
+                    if not Thumbnail.objects.filter(reference_url=value.url).exists():
+                        thumbnail_image = self.create_thumbnail(value)
+                        thumbnail = Thumbnail.objects.create(
+                            reference_url=value.url,
+                            thumbnail=None
+                        )
+                        setattr(thumbnail, 'thumbnail', thumbnail_image)
+                        thumbnail.save()
+
             elif isinstance(value, str):
                 # Remove leading and trailing whitespaces
                 value = value.strip()
@@ -80,7 +116,21 @@ class BaseModel(models.Model):
 
         # Save the current instance
         self.last_saved = timezone.now()
+        
         super().save(*args, **kwargs)
+
+        for field in self._meta.fields:
+            value = getattr(self, field.name)
+            if isinstance(value, ImageFieldFile):
+                if value:  # If there's an image to create thumbnail
+                    if not Thumbnail.objects.filter(reference_url=value.url).exists():
+                        thumbnail_image = self.create_thumbnail(value)
+                        thumbnail = Thumbnail.objects.create(
+                            reference_url=value.url,
+                            thumbnail=None
+                        )
+                        setattr(thumbnail, 'thumbnail', thumbnail_image)
+                        thumbnail.save()
 
 
 
@@ -98,6 +148,9 @@ class SecondaryIDMixin(models.Model):
                 self.secondary_id = highest_id + 1
         super().save(*args, **kwargs)
 
+class Thumbnail(models.Model):
+    reference_url = models.CharField(max_length=255, blank=True, null=True)
+    thumbnail  = models.ImageField(upload_to='images/thumbnails/', blank=True, null=True)
 
 
 
@@ -425,11 +478,16 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
     note = models.TextField(default="", blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
 
+    image1 = models.ImageField(upload_to='images/transactions/', blank=True, null=True, default='images/default/default_transaction.webp')
+    image2 = models.ImageField(upload_to='images/transactions/', blank=True, null=True, default='images/default/default_transaction.webp')
+    image3 = models.ImageField(upload_to='images/transactions/', blank=True, null=True, default='images/default/default_transaction.webp')
+    image4 = models.ImageField(upload_to='images/transactions/', blank=True, null=True, default='images/default/default_transaction.webp')
+    image5 = models.ImageField(upload_to='images/transactions/', blank=True, null=True, default='images/default/default_transaction.webp')
+
     def __str__(self):
         return self.get_transaction_type_display()
 
-    
-    
+
     def save(self, *args, **kwargs):
         # The balance is calculated based on the transaction type
         if self.transaction_type=='income_tuition_fee' and self.student and self.amount: 

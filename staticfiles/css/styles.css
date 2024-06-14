@@ -1968,6 +1968,10 @@ select {
   width: 100%;
 }
 
+.w-1\/4 {
+  width: 25%;
+}
+
 .max-w-36 {
   max-width: 9rem;
 }
