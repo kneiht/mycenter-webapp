@@ -78,7 +78,7 @@
     <div id="db-tool-bar">
         <div class="mt-2 mb-8">
             <!-- Separate 2 sections of controls -->
-            <div  class="flex justify-between gap-4">
+            <div  class="flex flex-wrap justify-between gap-4">
                 <!-- Left controls for filtering and sorting -->
                 <form id='left-controls' class="flex justify-start gap-4 h-10 w-[800px]"   
                             action="{{ request.path|slice:'?' }}"
@@ -133,6 +133,25 @@
 
                 <!-- Right controls for view toggle and information display -->
                 <div id='right-controls' class="flex items-center justify-end gap-4">
+                    <a href="{{ request.path|slice:'?' }}?all=" up-target="#display_cards, #infor-bar:maybe" type="button" class="btn btn-outline">
+                        All
+                    </a>
+                    {% if select == 'students' %}
+                        <a href="{{ request.path|slice:'?' }}?status=discontinued" up-target="#display_cards, #infor-bar:maybe" type="button" class="btn btn-outline">
+                            Discontinued
+                        </a>
+                    {% elif select == 'classes' or select == 'CRM' %}
+                        <a href="{{ request.path|slice:'?' }}?status=archived" up-target="#display_cards, #infor-bar:maybe" type="button" class="btn btn-outline">
+                            Archived
+                        </a>
+                    {% endif %}
+                    <a href="{{ request.path|slice:'?' }}" up-target="#display_cards, #infor-bar:maybe" type="button" class="btn btn-outline me-5">
+                        Others (default)
+                    </a>
+
+
+
+
                     <!-- Button to toggle view settings -->
                     <button id='toggle-note' type="button" class="btn btn-outline h-full w-11">
                         <i class="fas fa-sticky-note" style="font-size: 20px;"></i>

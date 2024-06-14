@@ -142,6 +142,7 @@ class Student(SecondaryIDMixin, BaseModel):
     GENDER_CHOICES = (("male", "Male"), ("female", "Female"), ("other", "Other"))
     STUDENT_STATUS = (
         ('enrolled', 'Enrolled'),                 # Student is currently enrolled
+        ('free_tuition', 'Free Tuition'),                 # Student is currently enrolled
         ('on_hold', 'On Hold'),                   # Student is on hold
         ('discontinued', 'Discontinued'),         # Student has discontinued
     )
@@ -150,6 +151,7 @@ class Student(SecondaryIDMixin, BaseModel):
         ('not_contacted_customer', 'Not Contacted'), # Customer not contacted yet
         ('not_potential_customer', 'Not Potential'), # Not a potential customer
         ('just_added', 'Just Added'), # Not a potential customer
+        ('archived', 'Archived'),
     )
     # combine 2  status
     STATUS_CHOICES = list(STUDENT_STATUS) + list(CRM_STATUS)

@@ -194,9 +194,12 @@ class BaseViewSet(LoginRequiredMixin, View):
         # filter for Students and CRM
         if self.page=='students':
             # filter status "enrolled, on_hold, discontinued"
-            records = records.filter(status__in=['enrolled', 'on_hold', 'discontinued'])
+            records = records.filter(is_converted_to_student=True)
         elif self.page=='CRM':
-            records = records.filter(status__in=['potential_customer', 'not_contacted_customer', 'not_potential_customer', 'just_added'])
+            records = records.filter(is_converted_to_student=False)
+
+
+
 
 
         # Determine the fields to be used as filter options based on the selected page
@@ -205,41 +208,47 @@ class BaseViewSet(LoginRequiredMixin, View):
         elif self.page == 'students' or self.page == 'CRM':
             fields = ['all', 'name','status', 'gender', 'mother_phone', 'father_phone', 'mother', 'father', 'note']
         elif self.page == 'classes':
-            fields = ['all', 'name']
+            fields = ['all', 'name', 'status', 'note']
         elif self.page == 'financial_transactions':
-            fields = ['all', 'amount']
+            fields = ['all', 'amount', 'note', 'income_or_expense', 'transaction_type', 'receiver']
         else:
             fields = ['all']
 
         # Get all query parameters except 'sort' as they are assumed to be field filters
         query_params = {k: v for k, v in request.GET.lists() if k != 'sort'}
-        # Construct Q objects for filtering
-        combined_query = Q()
-        if 'all' in query_params:
-            specified_fields = fields[1:]  # Exclude 'all' to get the specified fields
-            all_fields_query = Q()
-            for value in query_params['all']:
-                for specified_field in specified_fields:
-                    if specified_field in [field.name for field in self.model_class._meta.get_fields()]:
-                        all_fields_query |= Q(**{f"{specified_field}__icontains": value})
-            combined_query &= all_fields_query
+        print(query_params)
+        
+        if not query_params:
+            # Filter Discontinued and Archived
+            if hasattr(self.model_class, 'status'):
+                records = records.exclude(status__in=['discontinued', 'archived'])
+                
         else:
-            for field, values in query_params.items():
-                if field in fields:
-                    try:
-                        self.model_class._meta.get_field(field)
-                        field_query = Q()
-                        for value in values:
-                            field_query |= Q(**{f"{field}__icontains": value})
-                        combined_query &= field_query
-                    except FieldDoesNotExist:
-                        print(f"Ignoring invalid field: {field}")
+            # Construct Q objects for filtering
+            combined_query = Q()
+            if 'all' in query_params:
+                specified_fields = fields[1:]  # Exclude 'all' to get the specified fields
+                all_fields_query = Q()
+                for value in query_params['all']:
+                    for specified_field in specified_fields:
+                        if specified_field in [field.name for field in self.model_class._meta.get_fields()]:
+                            all_fields_query |= Q(**{f"{specified_field}__icontains": value})
+                combined_query &= all_fields_query
+            else:
+                for field, values in query_params.items():
+                    if field in fields:
+                        try:
+                            self.model_class._meta.get_field(field)
+                            field_query = Q()
+                            for value in values:
+                                field_query |= Q(**{f"{field}__icontains": value})
+                            combined_query &= field_query
+                        except FieldDoesNotExist:
+                            print(f"Ignoring invalid field: {field}")
 
-        # Filter records based on the query
-        records = records.filter(combined_query)
+            # Filter records based on the query
+            records = records.filter(combined_query)
 
-        # Filter records based on the query
-        records = records.filter(combined_query)
 
         # Sort the results if the sort field exists in the model
         # Get the and sort option from the request
