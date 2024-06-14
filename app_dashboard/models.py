@@ -260,7 +260,7 @@ class Student(SecondaryIDMixin, BaseModel):
         self.father_phone = str(self.father_phone).replace(".", "")
 
         if self.is_converted_to_student:
-            if self.status not in ['enrolled', 'on_hold', 'discontinued']:
+            if self.status not in ['enrolled', 'on_hold', 'discontinued', 'free_tuition']:
                 self.status = "enrolled"
 
         if not self.student_id and self.is_converted_to_student and hasattr(self, 'school'):
