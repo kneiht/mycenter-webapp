@@ -823,7 +823,6 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
             earliest_attendance_date = all_attendances.earliest('check_date').check_date
             latest_attendance_date = all_attendances.latest('check_date').check_date
 
-
         elif payment_id and (payment_id !="unpaid"):
             selected_payment = get_object_or_404(FinancialTransaction, pk=payment_id)
             # Calculate the balance before the selected payment

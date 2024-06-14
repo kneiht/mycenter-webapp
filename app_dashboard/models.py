@@ -21,7 +21,7 @@ from django.contrib.auth.models import User
 
 from django.db.models import Max
 from django.db import transaction
-
+from django.db.models import Q, Count, Sum, F, FloatField  # 'Sum' is imported here
 
 class BaseModel(models.Model):
     last_saved = models.DateTimeField(default=timezone.now, blank=True, null=True)
@@ -181,6 +181,20 @@ class Student(SecondaryIDMixin, BaseModel):
     def __str__(self):
         return str(self.name)
     
+
+    def calculate_student_balance(self):
+        # Summarize all student_balance_increase from FinancialTransaction
+        total_increase = FinancialTransaction.objects.filter(student=self).aggregate(Sum('student_balance_increase'))['student_balance_increase__sum'] or 0
+        # Calculate total attendance cost
+        total_attendance_cost = Attendance.objects.filter(student=self, is_payment_required=True).annotate(
+            total_cost=Sum(F('learning_hours') * F('price_per_hour'), output_field=FloatField())
+        ).aggregate(Sum('total_cost'))['total_cost__sum'] or 0
+        # Calculate final balance
+        self.balance = total_increase - total_attendance_cost
+        self.save()
+        print('\n\n>>>>>>', self.balance)
+
+
     def save(self, *args, **kwargs):
         if self.mother_phone is None:
             self.mother_phone = ""
@@ -191,9 +205,6 @@ class Student(SecondaryIDMixin, BaseModel):
             self.father_phone = ""
         self.father_phone = str(self.father_phone).replace(" ", "")
         self.father_phone = str(self.father_phone).replace(".", "")
-
-
-
 
         if self.is_converted_to_student:
             if self.status not in ['enrolled', 'on_hold', 'discontinued']:
@@ -338,6 +349,7 @@ class Attendance(SecondaryIDMixin, BaseModel):
                 self.student.balance = self.student.balance + old_price_per_hour * old_learning_hours - self.price_per_hour * self.learning_hours
             self.student.save()
         super(Attendance, self).save(*args, **kwargs)
+        self.student.calculate_student_balance()
 
 
     def delete(self, *args, **kwargs):
@@ -345,6 +357,7 @@ class Attendance(SecondaryIDMixin, BaseModel):
             self.student.balance = self.student.balance + self.price_per_hour * self.learning_hours
             self.student.save()
         super().delete(*args, **kwargs)  # Perform the actual database deletion
+        self.student.calculate_student_balance()
 
         # Custom logic after deletion (optional)
         # ...
@@ -445,10 +458,10 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
                     old_student_balance_increase = 0   
                 self.student.balance = float(self.student.balance) - float(old_student_balance_increase) + float(self.student_balance_increase)
             
-            print(self.student)
-            print(self.student.balance)
             self.student.save()
         super().save(*args, **kwargs)
+        if self.transaction_type=='income_tuition_fee' and self.student:
+            self.student.calculate_student_balance()
 
 
 
