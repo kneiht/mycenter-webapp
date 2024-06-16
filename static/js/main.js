@@ -119,73 +119,74 @@ up.compiler('.modal', function(element) {
 
 
 
-// CARD DROPDOWN MENU =========================================
-// this code must be placed before the dropdown menu code
-up.compiler('.card', function(element) {
-    const card = element;
-    const menuButton = element.querySelector('.menu-button');
-    if (menuButton) {
-        menuButton.addEventListener('click', function() {
-            var menuCardContext = document.getElementById('menu-card-context');
-            if (menuCardContext) {
-                let recordId = card.getAttribute('record-id');
+// // CARD DROPDOWN MENU =========================================
+// // this code must be placed before the dropdown menu code
+// up.compiler('.card', function(element) {
+//     const card = element;
+//     const menuButton = element.querySelector('.menu-button');
+//     if (menuButton) {
+//         menuButton.addEventListener('click', function() {
+//             var menuCardContext = document.getElementById('menu-card-context');
+//             if (menuCardContext) {
+//                 let recordId = card.getAttribute('record-id');
 
-                // Update the URL for the edit link
-                let recordEdit = document.getElementById('record-edit');
-                if (recordEdit) {
-                    let href = window.location.pathname
-                    href = href + '/' + recordId + '/?get=form';
-                    href = href.replace('//', '/');
-                    recordEdit.setAttribute('href', href);
-                }
-                
-                // Update the URL for the tuition payment link
-                let payTuition = document.getElementById('pay_tuition');
-                if (payTuition) {
-                    let href = window.location.pathname
-                    href = href + '/' + recordId + '/pay-tuition/?get=form';
-                    href = href.replace('//', '/');
-                    payTuition.setAttribute('href', href);
-                }
+//                 // Update the URL for the edit link
+//                 let recordEdit = document.getElementById('record-edit');
+//                 if (recordEdit) {
+//                     let href = window.location.pathname
+//                     href = href + '/' + recordId + '/?get=form';
+//                     href = href.replace('//', '/');
+//                     recordEdit.setAttribute('href', href);
+//                 }
+
+//                 // Update the URL for the tuition payment link
+//                 let payTuition = document.getElementById('pay_tuition');
+//                 if (payTuition) {
+//                     let href = window.location.pathname
+//                     href = href + '/' + recordId + '/pay-tuition/?get=form';
+//                     href = href.replace('//', '/');
+//                     payTuition.setAttribute('href', href);
+//                 }
 
 
-                // Update the URL for the tuition payment link
-                let payTuitionOld = document.getElementById('pay_tuition_old');
-                if (payTuitionOld) {
-                    let href = window.location.pathname
-                    href = href + '/' + recordId + '/pay-tuition-old/?get=form';
-                    href = href.replace('//', '/');
-                    payTuitionOld.setAttribute('href', href);
-                }
+//                 // Update the URL for the tuition payment link
+//                 let payTuitionOld = document.getElementById('pay_tuition_old');
+//                 if (payTuitionOld) {
+//                     let href = window.location.pathname
+//                     href = href + '/' + recordId + '/pay-tuition-old/?get=form';
+//                     href = href.replace('//', '/');
+//                     payTuitionOld.setAttribute('href', href);
+//                 }
 
-                // Update the URL for the tuition payment link
-                let payTuitionSpecial = document.getElementById('pay_tuition_special');
-                if (payTuitionSpecial) {
-                    let href = window.location.pathname
-                    href = href + '/' + recordId + '/pay-tuition-special/?get=form';
-                    href = href.replace('//', '/');
-                    payTuitionSpecial.setAttribute('href', href);
-                }
+//                 // Update the URL for the tuition payment link
+//                 let payTuitionSpecial = document.getElementById('pay_tuition_special');
+//                 if (payTuitionSpecial) {
+//                     let href = window.location.pathname
+//                     href = href + '/' + recordId + '/pay-tuition-special/?get=form';
+//                     href = href.replace('//', '/');
+//                     payTuitionSpecial.setAttribute('href', href);
+//                 }
 
-                // Update the URL for attendance link
-                let attendanceCalendar = document.getElementById('attendance-calendar');
-                if (attendanceCalendar) {
-                    href = window.location.pathname;
-                    href = href + '/' + recordId + '/attendance-calendar/'
-                    href = href.replace('//', '/');
-                    attendanceCalendar.setAttribute('href', href);
-                }
-            }
-            if (menuCardContext && !card.contains(menuCardContext)) {
-                // Move #menu-card-context to be after the clicked element
-                // Check if menuCardContext exists before trying to move it
-                    menuButton.insertAdjacentElement('afterend', menuCardContext);
-                    menuCardContext.classList.add('hidden');
-            }
+//                 // Update the URL for attendance link
+//                 let attendanceCalendar = document.getElementById('attendance-calendar');
+//                 if (attendanceCalendar) {
+//                     href = window.location.pathname;
+//                     console.log(href);
+//                     href = href + '/' + recordId + '/attendance-calendar/'
+//                     href = href.replace('//', '/');
+//                     attendanceCalendar.setAttribute('href', href);
+//                 }
+//             }
+//             if (menuCardContext && !card.contains(menuCardContext)) {
+//                 // Move #menu-card-context to be after the clicked element
+//                 // Check if menuCardContext exists before trying to move it
+//                     menuButton.insertAdjacentElement('afterend', menuCardContext);
+//                     menuCardContext.classList.add('hidden');
+//             }
 
-        });
-    }
-});
+//         });
+//     }
+// });
 
 // DROPDOWN MENUS =========================================
 up.compiler('.menu', function(element) {
@@ -207,7 +208,17 @@ up.compiler('.menu', function(element) {
     // Attach click event listeners to menu buttons
     element.querySelector('.menu-button').addEventListener('click', function() {
             showHideMenu(element, 'toggle')
+            // Hide all other menus when click to a menu
+            document.querySelectorAll('.menu').forEach(menu => {
+                if (menu !== element) {
+                    showHideMenu(menu, 'hide')
+                }
+            })
     });
+
+    
+
+    
 
     // Hide menus when clicking outside of them
     document.addEventListener('click', function(event) {
@@ -215,6 +226,8 @@ up.compiler('.menu', function(element) {
             showHideMenu(element, 'hide')
         }
     })
+
+
 
 });
 

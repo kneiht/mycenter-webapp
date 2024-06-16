@@ -56,7 +56,7 @@
         </div>
         <div class="image-portrait hidden">
             <div class="card-image-container">
-                {% if record.image %}
+                {% if record.image_portrait %}
                     <img src="{{ record.image_portrait.url }}" alt="{{ record.name }}" class="rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
                 {% else %}
                     <img src="/media/images/default/default_profile.webp" alt="Default Classroom Image" class="rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50"/>
@@ -83,19 +83,31 @@
                 {{ record }}
             </h3>
         </div>
-        <div class="menu relative text-sm">
+        <div class="menu relative text-sm opacity-100">
 
             <div class="menu-button flex flex-col justify-between items-center cursor-pointer gap-y-0.5 py-1.5 w-6 rounded-xl hover:bg-gray-200 hover:dark:bg-gray-700" onclick="event.stopPropagation();">
                 <div class="w-1 h-1 bg-theme-900 dark:bg-theme-100 rounded-full"></div>
                 <div class="w-1 h-1 bg-theme-900 dark:bg-theme-100 rounded-full"></div>
                 <div class="w-1 h-1 bg-theme-900 dark:bg-theme-100 rounded-full"></div>
             </div>
-            {% if is_first %}
+
                 <!-- Dropdown Context Menu For Record-->
-                <ul  id="menu-card-context" class="dropdown-menu absolute right-0 hidden ">
+                <ul  id="menu-card-context" class="dropdown-menu absolute right-0 hidden">
                     <!-- Add record id by js -->
-                    <a id="record-edit" class="" 
-                        href="" 
+                    <a id="record-edit" class=""
+                        {% if select == 'schools' %}
+                            href="/schools/{{record.pk}}/?get=form" 
+                        {% elif select == 'classes' %}
+                            href="/schools/{{school.pk}}/classes/{{record.pk}}/?get=form"
+                        {% elif select == 'students' %}
+                            href="/schools/{{school.pk}}/students/{{record.pk}}/?get=form"
+                        {% elif select == 'CRM' %}
+                            href="/schools/{{school.pk}}/crm/{{record.pk}}/?get=form"
+                        {% elif select == 'financial_transactions' %}
+                            href="/schools/{{school.pk}}/financialtransactions/{{record.pk}}/?get=form"
+                        {% elif select == 'classroom' %}
+                            href="/schools/{{school.pk}}/students/{{record.pk}}/?get=form"
+                        {% endif %} 
                         up-target="#modal" up-history="false">
                         <i class="fa fa-school ml-3 mr-5"></i> 
                         Edit information
@@ -103,22 +115,23 @@
 
                     {% if select == 'students'%}
                         <a id="pay_tuition_old" class="menu-item menu-item-border"
-                            href="" 
+                            href="/schools/{{school.pk}}/students/{{record.pk}}/pay-tuition-old/?get=form"
                             up-target="#modal" up-history="false">
                             <i class="fa fa-money ml-3 mr-5"></i> 
                             Pay tuition (Cách tính cũ)
                         </a>
 
                         <a id="pay_tuition" class="menu-item menu-item-border"
-                            href="" 
+                            href="/schools/{{school.pk}}/students/{{record.pk}}/pay-tuition/?get=form"
                             up-target="#modal" up-history="false">
                             <i class="fa fa-money ml-3 mr-5"></i> 
                             Pay tuition (Cách tính mới)
                         </a>
                     {% endif %}
-                    {% if select == 'students' or select == 'CRM' %}
+                    {% if select == 'students' or select == 'CRM' or select == 'classroom' %}
                         <a id="attendance-calendar" class="menu-item menu-item-border"
-                            href="" target="_blank"
+                            href="/schools/{{school.pk}}/students/{{record.pk}}/attendance-calendar/"
+                            target="_blank"
                             up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
                             <i class="fa fa-calendar ml-3 mr-5"></i> 
                             Attendance calendar
@@ -132,7 +145,6 @@
                         </a>
                     {% endif %}
                 </ul>
-            {% endif %}
         </div>
 
     </div>
