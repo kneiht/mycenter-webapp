@@ -14,7 +14,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models.fields.files import ImageFieldFile
 from datetime import datetime, date
 import json
-
+from datetime import datetime, timedelta
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -348,6 +348,7 @@ class Attendance(SecondaryIDMixin, BaseModel):
         ('late', 'Late'),
         ('left_early', 'Left Early'),
         ('absent', 'Absent'),
+        ('not_checked', 'Not Checked'),
     )
     school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True)

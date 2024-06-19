@@ -21,7 +21,7 @@
 <div up-hungry id="record_{{ record.pk }}" record-id="{{ record.pk }}" class="relative card card-record {{ record.style }}">
     
     {% if select == 'schools' %}
-        <a href="{% url 'dashboard' record.pk %}">
+        <a href="{% url 'classes' record.pk %}">
             <div class="card-image-container">
                 {% if record.image %}
                     <img src="{{ record.image.url }}" alt="{{ record.name }}" class="rounded-2xl border-b border-slate-300 dark:border-slate-900 border-opacity-50" />

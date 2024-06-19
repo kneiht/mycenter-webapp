@@ -1,0 +1,129 @@
+<p class="text-3xl font-semibold text-theme py-5 text-center"> CÁC VẤN ĐỀ HỌC VIÊN CẦN XỬ LÝ </p>
+<div class="flex gap-3 justify-center py-5">
+    <button target_id="display_cards_1" class="dashboard-tab btn btn-primary text-lg font-semibold text-theme py-3 "> Vắng từ 2 ngày trong tháng không lý do</button>
+    <button target_id="display_cards_2"  class="dashboard-tab btn btn-outline text-lg font-semibold text-theme py-3"> Học sinh không có lớp tính phí </button>
+    <button target_id="display_cards_3"  class="dashboard-tab btn btn-outline text-lg font-semibold text-theme py-3"> Học sinh có hơn 2 lớp tính phí </button>
+
+    <button target_id="display_cards_4"  class="dashboard-tab btn btn-outline text-lg font-semibold text-theme py-3"> Học sinh điểm danh sai ngày </button>
+    <button target_id="display_cards_5"  class="dashboard-tab btn btn-outline text-lg font-semibold text-theme py-3"> Học sinh bị thiếu điểm danh </button>
+</div>
+
+<div id="display_cards_1">
+    {% if absent_students|length != 0 %}
+        <div class="w-full flex flex-col justify-center items-center">
+            <p class="text-lg font-semibold text-theme text-center"> Số học sinh vắng hơn 2 buổi trong vòng 30 ngày gần nhất: {{ absent_students|length }} </p>
+            <p class="text-lg font-semibold text-theme text-center"> Lưu ý: hệ thống chỉ tính học sinh có status "Enrolled" hoặc "Potential" </p>
+            <p class="text-lg font-semibold text-center text-blue-600"> Hướng dẫn thao tác: Gọi điện chăm sóc học sinh nếu cần thiết sau đó thêm ghi chú vào buổi nghỉ học trong lịch điểm danh của học sinh </p>
+        </div>
+        <div class="display_cards opacity-0 w-full flex justify-center gap-6 grid py-5">
+            {% for record in absent_students %}
+                {% if record.is_converted_to_student %}
+                    {% include 'components/card.html' with select="students" %}
+                {% else %}
+                    {% include 'components/card.html' with select="CRM" %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="w-full flex justify-center">
+            <p class="text-lg font-semibold text-theme"> Không phát hiện trường hợp nào </p>
+        </div>
+    {% endif %}
+</div>
+
+<div id="display_cards_2" class="hidden">
+    {% if uncharged_students|length != 0 %}
+        <div class="w-full flex flex-col justify-center">
+            <p class="text-lg font-semibold text-center text-theme"> Số học sinh hiện không có lớp tính phí: {{ uncharged_students|length }} </p>
+            <p class="text-lg font-semibold text-theme text-center"> Lưu ý: hệ thống chỉ tính học sinh có status "Enrolled" hoặc "Potential" </p>
+            <p class="text-lg font-semibold text-center text-blue-600"> Hướng dẫn thao tác: Chọn lớp chính cho học sinh và tick vào "paid class" </p>
+        </div>
+        <div class="display_cards opacity-0 w-full flex justify-center gap-6 grid py-5">
+            {% for record in uncharged_students %}
+                {% if record.is_converted_to_student %}
+                    {% include 'components/card.html' with select="students" %}
+                {% else %}
+                    {% include 'components/card.html' with select="CRM" %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="w-full flex justify-center">
+            <p class="text-lg font-semibold text-theme"> Không phát hiện trường hợp nào </p>
+        </div>
+    {% endif %}
+</div>
+
+
+
+<div id="display_cards_3" class="hidden">
+    {% if more_than_one_charged_class_students|length != 0 %}
+        <div class="w-full flex flex-col justify-center">
+            <p class="text-lg font-semibold text-center text-theme"> Số học sinh có nhiều hơn 2 lớp tính phí: {{ more_than_one_charged_class_students|length }} </p>
+            <p class="text-lg font-semibold text-center text-blue-600"> Hướng dẫn thao tác: Chỉ chọn 1 lớp tính phí </p>
+        </div>
+        <div class="display_cards opacity-0 w-full flex justify-center gap-6 grid py-5">
+            {% for record in more_than_one_charged_class_students %}
+                {% if record.is_converted_to_student %}
+                    {% include 'components/card.html' with select="students" %}
+                {% else %}
+                    {% include 'components/card.html' with select="CRM" %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="w-full flex justify-center">
+            <p class="text-lg font-semibold text-theme"> Không phát hiện trường hợp nào </p>
+        </div>
+    {% endif %}
+</div>
+
+
+
+<div id="display_cards_4" class="hidden">
+    {% if wrong_attendance_students|length != 0 %}
+        <div class="w-full flex flex-col  text-center justify-center">
+            <p class="text-lg font-semibold text-theme"> Số học sinh điểm danh sai trong 30 ngày gần nhất: {{ wrong_attendance_students|length }} </p>
+            <p class="text-lg font-semibold text-center text-blue-600"> Hướng dẫn thao tác: thường thì sẽ sai điểm danh cả lớp. Giáo viên Xem lại ngày điểm danh, nếu điểm danh sai ngày, vào lớp học chọn ngày điểm danh sai, xóa toàn bộ điểm danh (màu xám), vào ngày điểm danh đúng, điểm danh lại. Nếu điểm danh sai ngày cho đổi ngày học, hoặc học bù, cần thêm note vào khi điểm danh" </p>
+        </div>
+        <div class="display_cards opacity-0 w-full flex justify-center gap-6 grid py-5">
+            {% for record in wrong_attendance_students %}
+                {% if record.is_converted_to_student %}
+                    {% include 'components/card.html' with select="students" %}
+                {% else %}
+                    {% include 'components/card.html' with select="CRM" %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="w-full flex justify-center">
+            <p class="text-lg font-semibold text-theme"> Không phát hiện trường hợp nào </p>
+        </div>
+    {% endif %}
+</div>
+
+
+<div id="display_cards_5" class="hidden">
+    {% if missing_attendance_students|length != 0 %}
+        <div class="w-full flex flex-col justify-center">
+            <p class="text-lg text-center font-semibold text-theme"> Số học sinh thiếu điểm danh trong 30 ngày gần nhất: {{ missing_attendance_students|length }} </p>
+
+            <p class="text-lg font-semibold text-theme text-center"> Lưu ý: hệ thống chỉ tính học sinh có status "Enrolled" hoặc "Potential" </p>
+            <p class="text-lg font-semibold text-center text-blue-600"> Hướng dẫn thao tác: Kiểm tra lại xem tại sao thiếu điểm danh. Nếu quên điểm danh, giáo viên cần điểm danh lại đúng ngày học. Nếu đó là ngày nghỉ lễ, hoặc nghỉ vì lí do khác, cần thêm note vào lịch điểm danh của lơp </p>
+
+        </div>
+        <div class="display_cards opacity-0 w-full flex justify-center gap-6 grid py-5">
+            {% for record in missing_attendance_students %}
+                {% if record.is_converted_to_student %}
+                    {% include 'components/card.html' with select="students" %}
+                {% else %}
+                    {% include 'components/card.html' with select="CRM" %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="w-full flex justify-center">
+            <p class="text-lg font-semibold text-theme"> Không phát hiện trường hợp nào </p>
+        </div>
+    {% endif %}
+</div>

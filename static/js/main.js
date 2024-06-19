@@ -68,13 +68,22 @@ up.compiler('body', function(element) {
 
 
 // RESPONSIVE ELEMENTS ON RESIZE =========================================
-up.compiler('#display_cards', function(element) {
+up.compiler('.display_cards', function(element) {
+    // count the number of cards in display_cards then put in the element with id "count"
+    const displayCards = element;
+    const count = displayCards.children.length;
+    if (document.getElementById("count")) {
+        document.getElementById("count").textContent = "Count: " + count;
+    }
     // Function to adjust the number of grid columns
     function adjustGridColumns() {
-        const container = document.getElementById('display_cards');
+        const container = element;
         if (!container) return;
 
         const containerWidth = container.offsetWidth;
+        if (containerWidth === 0) {
+            return;
+        }
         // Remove all previous grid classes
         container.className = container.className.replace(/grid-cols-\d+/g, '');
 
@@ -89,6 +98,16 @@ up.compiler('#display_cards', function(element) {
         // Display the display_cards container after the grid has been adjusted for the first time  
         container.classList.remove("opacity-0")
         container.classList.add("opacity-100")
+
+        // Get all the .display_cards then apply the grid class of the display_cards which has the highest number of columns to the others
+        const displayCards = document.querySelectorAll('.display_cards');
+        // Apply the highest number of columns to the others
+        displayCards.forEach(displayCard => {
+            displayCard.className = displayCard.className.replace(/grid-cols-\d+/g, '');
+            displayCard.classList.add('grid-cols-' + gridNum);
+            displayCard.classList.remove("opacity-0")
+            displayCard.classList.add("opacity-100")
+        });
     }
     // Call this in your sidebar toggle function
     // toggleSidebarFunction() { ... adjustGridColumns(); ... }
@@ -96,6 +115,7 @@ up.compiler('#display_cards', function(element) {
     // Initial adjustment
     adjustGridColumns();
     window.addEventListener('resize', adjustGridColumns);
+
 });
 
 
@@ -627,11 +647,19 @@ function shootConfetti() {
     setTimeout(shoot, 250);
 }
 
-document.getElementById('showQRcode').addEventListener('click', function() {
-    document.getElementById('qrcode_modal').classList.toggle('hidden');
+
+
+up.compiler('#showQRcode', function(showQRcode) {
+    showQRcode.addEventListener('click', function() {
+        document.getElementById('qrcode_modal').classList.toggle('hidden');
+    });
 });
-document.getElementById('hideQRcode').addEventListener('click', function() {
-    document.getElementById('qrcode_modal').classList.add('hidden');
+
+
+up.compiler('#hideQRcode', function(hideQRcode) {
+    hideQRcode.addEventListener('click', function() {
+        document.getElementById('qrcode_modal').classList.add('hidden');
+    });
 });
 
 
@@ -655,4 +683,32 @@ function preventDoubleClick(event) {
     }, 5000); // Disable button for 5 seconds
 
 }
+
+up.compiler('.dashboard-tab', function(button) {
+    button.addEventListener('click', function() {
+        button.classList.remove('btn-outline');
+        button.classList.add('btn-primary');
+
+        const tabButtons = document.querySelectorAll('.dashboard-tab');
+        tabButtons.forEach(tabButton => {
+            if (tabButton !== button) {
+                tabButton.classList.remove('btn-primary');
+                tabButton.classList.add('btn-outline');
+            }
+        });
+
+
+        const target_id = button.getAttribute('target_id');
+        const elements = document.querySelectorAll('[id^="display_cards_"]');
+        elements.forEach(element => {
+            if (element.id === target_id) {
+                element.classList.remove('hidden');
+            } else {
+                element.classList.add('hidden');
+            }
+        });
+        console.log(target_id);
+    });
+
+});
 

@@ -500,12 +500,15 @@ up.compiler('#image-switch', function(imageSwitch) {
 });
 
 up.compiler('.card', function(card) {
-    if (isProfileImageToggled) {
-        card.querySelector('.image-portrait').classList.remove('hidden');
-        card.querySelector('.image-profile').classList.add('hidden');
-    } else {
-        card.querySelector('.image-portrait').classList.add('hidden');
-        card.querySelector('.image-profile').classList.remove('hidden');
+    if (card.querySelector('.image-portrait') && card.querySelector('.image-profile')) {
+        
+        if (isProfileImageToggled) {
+            card.querySelector('.image-portrait').classList.remove('hidden');
+            card.querySelector('.image-profile').classList.add('hidden');
+        } else {
+            card.querySelector('.image-portrait').classList.add('hidden');
+            card.querySelector('.image-profile').classList.remove('hidden');
+        }
     }
 });
 

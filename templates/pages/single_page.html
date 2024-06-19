@@ -50,12 +50,16 @@
         <main class="flex mt-4 gap-3">
             <!-- Keep the display fit the screen, only content inside can be scrolled -->
             <div class="overflow-y-scroll w-full pr-2 pb-10" style="height: 89vh;">
-                <!-- The title bar -->
-                {% include 'components/title_bar.html' %}
-                <!-- The tool bar for database filter, sort and more -->
-                {% include 'components/db_tool_bar.html' %}
-                <!-- The cards display -->
-                {% include 'components/display_cards.html' %}
+                {% if page == "dashboard" %}
+                    {% include 'components/dashboard.html' %}
+                {% else %}
+                    <!-- The title bar -->
+                    {% include 'components/title_bar.html' %}
+                    <!-- The tool bar for database filter, sort and more -->
+                    {% include 'components/db_tool_bar.html' %}
+                    <!-- The cards display -->
+                    {% include 'components/display_cards.html' %}
+                {% endif %}
             </div>
             <!-- The information panel -->
             <!-- {% include 'components/infor_bar.html' %} -->

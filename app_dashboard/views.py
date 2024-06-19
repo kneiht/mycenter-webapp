@@ -74,12 +74,126 @@ def html_page(request):
     return render(request, file_path)
 
 
+
+
+from datetime import datetime, timedelta
+def get_absent_students(school, number_of_checked_days, number_of_absent_days):
+    today = timezone.now().date()
+    thirty_days_ago = today - timedelta(days=number_of_checked_days)
+
+    absent_students = []
+    for student in Student.objects.filter(school=school):
+        # Only check student with status 'enrolled' or 'potential'
+        if student.status in ['enrolled', 'potential']:
+            attendances = student.attendance_set.filter(
+                check_date__range=[thirty_days_ago, today],
+                status='absent',
+                note__isnull=True,  # Filter for null notes
+            ) | student.attendance_set.filter(
+                check_date__range=[thirty_days_ago, today],
+                status='absent',
+                note__exact='',     # Filter for empty notes
+            )
+
+            absent_days = attendances.values('check_date').distinct().count()
+            if absent_days >= number_of_absent_days:
+                absent_students.append(student)
+    return absent_students
+
+
+def get_students_with_no_charged_class(school):
+    uncharged_students = []
+    for student in Student.objects.filter(school=school):
+        if student.status in ['enrolled', 'potential']:
+            has_no_charged_class = not StudentClass.objects.filter(student=student, is_payment_required=True).exists()
+            if has_no_charged_class:
+                uncharged_students.append(student)
+    return uncharged_students
+
+def get_students_with_more_than_one_charged_class(school):
+    more_than_one_charged_class_students = []
+    for student in Student.objects.filter(school=school):
+        flag = StudentClass.objects.filter(student=student, is_payment_required=True).count() > 1
+        if flag:
+            more_than_one_charged_class_students.append(student)
+    return more_than_one_charged_class_students
+
+
+def get_most_weekdays(attendances):
+    weekdays = [attendance.check_date.weekday() for attendance in attendances]
+    weekdays_counts = [[day, weekdays.count(day)] for day in range(7)]
+    most_weekdays = []
+    for day, count in weekdays_counts:
+        if len(attendances)!=0 and count/len(attendances) > 0.2:
+            most_weekdays.append(day)
+    return most_weekdays
+def get_students_with_wrong_attendances(school):
+    students_with_wrong_attendances = []
+    for _class in Class.objects.filter(school=school):
+        attendances = Attendance.objects.filter(check_class=_class)
+        # get most_weekdays
+        most_weekdays = get_most_weekdays(attendances)
+        # get the attendance in the lasest 30 days
+        last_30_days_attendances = attendances.filter(check_date__gte=timezone.now().date() - timedelta(days=30))
+        for attendance in last_30_days_attendances:
+            if attendance.check_date.weekday() not in most_weekdays:
+                if attendance.note is None or attendance.note == '':
+                    if attendance.student not in students_with_wrong_attendances:
+                        students_with_wrong_attendances.append(attendance.student)
+    return students_with_wrong_attendances
+
+def get_students_missing_attendance(school):
+    students_missing_attendance = []
+    for _class in Class.objects.filter(school=school):
+        attendances = Attendance.objects.filter(check_class=_class)
+        # get most_weekdays
+        most_weekdays = get_most_weekdays(attendances)
+        # get the last 30 days, if the attendance is missing
+        for i in range(30):
+            current_date = timezone.now().date() - timedelta(days=i)
+            for student in _class.students.all():
+                if student not in students_missing_attendance:
+                    if student.status in ['enrolled', 'potential']:
+                        if current_date.weekday() in most_weekdays and not Attendance.objects.filter(check_class=_class, student=student, check_date=current_date).exists():
+                            students_missing_attendance.append(student)
+    return students_missing_attendance
+
+
 @login_required
 def dashboard(request, school_id):
-    #school = School.objects.filter(pk=school_id).first()
-    #context = {'page': 'dashboard', 'title': 'Dashboard', 'school': school}
-    #return render(request, 'pages/single_page.html', context)
-    return redirect('classes', school_id=school_id)
+    school = School.objects.filter(pk=school_id).first()
+
+    number_of_absent_days = 2
+    number_of_checked_days = 30
+    import time
+    s = time.time()
+    absent_students = get_absent_students(school, number_of_checked_days, number_of_absent_days)
+    print('get_absent_students:', time.time() - s)
+    s= time.time()
+    uncharged_students = get_students_with_no_charged_class(school)
+    print('uncharged_students:', time.time() - s)
+    s= time.time()
+    more_than_one_charged_class_students = get_students_with_more_than_one_charged_class(school)
+    print('more_than_one_charged_class_students:', time.time() - s)
+    s= time.time()
+    wrong_attendance_students = get_students_with_wrong_attendances(school)
+    print('wrong_attendance_students:', time.time() - s)
+    s= time.time()
+    missing_attendance_students = get_students_missing_attendance(school)
+    print('missing_attendance_students:', time.time() - s)
+    context = {
+        'absent_students': absent_students,
+        'uncharged_students': uncharged_students,
+        'more_than_one_charged_class_students': more_than_one_charged_class_students,
+        'wrong_attendance_students': wrong_attendance_students,
+        'missing_attendance_students': missing_attendance_students,
+        'page': 'dashboard',
+        'title': 'Dashboard',
+        'school': School.objects.filter(pk=school_id).first() if school_id else None
+    }
+    return render(request, 'pages/single_page.html', context)
+
+
 
 
 

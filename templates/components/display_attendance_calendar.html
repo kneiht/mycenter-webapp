@@ -100,7 +100,7 @@
                                                     <span class="py-1 px-1 rounded-xl just_added">
                                                 {% endif %}
                                                 {{ attendance.check_class }} 
-                                                {% if attendance.is_payment_required %} - Paid {% endif %} - {{ attendance.learning_hours }}h - {{ attendance.price_per_hour|multiply:attendance.learning_hours|format_vnd }}
+                                                {% if attendance.is_payment_required %} - <span class="text-yellow-400 font-extrabold">Paid</span> {% endif %} - {{ attendance.learning_hours }}h - {{ attendance.price_per_hour|multiply:attendance.learning_hours|format_vnd }}
                                                 {% if attendance.note %} <br> {{ attendance.note }} {% endif %}
                                                 </span>
                                             {% endif %}
