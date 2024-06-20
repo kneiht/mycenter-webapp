@@ -794,6 +794,7 @@ class ClassViewSet(BaseViewSet):
                             attendance.status = status
                             attendance.check_date = check_datetime  # Update check_datetime if needed
                             attendance.learning_hours = learning_hours
+                            attendance.is_payment_required=StudentClass.objects.filter(_class=check_class, student=student).first().is_payment_required
                             attendance.note = notes[str(student.pk)] if str(student.pk) in notes.keys() else ''
                             attendance.save()
                         else:
@@ -805,6 +806,7 @@ class ClassViewSet(BaseViewSet):
                                 check_date=check_datetime,  # Use the parsed check_datetime here
                                 learning_hours = learning_hours,
                                 status=status,
+                                is_payment_required=StudentClass.objects.filter(_class=check_class, student=student).first().is_payment_required,
                                 note = notes[str(student.pk)] if str(student.pk) in notes.keys() else ''
                             )
 

@@ -83,10 +83,12 @@
                                     {% if request.mode != 'view' %}
                                         <a id="record_{{ attendance.pk }}" class="flex justify-center items-center" href="/schools/{{ school.pk }}/attendances/{{ attendance.pk }}?get=form" up-target="#modal" up-history="false">
                                             <!-- Example: You might want to customize this based on your attendance model -->
-                                            {% if attendance.status == 'not_checked' and attendance.note %}
-                                                <span class="py-1 px-1 rounded-xl bg-yellow-500">
-                                                {{ attendance.check_class }} - {{ attendance.note }}
-                                                </span>
+                                            {% if attendance.status == 'not_checked' %}
+                                                {% if attendance.note %}
+                                                    <span class="py-1 px-1 rounded-xl bg-yellow-500">
+                                                    {{ attendance.check_class }} - {{ attendance.note }}
+                                                    </span>
+                                                {% endif %}
                                             {% else %}
                                                 {% if attendance.status == 'present' %}
                                                     <span class="py-1 px-1 rounded-xl present">
