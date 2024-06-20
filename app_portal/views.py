@@ -69,9 +69,7 @@ def portal_login(request):
 def portal_logout(request):
     # if user already logged in with the phone number, redirect to home page
     if 'phonenumber' in request.session:
-        print(1)
         if request.session['phonenumber']:
-            print(2)
             request.session['phonenumber'] = None
     return redirect('portal_login')
 

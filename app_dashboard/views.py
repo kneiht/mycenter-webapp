@@ -136,26 +136,42 @@ def get_students_with_wrong_attendances(school):
         # get the attendance in the lasest 30 days
         last_30_days_attendances = attendances.filter(check_date__gte=timezone.now().date() - timedelta(days=30))
         for attendance in last_30_days_attendances:
-            if attendance.check_date.weekday() not in most_weekdays:
-                if attendance.note is None or attendance.note == '':
-                    if attendance.student not in students_with_wrong_attendances:
-                        students_with_wrong_attendances.append(attendance.student)
+            if attendance.status != 'not_checked':
+                if attendance.check_date.weekday() not in most_weekdays:
+                    print(attendance.student, attendance.check_date.weekday(), most_weekdays)
+                    if attendance.note is None or attendance.note == '':
+                        if attendance.student not in students_with_wrong_attendances:
+                            students_with_wrong_attendances.append(attendance.student)
     return students_with_wrong_attendances
 
 def get_students_missing_attendance(school):
     students_missing_attendance = []
     for _class in Class.objects.filter(school=school):
-        attendances = Attendance.objects.filter(check_class=_class)
         # get most_weekdays
+        attendances = Attendance.objects.filter(check_class=_class)
         most_weekdays = get_most_weekdays(attendances)
+
         # get the last 30 days, if the attendance is missing
-        for i in range(30):
-            current_date = timezone.now().date() - timedelta(days=i)
-            for student in _class.students.all():
-                if student not in students_missing_attendance:
-                    if student.status in ['enrolled', 'potential']:
-                        if current_date.weekday() in most_weekdays and not Attendance.objects.filter(check_class=_class, student=student, check_date=current_date).exists():
+        for student in _class.students.all():
+            MAX_NUMBER_OF_DAYS = 30
+            number_of_days = MAX_NUMBER_OF_DAYS
+            if student.status in ['enrolled', 'potential'] and student not in students_missing_attendance:
+                attendance_student_class = Attendance.objects.filter(student=student, check_class=_class)
+                if attendance_student_class.exists():
+                    attendance_student_class_date = attendance_student_class.earliest('check_date').check_date.date()
+                    number_of_days = (timezone.now().date() - attendance_student_class_date).days + 1
+                else:
+                    number_of_days = 0
+                
+                for i in range(MAX_NUMBER_OF_DAYS if number_of_days > MAX_NUMBER_OF_DAYS else number_of_days):
+                    if i == 0: # skip today because the class my not be taken place yet
+                        continue
+                    current_date = timezone.now().date() - timedelta(days=i)
+                    if current_date.weekday() in most_weekdays and not Attendance.objects.filter(check_class=_class, student=student, check_date__date=current_date).exists():
+                        if student not in students_missing_attendance:
                             students_missing_attendance.append(student)
+                            print(student, _class, current_date, current_date.weekday(), most_weekdays)
+
     return students_missing_attendance
 
 
@@ -330,7 +346,7 @@ class BaseViewSet(LoginRequiredMixin, View):
 
         # Get all query parameters except 'sort' as they are assumed to be field filters
         query_params = {k: v for k, v in request.GET.lists() if k != 'sort'}
-        print(query_params)
+        #print(query_params)
         
         if not query_params:
             # Filter Discontinued and Archived
@@ -737,7 +753,7 @@ class ClassViewSet(BaseViewSet):
         # Parsing the JSON data
         class_id = pk
         data = request.POST
-        print(data)
+        #print(data)
         check_date_str = data.get('check_date')  # Assuming 'checkDate' is sent in the format 'YYYY-MM-DD HH:MM'
         learning_hours = data.get('learning_hours')
         notes = data.get('notes')
@@ -1021,16 +1037,16 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
         attendances_by_date = defaultdict(list)
         for attendance in attendances:
             attendances_by_date[attendance.check_date.date()].append(attendance)
-        print(attendances_by_date)
+        #print(attendances_by_date)
 
 
 
         # Initialize data structure for months
         months = defaultdict(lambda: {'days': []})
         current_day = start_day
-        print(start_day, end_day)
+        #print(start_day, end_day)
         while current_day.date() <= end_day.date():
-            print(current_day)
+            #print(current_day)
             day_data = {
                 'date': current_day,
                 'attendances': attendances_by_date.get(current_day.date(), []),

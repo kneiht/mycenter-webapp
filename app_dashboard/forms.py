@@ -115,7 +115,7 @@ class StudentForm(forms.ModelForm):
 
     def get_classes(self):
         student_instance = self.instance
-        print(student_instance)
+        #print(student_instance)
         # Check if the student instance exists
         if not student_instance.pk:
             # The student isn't saved yet; return all classes from the specified school without extra processing
@@ -128,7 +128,7 @@ class StudentForm(forms.ModelForm):
         classes = Class.objects.filter(school_id=self.school_id).annotate(
             in_class=Exists(student_in_class_subquery)
         ).order_by('-in_class', '-pk')
-        print(classes)
+        #print(classes)
         # Convert the QuerySet to a list to avoid duplicate queries on iteration
         classes_list = list(classes)
 
@@ -173,13 +173,13 @@ class StudentNoteForm(forms.ModelForm):
         current_date = datetime.now().strftime("- %d-%m-%Y %H:%M")
         if instance.note:
             instance.note = f'{current_date}: {new_note}\n' +  instance.note # Append the new note to the current note
-            print(instance.note)
+            #print(instance.note)
         else:
             instance.note = f'{current_date}: {new_note}'  # If there's no current note, set the new note
         instance.last_note = ""
         if commit:
             instance.save()
-            print(instance.last_note)
+            #print(instance.last_note)
         return instance
 
 class StudentConvertForm(forms.ModelForm):

@@ -55,7 +55,7 @@ class BaseModel(models.Model):
 
         # Create a Django InMemoryUploadedFile from the compressed image
         file_name = "%s_compressed.webp" % image_field.name.split('.')[0]
-        print('\n\n\n>>>>>' , file_name)
+        #print('\n\n\n>>>>>' , file_name)
         output_imagefield = InMemoryUploadedFile(output_io_stream, 'ImageField', 
                                                  file_name, 
                                                  'image/webp', output_io_stream.getbuffer().nbytes, None)
@@ -80,7 +80,7 @@ class BaseModel(models.Model):
 
         # Create a Django InMemoryUploadedFile from the compressed image
         file_name = "%s.thumbnail" % image_field.name.split('.')[0]
-        print('>>>>>' , file_name)
+        #print('>>>>>' , file_name)
         output_imagefield = InMemoryUploadedFile(output_io_stream, 'ImageField', 
                                                  file_name, 
                                                  'image/webp', output_io_stream.getbuffer().nbytes, None)
@@ -245,7 +245,7 @@ class Student(SecondaryIDMixin, BaseModel):
         # Calculate final balance
         self.balance = total_increase - total_attendance_cost
         self.save()
-        print('\n\n>>>>>>', self.balance)
+        #print('\n\n>>>>>>', self.balance)
 
 
     def save(self, *args, **kwargs):
@@ -501,7 +501,7 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
                     self.bonus = 0
             else:
                 self.student_balance_increase = round(self.amount*self.bonus)
-            print(self.student_balance_increase)
+            #print(self.student_balance_increase)
 
 
             if self._state.adding: # If the transaction is being created

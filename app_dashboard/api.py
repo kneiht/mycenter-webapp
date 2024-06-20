@@ -199,7 +199,7 @@ class StudentDetailView(generics.RetrieveUpdateDestroyAPIView):
         try:
             serializer.is_valid(raise_exception=True)
         except ValidationError as exception:
-            print(exception)
+            #print(exception)
             return JsonResponse({'status': 'error', 'message': str(exception)})
 
         # Current class ids in the class

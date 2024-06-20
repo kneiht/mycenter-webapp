@@ -66,7 +66,7 @@ def reset_primary_key(table_name):
 
 
 def get_table_names():
-    print('\n\n', connection.vendor)
+    #print('\n\n', connection.vendor)
     # Get a list of all table names for the current database
     if connection.vendor == 'mysql':
         # For MySQL
@@ -153,9 +153,10 @@ def database_handle(request):
         if excel_file and excel_file.name.endswith('.xlsx'):
             if table_name_origin=='all':
                 table_list = [
-                    'auth_user',
+                    
                     'school',
                     'schooluser',
+                    'filtervalues',
                     'class',
                     'student',
                     'studentclass',
