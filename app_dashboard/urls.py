@@ -50,8 +50,8 @@ urlpatterns = [
     path('schools/<int:school_id>/attendances/<int:pk>/', AttendanceViewSet.as_view(), name='attendance_detail'),
 
 
-    path('schools/<int:school_id>/financialtransactions/', FinancialTransactionViewSet.as_view(), name='financialtransactions'),
-    path('schools/<int:school_id>/financialtransactions/<int:pk>/', FinancialTransactionViewSet.as_view(), name='financialtransaction_detail'),
+    re_path(r'^schools/(?P<school_id>\d+|[a-z]+)/financialtransactions/?$', FinancialTransactionViewSet.as_view(), name='financialtransactions'),
+    re_path(r'^schools/(?P<school_id>\d+|[a-z]+)/financialtransactions/(?P<pk>\d+)/?$', FinancialTransactionViewSet.as_view(), name='financialtransaction_detail'),
 
 
     

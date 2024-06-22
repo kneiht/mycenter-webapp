@@ -130,7 +130,7 @@ def download_database_backup(request):
         excel_data, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
     # name the db based on time
-    filename = f"mycenter_db_{datetime.datetime.now().strftime('%Y_%m_%d')}.xlsx"
+    filename = f"gen8_db_{datetime.datetime.now().strftime('%Y_%m_%d')}.xlsx"
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
 
@@ -153,13 +153,16 @@ def database_handle(request):
         if excel_file and excel_file.name.endswith('.xlsx'):
             if table_name_origin=='all':
                 table_list = [
-                    
+                    #'auth_user',
+                    'timeframe',
+                    'thumbnail',
                     'school',
                     'schooluser',
                     'filtervalues',
                     'class',
                     'student',
                     'studentclass',
+                    
                     'attendance',
                     'financialtransaction',
                 ]

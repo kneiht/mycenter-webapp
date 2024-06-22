@@ -52,10 +52,16 @@
             {% elif select == 'students' %}
                 <!-- Don't allow add new student, only convert from CRM -->
             {% else %}
-            <a href="?get=form" class="max-sm:hidden btn btn-primary" up-target="#modal" up-history="false">
-                <i class="fas fa-plus me-3" style="font-size: 16px;"></i>
-                <span class="max-sm:hidden me-3"> Add new </span>
-            </a>
+                {% if select == 'financial_transactions' %}
+                    <a href="/schools/all/financialtransactions/" class="max-sm:hidden btn btn-primary" up-target="#display_cards" up-history="false">
+                        <span class="max-sm:hidden me-3"> Xem cả 2 chi nhánh </span>
+                    </a>
+                    
+                {% endif %}
+                <a href="?get=form" class="max-sm:hidden btn btn-primary" up-target="#modal" up-history="false">
+                    <i class="fas fa-plus me-3" style="font-size: 16px;"></i>
+                    <span class="max-sm:hidden me-3"> Add new </span>
+                </a>
             {% endif %}
         {% endif %}
 

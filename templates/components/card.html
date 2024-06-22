@@ -1,4 +1,4 @@
-{% load custom_tags %}
+{% load custom_tags static %}
 
 {% if select == 'attendance' %}
 <a up-hungry id="record_{{ record.pk }}" href="/schools/{{ school.pk }}/attendances/{{ record.pk }}?get=form" up-target="#modal" up-history="false">
@@ -104,7 +104,7 @@
                         {% elif select == 'CRM' %}
                             href="/schools/{{school.pk}}/crm/{{record.pk}}/?get=form"
                         {% elif select == 'financial_transactions' %}
-                            href="/schools/{{school.pk}}/financialtransactions/{{record.pk}}/?get=form"
+                            href="/schools/{{record.school.pk}}/financialtransactions/{{record.pk}}/?get=form"
                         {% elif select == 'classroom' %}
                             href="/schools/{{school.pk}}/students/{{record.pk}}/?get=form"
                         {% endif %} 
@@ -162,6 +162,11 @@
         {% elif select == 'classes' %}
             <!-- Use div for flex container, span for inline text elements -->
             <span class="{{ record.status }} text-white p-1 rounded-md absolute shadow-2xl top-5 right-5 px-2">{{ record.get_status_display }}</span>
+            {% if record.zalo %}
+                <a class="absolute shadow-2xl top-16 right-5 " href="{{ record.zalo }}" target="_blank">
+                    <img src="{% static 'images/icons/zalo.png' %}" alt="zalo" class="w-12 h-12"/>
+                </a>
+            {% endif %}
             <div class="flex">
                 <div class="flex-1 mr-2 h-10 truncate flex items-center">
                     <i class="fas fa-users w-6"></i>

@@ -138,9 +138,9 @@ def get_students_with_wrong_attendances(school):
         for attendance in last_30_days_attendances:
             if attendance.status != 'not_checked':
                 if attendance.check_date.weekday() not in most_weekdays:
-                    print(attendance.student, attendance.check_date.weekday(), most_weekdays)
                     if attendance.note is None or attendance.note == '':
                         if attendance.student not in students_with_wrong_attendances:
+                            print('students_with_wrong_attendances:', attendance.student, attendance.check_class, attendance.check_date, attendance.check_date.weekday(), most_weekdays)
                             students_with_wrong_attendances.append(attendance.student)
     return students_with_wrong_attendances
 
@@ -170,8 +170,7 @@ def get_students_missing_attendance(school):
                     if current_date.weekday() in most_weekdays and not Attendance.objects.filter(check_class=_class, student=student, check_date__date=current_date).exists():
                         if student not in students_missing_attendance:
                             students_missing_attendance.append(student)
-                            print(student, _class, current_date, current_date.weekday(), most_weekdays)
-
+                            print('students_missing_attendance:', student, _class, current_date, current_date.weekday(), most_weekdays)
     return students_missing_attendance
 
 
@@ -299,8 +298,6 @@ class BaseViewSet(LoginRequiredMixin, View):
             html_modal = html_render('form', request, form=form, modal=self.modal, record_id=record_id, school=school)
             return HttpResponse(html_modal)
 
-
-
     def check_school_user(self, request, school_id):
         school = School.objects.filter(pk=school_id).first()
         school_user = SchoolUser.objects.filter(school=school, user=request.user).first()
@@ -311,15 +308,18 @@ class BaseViewSet(LoginRequiredMixin, View):
 
     def create_display(self, request, **kwargs):
         school_id = kwargs.pop('school_id', None)
-
+        is_all = True if school_id == "all" else False
         if self.model_class==School:
             user = request.user
             records = self.model_class.objects.filter(users=user)
         elif self.model_class in [Student, Class, FinancialTransaction, Attendance]:
-            if self.check_school_user(request, school_id):
-                records = self.model_class.objects.filter(school_id=school_id)
+            if is_all:
+                records = self.model_class.objects.all()
             else:
-                return HttpResponseForbidden("Access restricted to users of the school.")
+                if self.check_school_user(request, school_id):
+                    records = self.model_class.objects.filter(school_id=school_id)
+                else:
+                    return HttpResponseForbidden("Access restricted to users of the school.")
 
         # filter for Students and CRM
         if self.page=='students':
@@ -379,7 +379,6 @@ class BaseViewSet(LoginRequiredMixin, View):
             # Filter records based on the query
             records = records.filter(combined_query)
 
-
         # Sort the results if the sort field exists in the model
         # Get the and sort option from the request
         sort_option = request.GET.get('sort', 'default')
@@ -408,7 +407,7 @@ class BaseViewSet(LoginRequiredMixin, View):
             'title': self.title, 
             'records': records,
             'fields':  fields,
-            'school': School.objects.filter(pk=school_id).first() if school_id else None
+            'school': School.objects.filter(pk=school_id).first() if school_id and school_id != "all" else School.objects.filter(pk=1).first()
         }
         return render(request, 'pages/single_page.html', context)
 
@@ -1102,6 +1101,8 @@ class FinancialTransactionViewSet(BaseViewSet):
     @method_decorator(user_passes_test(lambda u: u.is_superuser))
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
+
+
 
 class TuitionPaymentViewSet(BaseViewSet):
     model_class = FinancialTransaction
