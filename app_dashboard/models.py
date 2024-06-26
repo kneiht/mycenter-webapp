@@ -223,7 +223,7 @@ class Student(SecondaryIDMixin, BaseModel):
     father_phone = models.CharField(max_length=50, default="", blank=True, null=True)
 
 
-    status =  models.CharField(max_length=50, choices=STATUS_CHOICES, default="just_added")
+    status =  models.CharField(max_length=50, choices=STATUS_CHOICES, default="potential_customer")
     reward_points = models.IntegerField(default=0, blank=True)
     balance = models.FloatField(default=0, blank=True)
     image = models.ImageField(upload_to='images/profiles/', blank=True, null=True, default='images/default/default_profile.webp')

@@ -84,7 +84,7 @@ def get_absent_students(school, number_of_checked_days, number_of_absent_days):
     absent_students = []
     for student in Student.objects.filter(school=school):
         # Only check student with status 'enrolled' or 'potential'
-        if student.status in ['enrolled', 'potential']:
+        if student.status in ['enrolled', 'potential_customer']:
             attendances = student.attendance_set.filter(
                 check_date__range=[thirty_days_ago, today],
                 status='absent',
@@ -104,7 +104,7 @@ def get_absent_students(school, number_of_checked_days, number_of_absent_days):
 def get_students_with_no_charged_class(school):
     uncharged_students = []
     for student in Student.objects.filter(school=school):
-        if student.status in ['enrolled', 'potential']:
+        if student.status in ['enrolled', 'potential_customer']:
             has_no_charged_class = not StudentClass.objects.filter(student=student, is_payment_required=True).exists()
             if has_no_charged_class:
                 uncharged_students.append(student)
