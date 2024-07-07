@@ -452,6 +452,35 @@ up.compiler('#sort-select', function(element) {
     sortSelect.addEventListener('change', function() {
         // press search button
         document.getElementById('search-button').click();
+
+        // let searchUrl = new URL(window.location.href);
+        // let searchTerm = searchUrl.searchParams.get('search');
+    });
+});
+
+up.compiler('#filter-input', function(element) {
+    const filterInput = element
+    filterInput.addEventListener('change', function() {
+        // press search button
+        let url = new URL(window.location.href);
+        url.search  = ''; //remove all params
+        const alsoSearchIn = document.querySelector('#also-search-in');
+        if (alsoSearchIn) {
+            const searchValue = filterInput.value;
+            alsoSearchIn.href = `?all=${searchValue}`;
+
+            if (url.href.search('crm') !== -1) {
+                alsoSearchIn.textContent = `Click here to search "${searchValue}" in Students `;
+                baseSearchUrl = url.href.replace('crm', 'students');
+                alsoSearchIn.href = `${baseSearchUrl}?all=${searchValue}`;
+            } else {
+                alsoSearchIn.textContent = `Click here to search "${searchValue}" in CRM`;
+                baseSearchUrl = url.href.replace('students', 'crm');
+                alsoSearchIn.href = `${baseSearchUrl}?all=${searchValue}`;
+            }
+            
+        }
+
     });
 });
 

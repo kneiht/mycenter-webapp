@@ -62,33 +62,29 @@ urlpatterns = [
     path('database_handle/', views_db.database_handle, name='database_handle'),
 ]
 
-'''
+# urlpatterns = [
+#     re_path(r'^schools/?$', SchoolViewSet.as_view(), name='schools'),
+#     re_path(r'^schools/(?P<pk>\d+)/?$', SchoolViewSet.as_view(), name='school_detail'),
 
-urlpatterns = [
-    re_path(r'^schools/?$', SchoolViewSet.as_view(), name='schools'),
-    re_path(r'^schools/(?P<pk>\d+)/?$', SchoolViewSet.as_view(), name='school_detail'),
+#     re_path(r'^schools/(?P<school_id>\d+)/dashboard/?$', views.dashboard, name='dashboard'),
 
-    re_path(r'^schools/(?P<school_id>\d+)/dashboard/?$', views.dashboard, name='dashboard'),
+#     re_path(r'^schools/(?P<school_id>\d+)/classes/?$', ClassViewSet.as_view(), name='classes'),
+#     re_path(r'^schools/(?P<school_id>\d+)/classes/(?P<pk>\d+)/?$', ClassViewSet.as_view(), name='classroom'),
 
-    re_path(r'^schools/(?P<school_id>\d+)/classes/?$', ClassViewSet.as_view(), name='classes'),
-    re_path(r'^schools/(?P<school_id>\d+)/classes/(?P<pk>\d+)/?$', ClassViewSet.as_view(), name='classroom'),
+#     re_path(r'^schools/(?P<school_id>\d+)/students/?$', StudentViewSet.as_view(), name='students'),
+#     re_path(r'^schools/(?P<school_id>\d+)/students/(?P<pk>\d+)/?$', StudentViewSet.as_view(), name='student_detail'),
 
-    re_path(r'^schools/(?P<school_id>\d+)/students/?$', StudentViewSet.as_view(), name='students'),
-    re_path(r'^schools/(?P<school_id>\d+)/students/(?P<pk>\d+)/?$', StudentViewSet.as_view(), name='student_detail'),
+#     re_path(r'^schools/(?P<school_id>\d+)/attendances/?$', AttendanceViewSet.as_view(), name='attendances'),
+#     re_path(r'^schools/(?P<school_id>\d+)/attendances/(?P<pk>\d+)/?$', AttendanceViewSet.as_view(), name='attendance_detail'),
 
-    re_path(r'^schools/(?P<school_id>\d+)/attendances/?$', AttendanceViewSet.as_view(), name='attendances'),
-    re_path(r'^schools/(?P<school_id>\d+)/attendances/(?P<pk>\d+)/?$', AttendanceViewSet.as_view(), name='attendance_detail'),
-
-    re_path(r'^schools/(?P<school_id>\d+)/financialtransactions/?$', FinancialTransactionViewSet.as_view(), name='financialtransactions'),
-    re_path(r'^schools/(?P<school_id>\d+)/financialtransactions/(?P<pk>\d+)/?$', FinancialTransactionViewSet.as_view(), name='financialtransaction_detail'),
+#     re_path(r'^schools/(?P<school_id>\d+)/financialtransactions/?$', FinancialTransactionViewSet.as_view(), name='financialtransactions'),
+#     re_path(r'^schools/(?P<school_id>\d+)/financialtransactions/(?P<pk>\d+)/?$', FinancialTransactionViewSet.as_view(), name='financialtransaction_detail'),
 
     
-    #re_path(r'^classroom/(?P<pk>\d+)/?$', views.classroom, name='classroom'),
+#     #re_path(r'^classroom/(?P<pk>\d+)/?$', views.classroom, name='classroom'),
 
-    # DATABASE UPLOAD AND DOWNLOAD
-    re_path(r'^download_database_backup/?$', views_db.download_database_backup, name='download_database_backup'),
-    re_path(r'^database_handle/?$', views_db.database_handle, name='database_handle'),
+#     # DATABASE UPLOAD AND DOWNLOAD
+#     re_path(r'^download_database_backup/?$', views_db.download_database_backup, name='download_database_backup'),
+#     re_path(r'^database_handle/?$', views_db.database_handle, name='database_handle'),
 
-]
-
-'''
+# ]

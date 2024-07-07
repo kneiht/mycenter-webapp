@@ -76,7 +76,7 @@
 {% else %}
     <!-- Toolbar for database interactions -->
     <div id="db-tool-bar">
-        <div class="mt-2 mb-8">
+        <div class="mt-2">
             <!-- Separate 2 sections of controls -->
             <div  class="flex flex-wrap justify-between gap-4">
                 <!-- Left controls for filtering and sorting -->
@@ -180,6 +180,15 @@
                 </div>
             </div>
         </div>
-
+        
+        {% if select == 'students' or select == 'CRM' %}
+            <div>
+                <a id="also-search-in" href="" class="text-theme font-bold text-xl flex items-center justify-center my-3" target="_blank"></a>
+            </div>
+        {% else %}
+            <div class="mb-6"></div>
+        {% endif %}
+         
     </div>
+
 {% endif %}

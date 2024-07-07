@@ -18,11 +18,6 @@ import socket
 
 import json
 
-# Load from a file
-with open("env.json", "r") as f:
-    env = json.load(f)
-
-DOMAIN = env["domain"]
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -41,16 +36,22 @@ SECRET_KEY = 'django-insecure-4!qf!8%y5=6ny_01gbgw_wcfb=6+czumg&ig5*$m-2ok@*s=3*
 
 computer_name = socket.gethostname()
 print(computer_name)
-if computer_name in ["Kay-Macbook", 'DESKTOP-3VQ6KPP']:
+if "MacBook" in computer_name:
     DEBUG = True
     ALLOWED_HOSTS = ['minhthienk.pythonanywhere.com', 
         'www.gen8.edu.vn', 'localhost','gen8.edu.vn','*']
 
 else:
     DEBUG = False
-    ALLOWED_HOSTS = ['minhthienk.pythonanywhere.com', 
+    ALLOWED_HOSTS = ['minhthienk.pythonanywhere.com',
         'www.gen8.edu.vn', 'gen8.edu.vn', 'www.mycenter.edu.vn', 'mycenter.edu.vn']
 
+
+# Load from a file
+with open("env.json", "r") as f:
+    env = json.load(f)
+
+DOMAIN = env["domain"]
 
 
 
@@ -105,7 +106,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 computer_name = socket.gethostname()
-if computer_name not in ["Kay-Macbook", 'DESKTOP-3VQ6KPP']:
+if "MacBook" not in computer_name:
     # use mysql if not local host
     DATABASES = {
         'default': {
@@ -126,7 +127,7 @@ else:
             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
-
+    print('Use SQLite')
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
