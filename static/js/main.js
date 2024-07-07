@@ -483,8 +483,6 @@ up.compiler('#filter-input', function(element) {
 
     });
 });
-
-
 up.compiler('#db-tool-bar', function(element) {
     const toolBar = element
     const searchControl = document.getElementById('search-control')
