@@ -34,24 +34,22 @@ SECRET_KEY = 'django-insecure-4!qf!8%y5=6ny_01gbgw_wcfb=6+czumg&ig5*$m-2ok@*s=3*
 
 
 
-computer_name = socket.gethostname()
-print(computer_name)
-if "MacBook" in computer_name:
-    DEBUG = True
-    ALLOWED_HOSTS = ['minhthienk.pythonanywhere.com', 
-        'www.gen8.edu.vn', 'localhost','gen8.edu.vn','*']
+# Load from a file
+with open("env.json", "r") as f:
+    env = json.load(f)
+DOMAIN = env["domain"]
 
-else:
+
+
+if DOMAIN != "localhost":
     DEBUG = False
     ALLOWED_HOSTS = ['minhthienk.pythonanywhere.com',
         'www.gen8.edu.vn', 'gen8.edu.vn', 'www.mycenter.edu.vn', 'mycenter.edu.vn']
 
-
-# Load from a file
-with open("env.json", "r") as f:
-    env = json.load(f)
-
-DOMAIN = env["domain"]
+else:
+    DEBUG = True
+    ALLOWED_HOSTS = ['minhthienk.pythonanywhere.com', 
+        'www.gen8.edu.vn', 'localhost','gen8.edu.vn','*']
 
 
 
@@ -106,7 +104,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 computer_name = socket.gethostname()
-if "MacBook" not in computer_name:
+if DOMAIN != "localhost":
     # use mysql if not local host
     DATABASES = {
         'default': {

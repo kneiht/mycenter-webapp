@@ -9,12 +9,12 @@ register = template.Library()
 @register.filter(name='format_vnd')
 def format_vnd(amount):
     if amount is None:
-        return 'errorNontype'
+        return "0"
     # Convert the number to a string and reverse it
     try:
         amount_str = str(int(amount))[::-1]
     except Exception as e:
-        return e
+        return "0"
 
 
 

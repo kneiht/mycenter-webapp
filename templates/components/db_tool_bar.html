@@ -75,18 +75,19 @@
 
 {% else %}
     <!-- Toolbar for database interactions -->
+    <form
+        action="{{ request.path|slice:'?' }}"
+        up-target="#display_cards, #infor-bar:maybe, #calculation_section:maybe">
     <div id="db-tool-bar">
         <div class="mt-2">
             <!-- Separate 2 sections of controls -->
             <div  class="flex flex-wrap justify-between gap-4">
                 <!-- Left controls for filtering and sorting -->
-                <form id='left-controls' class="flex justify-start gap-4 h-10 w-[800px]"   
-                            action="{{ request.path|slice:'?' }}"
-                            up-target="#display_cards, #infor-bar:maybe">
+                <div id='left-controls' class="flex justify-start gap-4 h-10 w-[800px]">
 
                             <!-- Controls to manage search and filter options -->
                     <div id="search-control" class="z-10 w-full">
-                            
+
                         <!-- Toggle search bar in small screen -->
                         <button id="toggle-search" type="button" class="btn btn-outline h-full w-11 sm:hidden">
                             <i class="fas fa-search text-theme" style="font-size: 18px;"></i>
@@ -103,9 +104,10 @@
                                 {% endfor %}
                             </select>
 
+                            
+
                             <!-- Input field for filter values -->
                             <input id="filter-input" name="all" type="text" placeholder="Type to search ..." class="form-input rounded-none h-full border-r-0 border-l-0 border-theme border-opacity-50 text-theme" autocomplete="off"/>
-
                             <!-- Button to submit search -->
                             <button id="search-button" type="submit" class="btn btn-outline rounded-l-none h-full shadow-none"> 
                                 <i class="fas fa-search text-theme" style="font-size: 18px;"></i>
@@ -120,6 +122,10 @@
                         <i class="fas fa-sort text-theme" style="font-size: 20px;"></i> Icon for filter
                     </button> -->
 
+                    <!-- Add startdate and enddate for financial records -->
+  
+
+
                     {% if select == 'students' or select == 'CRM' %}
                         <select id="sort-select" name="sort" class="form-input w-fit border border-theme border-opacity-50">
                             <option value="-pk" selected>Sort by ...</option>
@@ -129,8 +135,7 @@
                             <option value="balance_up_active">Balance up (Enrolled)</option>
                         </select>
                     {% endif %}
-                </form>
-
+                    </div>
 
 
                 <div id='mid-controls' class="flex flex-col items-center justify-center w-auto">
@@ -180,7 +185,31 @@
                 </div>
             </div>
         </div>
-        
+
+
+        {% if select == 'financial_transactions' %}
+            <div class="flex w-full my-3 justify-center items-center">
+                <div class="flex mr-2 justify-cennter items-center">
+                    <label for="start_date">From:</label>
+                    <input type="date" id="start_date" name="start_date" class="form-input">
+                </div>
+                <div class="flex mr-2 justify-center items-center">
+                    <label for="end_date">To:</label>
+                    <input type="date" id="end_date" name="end_date" class="form-input">
+                </div>
+
+                {% for dropdown_name, dropdown_options in dropdown_filters.items %}
+                    <div class="flex mr-2 justify-cennter items-center">
+                        <select id="{{ dropdown_name }}" name="{{ dropdown_name }}" class="form-input">
+                            <option value="">{{ dropdown_name }}</option>
+                            {% for option_value, option_name in dropdown_options %}
+                                <option value="{{ option_value }}">{{ option_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                {% endfor %}
+        {% endif %}
+
         {% if select == 'students' or select == 'CRM' %}
             <div>
                 <a id="also-search-in" href="" class="text-theme font-bold text-xl flex items-center justify-center my-3" target="_blank"></a>
@@ -190,5 +219,5 @@
         {% endif %}
          
     </div>
-
+    </form>
 {% endif %}

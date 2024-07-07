@@ -1,0 +1,61 @@
+{% load custom_tags %}
+    {% if select == 'financial_transactions' %}
+    <div id="calculation_section" class="flex justify-center">
+        <div class="flex justify-center items-center bg-gray-200 rounded-lg p-4 m-2">
+            <p class="text-center text-lg font-semibold">Tổng thu: <span class="text-green-500">{{ total_income|format_vnd }}</span></p>
+        </div>
+        <div class="flex justify-center items-center bg-gray-200 rounded-lg p-4 m-2">
+            <p class="text-center text-lg font-semibold">Tổng chi: <span class="text-red-500">{{ total_expense|format_vnd }}</span></p>
+        </div>
+        <div class="flex justify-center items-center bg-gray-200 rounded-lg p-4 m-2">
+            <p class="text-center text-lg font-semibold">Tổng dư: <span class="text-blue-500">{{ total_balance|format_vnd }}</span></p>
+        </div>
+        
+        <button class="btn btn-primary  p-4 m-2" onclick="var x = document.getElementById('transaction-table'); x.classList.toggle('hidden');">
+            Show / Hide transaction table
+        </button>
+        
+    </div>
+
+
+
+
+    <div id="transaction-table" class="hidden">
+        <h2 class="text-2xl font-bold mb-4 text-center">Transaction Summary Table</h2>
+        <div class="overflow-x-auto rounded-xl">
+            <table class="min-w-full bg-white border border-gray-300 rounded-xl mb-5">
+                <thead>
+                    <tr class="bg-gray-200 text-gray-600 uppercase text-xs leading-normal">
+                        <th class="py-3 px-6 text-left">Month</th>
+                        <th class="py-3 px-6 text-right">Income Other Income</th>
+                        <th class="py-3 px-6 text-right">Income Tuition Fee</th>
+                        <th class="py-3 px-6 text-right">Income Capital Contribution</th>
+                        <th class="py-3 px-6 text-right">Expense Asset Expenditure</th>
+                        <th class="py-3 px-6 text-right">Expense Operational Expenses</th>
+                        <th class="py-3 px-6 text-right">Expense Salary Expenses</th>
+                        <th class="py-3 px-6 text-right">Expense Marketing Expenses</th>
+                        <th class="py-3 px-6 text-right">Expense Human Resources Expenses</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-600 text-sm font-light">
+                    {% for month, transactions in transaction_summary.items %}
+                    <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <td class="py-3 px-6 text-left whitespace-nowrap font-bold">{{ month }}</td>
+                        <td class="py-3 px-6 text-right">{{ transactions.income_other_income|format_vnd }}</td>
+                        <td class="py-3 px-6 text-right">{{ transactions.income_tuition_fee|format_vnd }}</td>
+                        <td class="py-3 px-6 text-right">{{ transactions.income_capital_contribution|format_vnd }}</td>
+                        <td class="py-3 px-6 text-right">{{ transactions.expense_asset_expenditure|format_vnd }}</td>
+                        <td class="py-3 px-6 text-right">{{ transactions.expense_operational_expenses|format_vnd }}</td>
+                        <td class="py-3 px-6 text-right">{{ transactions.expense_salary_expenses|format_vnd }}</td>
+                        <td class="py-3 px-6 text-right">{{ transactions.expense_marketing_expenses|format_vnd }}</td>
+                        <td class="py-3 px-6 text-right">{{ transactions.expense_human_resources_expenses|format_vnd }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+
+
+{% endif %}

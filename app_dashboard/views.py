@@ -51,6 +51,9 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import user_passes_test
 
 
+from django.db.models import Sum
+from django.db.models.functions import TruncMonth
+
 def is_admin(user):
     return user.is_authenticated and user.is_active and user.is_staff and user.is_superuser
 
@@ -329,9 +332,6 @@ class BaseViewSet(LoginRequiredMixin, View):
             records = records.filter(is_converted_to_student=False)
 
 
-
-
-
         # Determine the fields to be used as filter options based on the selected page
         if self.page == 'schools':
             fields = ['all', 'name', 'description']
@@ -340,7 +340,7 @@ class BaseViewSet(LoginRequiredMixin, View):
         elif self.page == 'classes':
             fields = ['all', 'name', 'status', 'note']
         elif self.page == 'financial_transactions':
-            fields = ['all', 'amount', 'note', 'income_or_expense', 'transaction_type', 'receiver']
+            fields = ['all', 'amount', 'note', 'receiver']
         else:
             fields = ['all']
 
@@ -375,9 +375,32 @@ class BaseViewSet(LoginRequiredMixin, View):
                             combined_query &= field_query
                         except FieldDoesNotExist:
                             print(f"Ignoring invalid field: {field}")
-
+    
             # Filter records based on the query
             records = records.filter(combined_query)
+
+        if self.page == 'financial_transactions':
+            start_date = request.GET.get('start_date')
+            end_date = request.GET.get('end_date')
+            income_or_expense = request.GET.get('income_or_expense')
+            transaction_type = request.GET.get('transaction_type')
+            
+            if start_date:
+                start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+                records = records.filter(created_at__date__gte=start_date_obj)
+            else:
+                start_date_obj = records.first().created_at.date()
+            if end_date:
+                end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
+                records = records.filter(created_at__date__lte=end_date_obj)
+            else:
+                end_date_obj = records.last().created_at.date()
+
+            if income_or_expense:
+                records = records.filter(income_or_expense=income_or_expense)
+            if transaction_type:
+                records = records.filter(transaction_type=transaction_type)
+
 
         # Sort the results if the sort field exists in the model
         # Get the and sort option from the request
@@ -409,7 +432,51 @@ class BaseViewSet(LoginRequiredMixin, View):
             'fields':  fields,
             'school': School.objects.filter(pk=school_id).first() if school_id and school_id != "all" else School.objects.filter(pk=1).first()
         }
+
+        if self.page == 'financial_transactions':
+            dropdown_filters = {
+                'income_or_expense': [
+                    (income_or_expense[0], income_or_expense[1]) for income_or_expense in FinancialTransaction.IN_OR_OUT_CHOICES
+                ],
+                'transaction_type': [
+                    (transaction_type[0], transaction_type[1]) for transaction_type in FinancialTransaction.TRANSACTION_TYPES
+                ]
+            }
+            context['dropdown_filters'] = dropdown_filters
+
+            # calculation financial transactions
+            total_income = records.filter(income_or_expense='income').aggregate(Sum('amount'))['amount__sum']
+            if total_income is None:
+                total_income = 0
+            total_expense = records.filter(income_or_expense='expense').aggregate(Sum('amount'))['amount__sum']
+            if total_expense is None:
+                total_expense = 0
+            total_balance = total_income - total_expense
+            context['total_income'] = total_income
+            context['total_expense'] = total_expense
+            context['total_balance'] = total_balance
+
+                
+            # Create a table with rows are transaction types, columns are months and each cell is sum amount of that transaction type in that month
+            # create a dictionary of months from start_date to end_date and put records into it
+
+            # Generate a summary table for transactions by month and type
+            transaction_summary = {}
+            for record in records:
+                month = record.created_at.strftime("%Y-%m")
+                transaction_type = record.transaction_type
+                if month not in transaction_summary:
+                    transaction_summary[month] = {}
+                if transaction_type not in transaction_summary[month]:
+                    transaction_summary[month][transaction_type] = 0
+                transaction_summary[month][transaction_type] += record.amount
+
+            context['transaction_summary'] = transaction_summary
+            print(transaction_summary)
+
         return render(request, 'pages/single_page.html', context)
+
+
 
     def create_form(self, request, **kwargs):
         school_id = kwargs.pop('school_id', None)
@@ -627,13 +694,6 @@ class StudentConvertViewSet(BaseViewSet):
 
     def post(self, request, school_id=None, pk=None):
         return super().post(request, school_id, pk)
-
-
-
-
-
-
-
 
 
 def get_images(path):
