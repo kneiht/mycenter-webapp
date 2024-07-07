@@ -1,6 +1,7 @@
 {% load custom_tags %}
     {% if select == 'financial_transactions' %}
-    <div id="calculation_section" class="flex justify-center">
+    <div id="calculation_section">
+    <div class="flex justify-center">
         <div class="flex justify-center items-center bg-gray-200 rounded-lg p-4 m-2">
             <p class="text-center text-lg font-semibold">Tổng thu: <span class="text-green-500">{{ total_income|format_vnd }}</span></p>
         </div>
@@ -10,11 +11,7 @@
         <div class="flex justify-center items-center bg-gray-200 rounded-lg p-4 m-2">
             <p class="text-center text-lg font-semibold">Tổng dư: <span class="text-blue-500">{{ total_balance|format_vnd }}</span></p>
         </div>
-        
-        <button class="btn btn-primary  p-4 m-2" onclick="var x = document.getElementById('transaction-table'); x.classList.toggle('hidden');">
-            Show / Hide transaction table
-        </button>
-        
+                
     </div>
 
 
@@ -51,7 +48,7 @@
             </table>
         </div>
     </div>
-    
+    </div>
 
 
 {% endif %}

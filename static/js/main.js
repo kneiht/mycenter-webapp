@@ -739,3 +739,10 @@ up.compiler('.dashboard-tab', function(button) {
 
 });
 
+
+up.compiler('.show-hide-table', function(button) {
+    button.addEventListener('click', function() {
+        var table = document.getElementById('transaction-table');
+        table.classList.toggle('hidden');
+    });
+});
