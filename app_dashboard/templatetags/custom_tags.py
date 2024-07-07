@@ -6,19 +6,20 @@ from app_dashboard.models import Thumbnail
 
 register = template.Library()
 
+@register.filter(name='remove_income_expense_words')
+def remove_income_expense_words(text):
+    return text.replace('INCOME - ', '').replace('EXPENSE - ', '')
+
 @register.filter(name='format_vnd')
 def format_vnd(amount):
     if amount is None:
-        return "0"
+        return ""
     # Convert the number to a string and reverse it
     try:
         amount_str = str(int(amount))[::-1]
     except Exception as e:
-        return "0"
+        return e
 
-
-
-    
     # Insert a dot every 3 digits
     formatted_str = '.'.join(amount_str[i:i+3] for i in range(0, len(amount_str), 3))
     # Reverse the string back and append the VND symbol

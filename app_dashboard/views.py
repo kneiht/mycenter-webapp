@@ -462,17 +462,27 @@ class BaseViewSet(LoginRequiredMixin, View):
 
             # Generate a summary table for transactions by month and type
             transaction_summary = {}
+            income_list = []
+            expense_list = []
             for record in records:
                 month = record.created_at.strftime("%Y-%m")
                 transaction_type = record.transaction_type
                 if month not in transaction_summary:
                     transaction_summary[month] = {}
-                if transaction_type not in transaction_summary[month]:
-                    transaction_summary[month][transaction_type] = 0
+                    # sum income and sum expese of a month
+                    transaction_summary[month]['income'] = 0
+                    transaction_summary[month]['expense'] = 0
+                    for i_transaction_type in FinancialTransaction.TRANSACTION_TYPES:
+                        transaction_summary[month][i_transaction_type[0]] = 0
+                if "income" in transaction_type:
+                    transaction_summary[month]['income'] += record.amount
+                else:
+                    transaction_summary[month]['expense'] += record.amount
+
                 transaction_summary[month][transaction_type] += record.amount
 
             context['transaction_summary'] = transaction_summary
-            print(transaction_summary)
+            context['transaction_types'] = FinancialTransaction.TRANSACTION_TYPES
 
         return render(request, 'pages/single_page.html', context)
 

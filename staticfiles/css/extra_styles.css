@@ -222,17 +222,10 @@
 
 
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-table, th, td {
-    border: 1px solid black;
-}
-th, td {
-    padding: 8px;
-    text-align: left;
-}
-th {
-    background-color: #f2f2f2;
+
+.sticky-header {
+  position: sticky;
+  top: 50; /* Adjust this value according to the height of your navbar */
+  z-index: 10; /* Ensure the header is above other content */
+  background-color: #f7fafc; /* Same as bg-gray-200 */
 }
