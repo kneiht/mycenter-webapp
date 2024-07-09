@@ -522,11 +522,10 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
         if self.transaction_type=='income_tuition_fee' and self.student:
             self.student.calculate_student_balance()
 
-
-
-
-
-
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        if self.transaction_type == 'income_tuition_fee' and self.student:
+            self.student.calculate_student_balance()
 
 
 
