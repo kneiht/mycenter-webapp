@@ -2,7 +2,7 @@
 {% load pwa %}
 
 <!DOCTYPE html>
-<html lang="en" class="light"> 
+<html lang="en" class="light">
 
 <head>
     <meta charset="UTF-8">
@@ -15,13 +15,14 @@
     </title>
     <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico">
 
-    
-    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+
+    <script src="https://kit.fontawesome.com/2ee7bde2cf.js" crossorigin="anonymous"></script>
 
 
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/unpoly@3.7.3/unpoly.min.css">
 
@@ -39,9 +40,9 @@
 </head>
 
 <body class="all bg-[#F0F2F5] dark:bg-slate-900 min-h-full" style="font-family: 'Open Sans';">
-    
+
     {% if page != 'login' and page != 'app' %}
-        {% include 'portal/components/header.html' %}
+    {% include 'portal/components/header.html' %}
     {% endif %}
 
     {% block display %}
@@ -49,19 +50,16 @@
 
 
     {% if page != 'login' and page != 'app' %}
-        {% include 'portal/components/nav_bar.html' %}
+    {% include 'portal/components/nav_bar.html' %}
     {% endif %}
 
 
     <script src="https://cdn.jsdelivr.net/npm/unpoly@3.7.3/unpoly.min.js"></script>
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/portal.js' %}"></script>
-    
+
     {% block extra_script %}
     {% endblock %}
 </body>
 
 </html>
-
-
-
