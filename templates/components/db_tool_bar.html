@@ -2,7 +2,7 @@
 {% if select == 'classroom' %}
     <!-- Toolbar for classroom interactions -->
     <div id="db-tool-bar">
-        <div id='reward-controls' class="grid grid-cols-1  min-[906px]:grid-cols-2 mt-2 mb-8 h-full p-2 bg-theme-200 dark:bg-theme-900 rounded-xl">
+        <div id='reward-controls' class="flex flex-wrap justify-around px-10 min-[906px]:grid-cols-2 mt-2 mb-8 h-full bg-theme-200 dark:bg-theme-900 rounded-xl">
                 <!-- Left controls for select -->
                 <div id='left-controls' class="flex items-center justify-center gap-4 py-3">
                     <!-- Button to toggle view settings -->
@@ -16,6 +16,17 @@
                         Select reverse
                     </button>
                 </div>
+
+
+            <!-- Middle controls for select -->
+            <div id='middle-controls' class="flex items-center justify-center gap-4">
+                <div class="flex flex-col">
+                    <div class="flex flex-row items-center justify-center rounded-lg bg-theme-200 p-4 dark:bg-theme-900">
+                        <p class="text-center text-2xl font-bold text-theme pr-2">Class score: </p>
+                        <p id="class-score" class="text-center text-2xl font-bold text-theme">0</p>
+                    </div>
+                </div>
+            </div>
 
                 <!-- Right controls for view toggle and information display -->
                 <div id='right-controls' class="flex items-center justify-center gap-4 py-3">
