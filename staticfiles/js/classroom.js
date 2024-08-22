@@ -598,3 +598,14 @@ up.compiler('#id_image4', function(image) {
         }
     });
 });
+
+
+
+
+// calculate class score
+up.compiler('#class-score', function(classScore) {
+    const allRewardLabels = document.querySelectorAll('.reward-points');
+    const total = Array.from(allRewardLabels).reduce((acc, label) => acc + Number(label.textContent), 0);
+
+    classScore.textContent = total;
+});
