@@ -30,7 +30,7 @@ from django.db.models import Q, Count, Sum  # 'Sum' is imported here
 
 # Import forms
 from .forms import (
-    SchoolForm, StudentForm, ClassForm, AttendanceForm, FinancialTransactionForm, 
+    SchoolForm, StudentForm, ClassForm, AttendanceForm, FinancialTransactionForm, FinancialTransactionNoteForm,
     TuitionPaymentForm, TuitionPaymentOldForm, TuitionPaymentSpecialForm, StudentNoteForm, StudentConvertForm
 )
 # Import models
@@ -1172,6 +1172,14 @@ class FinancialTransactionViewSet(BaseViewSet):
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
+class FinancialTransactionNoteViewSet(BaseViewSet):
+    model_class = FinancialTransaction
+    form_class = FinancialTransactionNoteForm
+    modal = 'modal_note'
+    page = 'financial_transactions'
+
+    def post(self, request, school_id=None, pk=None):
+        return super().post(request, school_id, pk)
 
 
 class TuitionPaymentViewSet(BaseViewSet):

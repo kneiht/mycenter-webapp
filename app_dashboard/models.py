@@ -435,6 +435,12 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
         ('income', 'Income'),
         ('expense', 'Expense'),
     )
+    STATUS = (
+        ('checked', 'Checked'),
+        ('unchecked', 'Unchecked'),
+        ('suspect', 'Suspect'),
+    )
+
     TRANSACTION_TYPES = (
         ('income_tuition_fee', 'INCOME - Tuition Fee'),
         ('income_capital_contribution', 'INCOME - Capital Contribution'),
@@ -464,6 +470,7 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
 
     )   
     income_or_expense = models.CharField(max_length=20, choices=IN_OR_OUT_CHOICES)
+    status =  models.CharField(max_length=50, choices=STATUS, default="unchecked")
     transaction_type = models.CharField(max_length=255, choices=TRANSACTION_TYPES)
     giver = models.CharField(max_length=100, default="Undefined", null=True, blank=True)
     receiver = models.CharField(max_length=100, default="Undefined", null=True, blank=True)
@@ -475,7 +482,7 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
     student_balance_increase = models.FloatField(default=0, null=True, blank=True)
     legacy_discount = models.TextField(default="", blank=True, null=True)
     legacy_tuition_plan = models.TextField(default="", blank=True, null=True)
-    
+    last_note = models.TextField(default="", blank=True, null=True)
     note = models.TextField(default="", blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
 

@@ -276,6 +276,7 @@
                             href="/schools/{{ school.pk }}/students/{{ record.pk }}/convert/?get=form" up-target="#modal" up-history="false">
                             Convert student
                         </a>
+
                     {% endif %}
                 </div>
 
@@ -300,10 +301,19 @@
             </div>
     
         {% elif select == 'financial_transactions' %}
-            <div class="h-10 truncate flex items-center">
-                <i class="fas fa-star w-5"></i>
-                <spa class="{{ record.income_or_expense }} text-white p-1 rounded-md">{{ record.get_income_or_expense_display }}</span>
+            <div class="flex">
+                <div class="flex-1 mr-2 h-10 truncate flex items-center">
+                    <i class="fas fa-star w-5"></i>
+                    <spa class="{{ record.income_or_expense }} text-white p-1 rounded-md">{{ record.get_income_or_expense_display }}</span>
+                </div>
+                <div class="flex-1 mr-2 h-10 truncate flex items-center">
+                    <i class="fas fa-check w-5"></i>
+                    <spa class="{{ record.status }} text-white p-1 rounded-md">{{ record.get_status_display }}</span>
+                </div>
             </div>
+
+
+
             <div class="h-10 truncate flex items-center">
                 <i class="fas fa-dollar-sign w-5"></i>
                 <span>{{ record.amount|format_vnd }}</span>
@@ -331,11 +341,6 @@
             <div class="h-10 truncate flex items-center">
                 <i class="fas fa-clock w-5"></i>
                 <span>{{ record.created_at|date:"d-m-Y H:i" }}</span>
-            </div>
-
-            <div class="note h-10 truncate flex items-center">
-                <i class="fas fa-comment w-5"></i>
-                <span>{{ record.note }}</span>
             </div>
 
             <div class="grid grid-cols-4 pt-2 gap-2 items-center justify-center">
@@ -368,6 +373,25 @@
                 </div>
                 {% endif %}
             </div>
+
+
+            <div class="note flex-col text-blue-500 pt-2">
+                <div class="mr-2 flex items-start">
+                    <i class="fas fa-sticky-note w-6 pt-1"></i>
+                    <!-- Button add new note -->
+                        <a type="button" class="add-note btn btn-outline px-1 py-0 text-sm"
+                            href="/schools/{{ school.pk }}/financialtransactions/{{ record.pk }}/note/?get=form" up-target="#modal" up-history="false">
+                            Add quick note
+                        </a>
+                </div>
+
+                <div class="pt-3">
+                    <div class="max-h-40  overflow-y-scroll">
+                        <div class="whitespace-pre-line"> {{ record.note }} </div>
+                    </div>
+                </div>
+            </div>
+
 
         {% endif %}
     </div>

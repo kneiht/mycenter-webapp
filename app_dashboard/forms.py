@@ -182,6 +182,45 @@ class StudentNoteForm(forms.ModelForm):
             #print(instance.last_note)
         return instance
 
+
+class FinancialTransactionNoteForm(forms.ModelForm):
+    class Meta:
+        model = FinancialTransaction
+        fields = ['last_note', 'status']
+        labels = {
+            'last_note': 'Your quick note'
+        }
+        help_texts = {
+            'last_note': 'Date and time will be added automatically'
+        }
+        widgets = {
+            'last_note': forms.Textarea(attrs={
+                'class': 'form-input',
+                'rows': 2
+            }),
+            'status': forms.Select(attrs={
+                'class': 'form-input'
+            }),
+        }
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        new_note = self.cleaned_data['last_note']
+        current_date = datetime.now().strftime("- %d-%m-%Y %H:%M")
+        if instance.note:
+            instance.note = f'{current_date}: {new_note}\n' +  instance.note # Append the new note to the current note
+            #print(instance.note)
+        else:
+            instance.note = f'{current_date}: {new_note}'  # If there's no current note, set the new note
+        instance.last_note = ""
+        if commit:
+            instance.save()
+            #print(instance.last_note)
+        return instance
+
+
+
+
 class StudentConvertForm(forms.ModelForm):
     class Meta:
         model = Student

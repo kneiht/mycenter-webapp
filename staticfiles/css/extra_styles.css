@@ -221,11 +221,15 @@
 
 
 
-
-
-.sticky-header {
-  position: sticky;
-  top: 50; /* Adjust this value according to the height of your navbar */
-  z-index: 10; /* Ensure the header is above other content */
-  background-color: #f7fafc; /* Same as bg-gray-200 */
+.checked {
+  background-image: linear-gradient(310deg, #17ad37 0%, #98ec2d 100%);
 }
+
+.unchecked {
+  background-image: linear-gradient(310deg, #000000 0%, #808080 100%);
+}
+
+.suspect {
+  background-image: linear-gradient(310deg, #ea0606 0%, #ff667c 100%);
+}
+

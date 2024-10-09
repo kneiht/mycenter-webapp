@@ -2,7 +2,8 @@
 from . import views, views_db
 from .views import (
     StudentConvertViewSet, CMRViewSet, CRMNoteViewSet, SchoolViewSet, ClassViewSet, StudentViewSet, StudentNoteViewSet, TuitionPaymentViewSet, ClassRoomViewSet, TuitionPaymentOldViewSet, TuitionPaymentSpecialViewSet,
-    FinancialTransactionViewSet, AttendanceViewSet, StudentAttendanceCalendarViewSet,home,wheel,calculate_student_balance, landing_page
+    FinancialTransactionViewSet, AttendanceViewSet, StudentAttendanceCalendarViewSet, FinancialTransactionNoteViewSet,
+    home,wheel,calculate_student_balance, landing_page
 )
 
 from django.urls import re_path, path
@@ -52,8 +53,8 @@ urlpatterns = [
 
     re_path(r'^schools/(?P<school_id>\d+|[a-z]+)/financialtransactions/?$', FinancialTransactionViewSet.as_view(), name='financialtransactions'),
     re_path(r'^schools/(?P<school_id>\d+|[a-z]+)/financialtransactions/(?P<pk>\d+)/?$', FinancialTransactionViewSet.as_view(), name='financialtransaction_detail'),
-
-
+    re_path(r'^schools/(?P<school_id>\d+|[a-z]+)/financialtransactions/(?P<pk>\d+)/note/?$', FinancialTransactionNoteViewSet.as_view(), name='financialtransaction_note'),
+    
     
     # path('classroom/<int:pk>/', views.classroom, name='classroom'),
 
