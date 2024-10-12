@@ -177,6 +177,7 @@ def get_students_missing_attendance(school):
     return students_missing_attendance
 
 
+
 @login_required
 def dashboard(request, school_id):
     school = School.objects.filter(pk=school_id).first()
@@ -340,7 +341,7 @@ class BaseViewSet(LoginRequiredMixin, View):
         elif self.page == 'classes':
             fields = ['all', 'name', 'status', 'note']
         elif self.page == 'financial_transactions':
-            fields = ['all', 'amount', 'note', 'receiver']
+            fields = ['all', 'amount', 'note', 'receiver', 'status']
         else:
             fields = ['all']
 
@@ -362,7 +363,10 @@ class BaseViewSet(LoginRequiredMixin, View):
                 for value in query_params['all']:
                     for specified_field in specified_fields:
                         if specified_field in [field.name for field in self.model_class._meta.get_fields()]:
-                            all_fields_query |= Q(**{f"{specified_field}__icontains": value})
+                            if specified_field == 'status':
+                                all_fields_query |= Q(**{specified_field: value})
+                            else:
+                                all_fields_query |= Q(**{f"{specified_field}__icontains": value})
                 combined_query &= all_fields_query
             else:
                 for field, values in query_params.items():
