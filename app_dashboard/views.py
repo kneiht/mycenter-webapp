@@ -364,6 +364,7 @@ class BaseViewSet(LoginRequiredMixin, View):
                     for specified_field in specified_fields:
                         if specified_field in [field.name for field in self.model_class._meta.get_fields()]:
                             if specified_field == 'status':
+                                print(specified_field)
                                 all_fields_query |= Q(**{specified_field: value})
                             else:
                                 all_fields_query |= Q(**{f"{specified_field}__icontains": value})
