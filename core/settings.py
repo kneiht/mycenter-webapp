@@ -19,7 +19,6 @@ import socket
 import json
 
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = str(Path(__file__).resolve().parent.parent)
 
@@ -28,10 +27,9 @@ BASE_DIR = str(Path(__file__).resolve().parent.parent)
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4!qf!8%y5=6ny_01gbgw_wcfb=6+czumg&ig5*$m-2ok@*s=3*'
+SECRET_KEY = "django-insecure-4!qf!8%y5=6ny_01gbgw_wcfb=6+czumg&ig5*$m-2ok@*s=3*"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-
 
 
 # Load from a file
@@ -40,65 +38,77 @@ with open("env.json", "r") as f:
 DOMAIN = env["domain"]
 
 
-
 if DOMAIN != "localhost":
     DEBUG = False
-    ALLOWED_HOSTS = ['minhthienk.pythonanywhere.com',
-        'www.gen8.edu.vn', 'gen8.edu.vn', 'www.mycenter.edu.vn', 'mycenter.edu.vn']
+    ALLOWED_HOSTS = [
+        "minhthienk.pythonanywhere.com",
+        "www.gen8.edu.vn",
+        "gen8.edu.vn",
+        "www.mycenter.edu.vn",
+        "mycenter.edu.vn",
+        "ielts.gen8.edu.vn",
+    ]
 
 else:
     DEBUG = True
-    ALLOWED_HOSTS = ['minhthienk.pythonanywhere.com', 
-        'www.gen8.edu.vn', 'localhost','gen8.edu.vn','*']
-
+    ALLOWED_HOSTS = [
+        "minhthienk.pythonanywhere.com",
+        "www.gen8.edu.vn",
+        "localhost",
+        "gen8.edu.vn",
+        "*",
+        "ielts.gen8.edu.vn",
+    ]
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'app_accounts',
-    'app_dashboard',
-    'app_portal',
-    'widget_tweaks',
-    'pwa',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "app_accounts",
+    "app_dashboard",
+    "app_portal",
+    "widget_tweaks",
+    "pwa",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'core.urls'
+ROOT_URLCONF = "core.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates'),],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.request',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
+            os.path.join(BASE_DIR, "templates"),
+        ],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.request",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'core.wsgi.application'
+WSGI_APPLICATION = "core.wsgi.application"
 
 
 # Database
@@ -107,108 +117,97 @@ computer_name = socket.gethostname()
 if DOMAIN != "localhost":
     # use mysql if not local host
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': env['database_name'],
-            'USER': env['database_user'],
-            'PASSWORD': env['database_password'],
-            'HOST': env['database_host'],
-            'PORT': '3306',
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": env["database_name"],
+            "USER": env["database_user"],
+            "PASSWORD": env["database_password"],
+            "HOST": env["database_host"],
+            "PORT": "3306",
         }
     }
 
 else:
     # use sqlite if local host
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
         }
     }
-    print('Use SQLite')
+    print("Use SQLite")
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
 ]
 
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Asia/Ho_Chi_Minh' 
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "Asia/Ho_Chi_Minh"
 USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, "static"),
 ]
 
-LOGIN_URL = '/account/login/' # replace 'login' with the name of your login view if different
+LOGIN_URL = (
+    "/account/login/"  # replace 'login' with the name of your login view if different
+)
 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-
-
-
-PWA_APP_NAME = 'GEN8'
+PWA_APP_NAME = "GEN8"
 PWA_APP_DESCRIPTION = "Kết nối GEN8 và Phụ huynh học sinh"
-PWA_APP_THEME_COLOR = '#0A0302'
-PWA_APP_BACKGROUND_COLOR = '#ffffff'
-PWA_APP_DISPLAY = 'standalone'
-PWA_APP_SCOPE = '/'
-PWA_APP_ORIENTATION = 'any'
-PWA_APP_START_URL = '/portal/profile/'
-PWA_APP_STATUS_BAR_COLOR = 'default'
-PWA_APP_ICONS = [
-    {
-        'src': '/static/images/my_app_icon.png',
-        'sizes': '160x160'
-    }
-]
-PWA_APP_ICONS_APPLE = [
-    {
-        'src': '/static/images/my_apple_icon.png',
-        'sizes': '160x160'
-    }
-]
+PWA_APP_THEME_COLOR = "#0A0302"
+PWA_APP_BACKGROUND_COLOR = "#ffffff"
+PWA_APP_DISPLAY = "standalone"
+PWA_APP_SCOPE = "/"
+PWA_APP_ORIENTATION = "any"
+PWA_APP_START_URL = "/portal/profile/"
+PWA_APP_STATUS_BAR_COLOR = "default"
+PWA_APP_ICONS = [{"src": "/static/images/my_app_icon.png", "sizes": "160x160"}]
+PWA_APP_ICONS_APPLE = [{"src": "/static/images/my_apple_icon.png", "sizes": "160x160"}]
 PWA_APP_SPLASH_SCREEN = [
     {
-        'src': '/static/images/icons/splash-640x1136.png',
-        'media': '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)'
+        "src": "/static/images/icons/splash-640x1136.png",
+        "media": "(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)",
     }
 ]
-PWA_APP_DIR = 'ltr'
-PWA_APP_LANG = 'en-US'
+PWA_APP_DIR = "ltr"
+PWA_APP_LANG = "en-US"
 PWA_APP_SHORTCUTS = [
     {
-        'name': 'Shortcut',
-        'url': '/target',
-        'description': 'Shortcut to a page in my application'
+        "name": "Shortcut",
+        "url": "/target",
+        "description": "Shortcut to a page in my application",
     }
 ]
 PWA_APP_SCREENSHOTS = [
     {
-      'src': '/static/images/icons/splash-750x1334.png',
-      'sizes': '750x1334',
-      "type": "image/png"
+        "src": "/static/images/icons/splash-750x1334.png",
+        "sizes": "750x1334",
+        "type": "image/png",
     }
 ]

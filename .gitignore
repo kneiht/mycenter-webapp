@@ -12,3 +12,6 @@
 env.json
 db.sqlite3
 *.pyc
+.qodo
+.DS_Store
+templates/.DS_Store
