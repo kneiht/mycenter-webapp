@@ -24,7 +24,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q, Count, Sum  # 'Sum' is imported here
 
@@ -430,12 +430,31 @@ class BaseViewSet(LoginRequiredMixin, View):
                 else:
                     records = records.order_by('-pk')
 
+        # Pagination
+        page = request.GET.get('page', 1)
+        page_size = request.GET.get('page_size', 20)  # mặc định 20 bản ghi/trang
+
+        paginator = Paginator(records, page_size)
+        try:
+            records_page = paginator.page(page)
+        except PageNotAnInteger:
+            records_page = paginator.page(1)
+        except EmptyPage:
+            records_page = paginator.page(paginator.num_pages)
+
         context = {
             'select': self.page, 
             'title': self.title, 
-            'records': records,
-            'fields':  fields,
-            'school': School.objects.filter(pk=school_id).first() if school_id and school_id != "all" else School.objects.filter(pk=1).first()
+            'records': records_page,  # truyền page object thay vì queryset
+            'fields': fields,
+            'school': School.objects.filter(pk=school_id).first() if school_id and school_id != "all" else School.objects.filter(pk=1).first(),
+            'page_obj': records_page,
+            'is_paginated': paginator.num_pages > 1,
+            'paginator': paginator,
+            'current_page': records_page.number,
+            'total_pages': paginator.num_pages,
+            'total_records': paginator.count,
+            'page_size': int(page_size),
         }
 
         if self.page == 'financial_transactions':

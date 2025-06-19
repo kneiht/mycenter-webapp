@@ -40,16 +40,16 @@
     <!-- The main display -->
     {% if page == 'attendance' %}
         <main class="flex mt-4 gap-3">
-            <div class="overflow-y-scroll w-full pr-2" style="height: 89vh;">
+            <div class="overflow-y-scroll w-full pr-2" style="height: 90vh;">
                 {% include 'components/title_bar.html' %}
                 {% include 'components/display_attendance_calendar.html' %}
             </div>
         </main>
         
     {% else %}
-        <main class="flex mt-4 gap-3">
+        <main class="flex flex-col mt-4 gap-3">
             <!-- Keep the display fit the screen, only content inside can be scrolled -->
-            <div class="overflow-y-scroll w-full pr-2 pb-10" style="height: 89vh;">
+            <div class="overflow-y-scroll w-full pr-2 pb-20" style="height: 90vh;">
                 {% if page == "dashboard" %}
                     {% include 'components/dashboard.html' %}
                 {% else %}
@@ -60,8 +60,62 @@
                     {% include 'components/calculation_section.html' %}
                     <!-- The cards display -->
                     {% include 'components/display_cards.html' %}
+
                 {% endif %}
             </div>
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="flex justify-center fixed bottom-0 left-4 bg-[#F0F2F5] dark:bg-slate-900" style="width: 100vw; height: 50px;">
+              <ul class="inline-flex items-center -space-x-px">
+                {% if page_obj.has_previous %}
+                  <li>
+                    <a href="?page={{ page_obj.previous_page_number }}&page_size={{ page_size }}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'page_size' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                       class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 transition">
+                      Previous
+                    </a>
+                  </li>
+                {% else %}
+                  <li>
+                    <span class="px-3 py-2 ml-0 leading-tight text-gray-400 bg-gray-100 border border-gray-300 rounded-l-lg cursor-not-allowed">
+                      Previous
+                    </span>
+                  </li>
+                {% endif %}
+
+                {% for num in paginator.page_range %}
+                  {% if page_obj.number == num %}
+                    <li>
+                      <span class="px-3 py-2 leading-tight text-white bg-blue-600 border border-blue-600">{{ num }}</span>
+                    </li>
+                  {% else %}
+                    <li>
+                      <a href="?page={{ num }}&page_size={{ page_size }}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'page_size' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                         class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 transition">
+                        {{ num }}
+                      </a>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                  <li>
+                    <a href="?page={{ page_obj.next_page_number }}&page_size={{ page_size }}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'page_size' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                       class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 transition">
+                      Next
+                    </a>
+                  </li>
+                {% else %}
+                  <li>
+                    <span class="px-3 py-2 leading-tight text-gray-400 bg-gray-100 border border-gray-300 rounded-r-lg cursor-not-allowed">
+                      Next
+                    </span>
+                  </li>
+                {% endif %}
+              </ul>
+            </nav>
+            
+            {% endif %}
+
+
             <!-- The information panel -->
             <!-- {% include 'components/infor_bar.html' %} -->
         </main>
