@@ -134,7 +134,7 @@ class UserLoginView(LoginView):
         context = super().get_context_data(**kwargs)
         context['is_log_in'] = True
         context['title'] = "Log in"
-        context['title'] = "Log in to Mycenter"
+        context['title'] = "Log in"
         context['button_name'] = "Log in"
         return context
 

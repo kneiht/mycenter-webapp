@@ -1,0 +1,7 @@
+{
+    "domain": "example.com",
+    "database_host": "example.com",
+    "database_name": "example",
+    "database_user": "example",
+    "database_password": "example"
+}

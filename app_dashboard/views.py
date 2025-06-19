@@ -891,8 +891,6 @@ class ClassViewSet(BaseViewSet):
         process_students('left_early', data.get('left_early', ''))
         process_students('not_checked', data.get('not_checked', ''))
 
-
-
         html_message = html_render('message', request, message='update attendance successfully')
         return HttpResponse(html_message)
 

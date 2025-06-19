@@ -7,7 +7,7 @@ urlpatterns = [
     # AUTHENTICATION
     re_path(r'^account/login/?$', views.UserLoginView.as_view(), name='login'),
     re_path(r'^account/logout/?$', views.logout_view, name='logout'),
-    re_path(r'^account/register/?$', views.register, name='register'),
+    # re_path(r'^account/register/?$', views.register, name='register'),
     re_path(r'^account/password-change/?$', views.UserPasswordChangeView.as_view(), name='password_change'),
     re_path(r'^account/password-change-done/?$', views.password_change_done, name="password_change_done"),
     

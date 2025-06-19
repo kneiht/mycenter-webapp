@@ -1,4 +1,34 @@
 {
     "liveServer.settings.multiRootWorkspaceName": "gen8",
-    "workbench.tree.indent": 25
+    "workbench.tree.indent": 25,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "media/images": true,
+        "node_modules": true,
+        "staticfiles": true,
+        "package-lock.json": true,
+        "package.json": true,
+        "tailwind.config.js": true,
+        "env_example.json": true,
+        "db.sqlite3": true,
+        "media": true,
+        "app_portal": true
+    },
+    "hide-files.files": [
+        "media/images",
+        "node_modules",
+        "staticfiles",
+        "package-lock.json",
+        "package.json",
+        "tailwind.config.js",
+        "env_example.json",
+        "db.sqlite3",
+        "media",
+        "app_portal"
+    ]
 }

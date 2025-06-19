@@ -18,6 +18,9 @@ import socket
 
 import json
 
+# Version to reload static files
+STATIC_VERSION = timezone.now().strftime("%Y%m%d%H%M%S")
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = str(Path(__file__).resolve().parent.parent)
