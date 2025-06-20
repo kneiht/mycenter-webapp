@@ -502,7 +502,6 @@ class TuitionPaymentOldForm(forms.ModelForm):
                 'class': 'form-input',
             }),
             'amount': forms.Select(
-                choices = TuitionPlan.to_amount_selections(),
                 attrs={
                 'class': 'form-input text-lg h-16'
             }),
@@ -517,6 +516,7 @@ class TuitionPaymentOldForm(forms.ModelForm):
         school_id = kwargs.pop('school_id', None)
         student_id = kwargs.pop('student_id', None)
         super().__init__(*args, **kwargs)
+        self.fields['amount'].widget.choices = TuitionPlan.to_amount_selections()
         if school_id is not None:
             self.school_id = school_id
             self.student_id = student_id
