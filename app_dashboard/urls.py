@@ -1,8 +1,7 @@
-
 from . import views, views_db
 from .views import (
     StudentConvertViewSet, CMRViewSet, CRMNoteViewSet, SchoolViewSet, ClassViewSet, StudentViewSet, StudentNoteViewSet, TuitionPaymentViewSet, ClassRoomViewSet, TuitionPaymentOldViewSet, TuitionPaymentSpecialViewSet,
-    FinancialTransactionViewSet, AttendanceViewSet, StudentAttendanceCalendarViewSet, FinancialTransactionNoteViewSet,
+    FinancialTransactionViewSet, AttendanceViewSet, StudentAttendanceCalendarViewSet, FinancialTransactionNoteViewSet, AnnouncementViewSet,
     home,wheel,calculate_student_balance, landing_page
 )
 
@@ -58,6 +57,10 @@ urlpatterns = [
     
     # path('classroom/<int:pk>/', views.classroom, name='classroom'),
 
+    # Announcements
+    path('announcements/', AnnouncementViewSet.as_view(), name='announcements'),
+    path('announcements/<int:pk>/', AnnouncementViewSet.as_view(), name='announcement_detail'),
+    
     # DATABASE UPLOAD AND DOWNLOAD
     path('download_database_backup/', views_db.download_database_backup, name='download_database_backup'),
     path('database_handle/', views_db.database_handle, name='database_handle'),

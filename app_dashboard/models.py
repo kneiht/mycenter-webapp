@@ -221,7 +221,8 @@ class Student(SecondaryIDMixin, BaseModel):
 
     father = models.CharField(max_length=255, default="", blank=True, null=True)
     father_phone = models.CharField(max_length=50, default="", blank=True, null=True)
-
+    
+    address = models.TextField(default="Chưa có địa chỉ", blank=True, null=True)
 
     status =  models.CharField(max_length=50, choices=STATUS_CHOICES, default="potential_customer")
     reward_points = models.IntegerField(default=0, blank=True)
@@ -499,17 +500,6 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
     def save(self, *args, **kwargs):
         # The balance is calculated based on the transaction type
         if self.transaction_type=='income_tuition_fee' and self.student and self.amount: 
-
-            # if the student has balance increase from the form
-            if self.student_balance_increase:
-                if self.amount == self.student_balance_increase:
-                    self.bonus = 1.0
-                else: 
-                    self.bonus = 0
-            else:
-                self.student_balance_increase = round(self.amount*self.bonus)
-            #print(self.student_balance_increase)
-
 
             if self._state.adding: # If the transaction is being created
                 self.income_or_expense = 'income'

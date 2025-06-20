@@ -74,24 +74,28 @@
         <div class="modal z-50 fixed inset-0 bg-slate-600 bg-opacity-60 overflow-y-auto h-full w-full flex justify-center">
 
             <!-- Modal Content -->
-            <div class="relative top-16 mb-10 mx-4 card h-fit w-full sm:w-fit">
+            <div class="relative top-1/2 -translate-y-1/2 mb-10 mx-4 card h-fit w-full sm:w-fit">
 
                 {% if modal == 'modal_note' %}
                     <h3 class="mt-7 mb-8 text-xl font-bold leading-6 text-center text-theme">Add note to: {{ record }}</h3>
                 {% else %}
                     {% if record_id %}
-                        <div class="absolute top-5 left-4">
+                        <!-- <div class="absolute top-5 left-4">
                             <a href="#" class="flex items-center gap-1">
                                 
                                 <button id='move-to-trash' type="button" class="btn btn-outline w-10 h-10 rounded-full border-0 text-theme" onclick="return confirm('Chức năng đang được phát triển');">
                                     <i class="fas fa-trash-alt text-lg "></i>
                                 </button>
                             </a>
-                        </div>
+                        </div> -->
                     {% endif %}
 
-                    <h3 class="mt-7 mb-8 text-xl font-bold leading-6 text-center text-theme">{% if record_id %} Edit Information {% else %} Create New {% endif %}</h3>
-                
+
+                    {% if modal == 'modal_pay_tuition' or modal == 'modal_pay_tuition_old' %}
+                        <div class="text-green-500 text-center text-lg font-bold mb-3 uppercase mt-7 mb-8">Đóng học phí cho: {{ form.get_student }}</div>
+                    {% else %}
+                        <h3 class="mt-7 mb-8 text-xl font-bold leading-6 text-center text-theme">{% if record_id %} Edit Information {% else %} Create New {% endif %}</h3>
+                    {% endif %}
                 
                 
                     {% endif %}
@@ -104,11 +108,15 @@
                         action="{{ request.path }}"
                         up-target="#modal:maybe, #display_cards:before:maybe"
                     {% endif %} >
+                        
+                    {% if form.fields|length >= 5 and form.fields|length < 8 or modal == 'modal_class' %}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 sm:w-[600px] gap-4 px-6">
 
-                    {% if form.fields|length >= 5 or modal == 'modal_class' %}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 sm:w-[600px] gap-4 px-6">
+                    {% elif form.fields|length >= 8 %}
+                        <div class="grid grid-cols-1 [@media(min-width:650px)]:grid-cols-2 [@media(min-width:650px)]:w-[600px] [@media(min-width:990px)]:grid-cols-4 [@media(min-width:990px)]:w-[900px] gap-4 px-6">
+
                     {% else %}
-                    <div class="grid grid-cols-1 w-[400px]  gap-4 px-6">
+                        <div class="grid grid-cols-1 w-[400px]  gap-4 px-6">
                     {% endif %}
 
                         {% if form.non_field_errors %}
@@ -120,19 +128,23 @@
                         {% csrf_token %}
                         <input type="hidden" name="school_id" value="{{ school_id }}">
                         {% for field in form %}
-                            <div class="">
-                                {% if field.name != 'students' and field.name != 'classes' and field.name != 'student_balance_increase' %}
-                                    <div>
-                                        <label for="{{ field.name }}" class="text-theme">{{ field.label }}</label>
-                                        {{ field }}    
-                                    
-                                        {% if field.help_text %}
-                                            <p class="text-blue-500 px-3">{{ field.help_text }}</p>
-                                        {% endif %}
-                                        {% for error in field.errors %}
-                                            <p class="text-red-500 px-3">{{ error }}</p>
-                                        {% endfor %}
-                                    </div>
+                            
+                                {% if field.name != 'students' and field.name != 'classes' and field.name != 'note'  and field.name != 'address' %}
+                                    {% if modal == 'modal_pay_tuition' or modal == 'modal_pay_tuition_old' %}
+                                            <input type="hidden" name="{{ field.name }}" value="{{ field.value }}">
+                                    {% else %}
+                                        <div>
+                                            <label for="{{ field.name }}" class="text-theme">{{ field.label }}</label>
+                                            {{ field }}    
+                                        
+                                            {% if field.help_text %}
+                                                <p class="text-blue-500 px-3">{{ field.help_text }}</p>
+                                            {% endif %}
+                                            {% for error in field.errors %}
+                                                <p class="text-red-500 px-3">{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 {% endif %}
 
 
@@ -149,10 +161,49 @@
                                         {% endfor %}
                                     </div>
                                 {% endif %}
-
-
-                            </div>
                         {% endfor %}
+                    </div>
+
+                    {% if modal == 'modal_student' %}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 px-6">
+                    {% else %}
+                        <div class="grid grid-cols-1 gap-4 px-6">
+                    {% endif %}
+                    {% for field in form %}
+                        {% if modal == 'modal_pay_tuition' %}
+                            {% if field.name == 'amount' or field.name == 'student_balance_increase' %}
+                                <div>
+                                    <label for="{{ field.name }}" class="text-theme">{{ field.label }}</label>
+                                    {{ field }}    
+                                </div>
+                            {% endif %}
+                        {% elif modal == 'modal_pay_tuition_old' %}
+                            {% if field.name == 'amount' %}
+                                <div>
+                                    <label for="{{ field.name }}" class="text-theme">{{ field.label }}</label>
+                                    {{ field }}    
+                                </div>
+                            {% endif %}
+                        {% endif %}
+
+                        {% if field.name == 'address' or field.name == 'note' %}
+                            <div>
+                                <label for="{{ field.name }}" class="text-theme">{{ field.label }}</label>
+                                {% if field.name == 'address' %}
+                                    <textarea name="{{ field.name }}" class="form-input" rows="3" placeholder="{{ field.label }}" style="height: 60px;"></textarea>
+                                {% else %}
+                                    <textarea name="{{ field.name }}" class="form-input" rows="3" placeholder="{{ field.label }}" style="height: 60px;"></textarea>
+                                {% endif %}
+                            
+                                {% if field.help_text %}
+                                    <p class="text-blue-500 px-3">{{ field.help_text }}</p>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <p class="text-red-500 px-3">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}                    
                     </div>
 
                     {% if modal == 'modal_class' %}
@@ -180,46 +231,49 @@
                                 {% endfor %}
                             </div>
                         </div>
-                    {% elif modal == 'modal_student' %} 
-                    <div class="flex pt-4 px-6 sm:w-[600px] gap-5 items-center justify-center">
-                        <div class="modal-avatar modal-image-container w-auto">
-                            {% if record.image %}
-                                <img src="{{ record.image.url }}" alt="student avatar" class="mx-auto rounded-xl border border-slate-300 dark:border-slate-600">
-                            {% else %}
-                                <img src="/media/images/default/default_profile.webp" alt="no image" class="mx-auto rounded-xl border border-slate-300 dark:border-slate-600">
-                            {% endif %}
-                        </div>
-                        <div class="modal-portrait modal-image-container w-auto">
-                            {% if record.image_portrait %}
-                                <img src="{{ record.image_portrait.url }}" alt="student portrait" class="mx-auto  rounded-xl border border-slate-300 dark:border-slate-600">
-                            {% else %}
-                                <img src="/media/images/default/default_profile.webp" alt="no image" class="mx-auto  rounded-xl border border-slate-300 dark:border-slate-600">
-                            {% endif %}
+                    {% elif modal == 'modal_student' %}
+                    <div class="w-full flex justify-center">
+                        <div class="flex pt-4 px-6 sm:w-[600px] gap-5 items-center justify-center">
+                            <div class="modal-avatar modal-image-container w-auto">
+                                {% if record.image %}
+                                    <img src="{{ record.image.url }}" alt="student avatar" class="mx-auto rounded-xl border border-slate-300 dark:border-slate-600">
+                                {% else %}
+                                    <img src="/media/images/default/default_profile.webp" alt="no image" class="mx-auto rounded-xl border border-slate-300 dark:border-slate-600">
+                                {% endif %}
+                            </div>
+                            <div class="modal-portrait modal-image-container w-auto">
+                                {% if record.image_portrait %}
+                                    <img src="{{ record.image_portrait.url }}" alt="student portrait" class="mx-auto  rounded-xl border border-slate-300 dark:border-slate-600">
+                                {% else %}
+                                    <img src="/media/images/default/default_profile.webp" alt="no image" class="mx-auto  rounded-xl border border-slate-300 dark:border-slate-600">
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="sm:w-[600px] pt-4 px-6">
-                        <label for="students" class="text-theme">Classes</label>
-                        <div class="form-input flex flex-col h-52 gap-4 pt-4 pb-6 overflow-y-scroll">
-                            <div class="border-b pb-0.5 flex justify-between w-full font-semibold">
-                                <span class="w-1/6"> ID </span>
-                                <span class="w-3/6"> Name </span>
-                                <span class="w-1/6 text-center"> Add </span>
-                                <span class="w-1/6 text-center"> Paid class </span>
-                            </div>
-                            {% for class in form.get_classes %}
-                                <div class="border-b pb-0.5 flex justify-between w-full">
-                                    <span class="w-1/6"> {{ class.pk }}</span>
-                                    <span class="w-3/6"> {{ class.name }} </span>
-                                    <span class="w-1/6 text-center">
-                                        <input type="checkbox" class="checkbox" name="classes" value="{{ class.id }}" {% if class.in_class %} checked {% endif %}>
-                                    </span>
-                
-                                    <span class="w-1/6 text-center">
-                                        <input type="checkbox" class="checkbox" name="payment_required" value="{{ class.id }}" {% if class.is_payment_required %} checked {% endif %}>
-                                    </span>
+                    <div class="w-full flex justify-center">
+                        <div class="sm:w-[600px] pt-4 px-6">
+                            <label for="students" class="text-theme">Classes</label>
+                            <div class="form-input flex flex-col h-52 gap-4 pt-4 pb-6 overflow-y-scroll">
+                                <div class="border-b pb-0.5 flex justify-between w-full font-semibold">
+                                    <span class="w-1/6"> ID </span>
+                                    <span class="w-3/6"> Name </span>
+                                    <span class="w-1/6 text-center"> Add </span>
+                                    <span class="w-1/6 text-center"> Paid class </span>
                                 </div>
-                            {% endfor %}
+                                {% for class in form.get_classes %}
+                                    <div class="border-b pb-0.5 flex justify-between w-full">
+                                        <span class="w-1/6"> {{ class.pk }}</span>
+                                        <span class="w-3/6"> {{ class.name }} </span>
+                                        <span class="w-1/6 text-center">
+                                            <input type="checkbox" class="checkbox" name="classes" value="{{ class.id }}" {% if class.in_class %} checked {% endif %}>
+                                        </span>
+                    
+                                        <span class="w-1/6 text-center">
+                                            <input type="checkbox" class="checkbox" name="payment_required" value="{{ class.id }}" {% if class.is_payment_required %} checked {% endif %}>
+                                        </span>
+                                    </div>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
 
@@ -261,6 +315,7 @@
 
 
                     {% elif modal == 'modal_pay_tuition' or modal == 'modal_pay_tuition_old' %}
+                        {% if modal == 'modal_pay_tuition_old' %}
                         <div class="flex justify-center items-center mx-10 my-5 p-2 rounded-2xl bg-green-600 dark:bg-green-700 text-lg text-white">
                             <div>
                             <input type="hidden" id="id_student_balance_increase" name="student_balance_increase" value="0">
@@ -270,6 +325,7 @@
                                 </span>
                             </div>
                         </div>
+                        {% endif %}
 
                         <div class="sm:w-[600px] px-6">
                             <label for="tuitions" class="text-theme">Tuition payment history</label>
@@ -287,11 +343,8 @@
                                             <span class="w-2/12"> {{ payment.created_at|date:"d-m-Y" }} </span>
                                             <span class="w-3/12"> {{ payment.amount|format_vnd }} </span>
                                             <span class="w-2/12"> 
-                                                 {% if payment.bonus == 0 and payment.amount != payment.student_balance_increase %}
                                                     {{ payment.student_balance_increase|calculate_bonus:payment.amount }}
-                                                {% else %}
-                                                    {{ payment.get_bonus_display }}
-                                                {% endif %}
+                    
                                             </span>
                                             <span class="w-3/12"> {{ payment.student_balance_increase|format_vnd }}</span>
 

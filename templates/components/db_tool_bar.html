@@ -149,13 +149,16 @@
                     </div>
 
 
-                <div id='mid-controls' class="flex flex-col items-center justify-center w-auto">
+                <!-- <div id='mid-controls' class="flex flex-col items-center justify-center w-auto">
                     <span id="count" class="px-3 py-2 border border-1 border-blue-500 rounded-2xl text-theme">Count: </span>
-                </div>
+                </div> -->
 
                 
                 <!-- Right controls for view toggle and information display -->
                 <div id='right-controls' class="flex items-center justify-end gap-4">
+                    <div id='mid-controls' class="flex flex-col items-center justify-center w-auto mr-10">
+                        <span id="count" class="px-3 py-2 border border-1 border-blue-500 rounded-2xl text-theme">Count: </span>
+                    </div>
                     <a href="{{ request.path|slice:'?' }}?all=" up-target="#display_cards, #infor-bar:maybe" type="button" class="btn btn-outline">
                         All
                     </a>

@@ -1,4 +1,3 @@
-
 from django import forms
 from datetime import datetime
 from django.shortcuts import get_object_or_404
@@ -7,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Exists, OuterRef
 
 from .models import (School, Student, Class, 
-                     StudentClass, FinancialTransaction, Attendance)
+                     StudentClass, FinancialTransaction, Attendance, Announcement)
 
 class SchoolForm(forms.ModelForm):
     class Meta:
@@ -42,13 +41,11 @@ class SchoolForm(forms.ModelForm):
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
-        fields = ['name', 'status', 'gender', 'date_of_birth', 'mother', 'mother_phone', 'father', 'father_phone', 'reward_points', 'note', 'image', 'image_portrait', 'classes']
-        
-        help_texts = {
-            'image': 'Upload an image the student likes',
-            'image_portrait': 'Upload an student portrait. (Hình chân dung)',
+        fields = ['name', 'status', 'gender', 'date_of_birth', 'mother', 'mother_phone', 'father', 'father_phone', 'reward_points', 'image', 'image_portrait', 'address','note', 'classes']
+        labels = {
+            "image": "Avatar",
+            "image_portrait": "Portrait",
         }
-        
         widgets = {
             'name': forms.TextInput(attrs={
                 'placeholder': 'Student name',
@@ -79,7 +76,12 @@ class StudentForm(forms.ModelForm):
                 'placeholder': 'Father\'s phone number',
                 'class': 'form-input'
             }),
-
+            
+            'address': forms.Textarea(attrs={
+                'placeholder': 'Address',
+                'class': 'form-input',
+                'rows': 3
+            }),
 
             'status': forms.Select(attrs={
                 'class': 'form-input'
@@ -377,8 +379,8 @@ class FinancialTransactionForm(forms.ModelForm):
         model = FinancialTransaction
         fields = ['income_or_expense', 'transaction_type', 
                   'giver', 'receiver', 'amount', 'student', 
-                  'bonus', 'student_balance_increase', 'created_at','note',
-                  'image1', 'image2', 'image3', 'image4']
+                  'bonus', 'student_balance_increase',
+                  'image1', 'image2', 'image3', 'image4', 'created_at','note']
         widgets = {
             'income_or_expense': forms.Select(attrs={
                 'class': 'form-input'
@@ -431,7 +433,11 @@ class FinancialTransactionForm(forms.ModelForm):
 class TuitionPaymentForm(forms.ModelForm):
     class Meta:
         model = FinancialTransaction
-        fields = ['income_or_expense', 'transaction_type', 'student', 'receiver', 'amount', 'bonus', 'note']
+        fields = ['student', 'amount', 'student_balance_increase', 'note', 'income_or_expense', 'transaction_type', 'receiver']
+        labels = {
+            'amount': 'Amount (Số tiền đóng thực tế)',
+            'student_balance_increase': 'Balance increase (Số tiền dùng chạy phí)',
+        }
         widgets = {
             'income_or_expense': forms.Select(attrs={
                 'class': 'form-input disabled',
@@ -446,14 +452,10 @@ class TuitionPaymentForm(forms.ModelForm):
                 'class': 'form-input',
             }),
             'amount': forms.NumberInput(attrs={
-                'class': 'form-input'
+                'class': 'form-input text-xl'
             }),
-            'bonus': forms.Select(attrs={
-                'class': 'form-input',
-            }),
-
             'student_balance_increase': forms.NumberInput(attrs={
-                'class': 'form-input',
+                'class': 'form-input text-xl',
             }),
             'created_at': forms.DateInput(attrs={
                 'class': 'form-input',
@@ -477,6 +479,10 @@ class TuitionPaymentForm(forms.ModelForm):
             self.school_id = None
             self.student_id = None
 
+    def get_student(self):
+        student = Student.objects.get(id=self.student_id)
+        return student
+    
     def get_payments(self):
         payments = FinancialTransaction.objects.filter(school_id=self.school_id,student_id=self.student_id).order_by('created_at')
         return payments
@@ -486,7 +492,7 @@ class TuitionPaymentForm(forms.ModelForm):
 class TuitionPaymentOldForm(forms.ModelForm):
     class Meta:
         model = FinancialTransaction
-        fields = ['income_or_expense', 'transaction_type', 'student', 'receiver', 'amount', 'note', 'student_balance_increase']
+        fields = ['student', 'amount', 'student_balance_increase', 'note', 'income_or_expense', 'transaction_type', 'receiver']
         widgets = {
             'income_or_expense': forms.Select(attrs={
                 'class': 'form-input disabled',
@@ -495,7 +501,7 @@ class TuitionPaymentOldForm(forms.ModelForm):
                 'class': 'form-input',
             }),
             'student': forms.Select(attrs={
-                'class': 'form-input',
+                'class': 'form-input ',
             }),
             'receiver': forms.TextInput(attrs={
                 'class': 'form-input',
@@ -524,7 +530,7 @@ class TuitionPaymentOldForm(forms.ModelForm):
 
 
                 attrs={
-                'class': 'form-input'
+                'class': 'form-input text-xl h-16'
             }),
 
             'note': forms.Textarea(attrs={
@@ -543,7 +549,10 @@ class TuitionPaymentOldForm(forms.ModelForm):
         else:
             self.school_id = None
             self.student_id = None
-
+    def get_student(self):
+        student = Student.objects.get(id=self.student_id)
+        return student
+    
     def get_payments(self):
         payments = FinancialTransaction.objects.filter(school_id=self.school_id,student_id=self.student_id).order_by('created_at')
         return payments
@@ -567,10 +576,10 @@ class TuitionPaymentSpecialForm(forms.ModelForm):
                 'class': 'form-input',
             }),
             'amount': forms.NumberInput(attrs={
-                'class': 'form-input'
+                'class': 'form-input text-xl'
             }),
             'student_balance_increase': forms.NumberInput(attrs={
-                'class': 'form-input'
+                'class': 'form-input text-xl'
             }),
             'note': forms.Textarea(attrs={
                 'class': 'form-input',
@@ -592,5 +601,33 @@ class TuitionPaymentSpecialForm(forms.ModelForm):
     def get_payments(self):
         payments = FinancialTransaction.objects.filter(school_id=self.school_id,student_id=self.student_id).order_by('created_at')
         return payments
+
+
+class AnnouncementForm(forms.ModelForm):
+    class Meta:
+        model = Announcement
+        fields = ['title', 'content', 'attachment', 'is_pinned', 'publish_date']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'placeholder': 'Tiêu đề thông báo',
+                'required': 'required',
+                'class': 'form-input'
+            }),
+            'content': forms.Textarea(attrs={
+                'placeholder': 'Nội dung thông báo',
+                'class': 'form-input',
+                'rows': 6
+            }),
+            'attachment': forms.FileInput(attrs={
+                'class': 'form-input-file'
+            }),
+            'is_pinned': forms.CheckboxInput(attrs={
+                'class': 'checkbox'
+            }),
+            'publish_date': forms.DateTimeInput(attrs={
+                'class': 'form-input',
+                'type': 'datetime-local'
+            }),
+        }
 
 

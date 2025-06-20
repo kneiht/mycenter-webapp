@@ -6,7 +6,7 @@
         <img src="/static/images/logo.png?v={{ STATIC_VERSION }}" alt="Logo" class="object-contain h-10 w-28">
 
         <!-- This is the center part of the navagation bar with various icons and links. It only appears when user is in dashboard-->
-        {% if select != 'schools' %}
+        {% if select != 'schools' and select != 'announcements' %}
             <div id="nav_menu" class="flex items-center m-auto gap-5">
 
                 <a href="{% url 'dashboard' school.pk %}" class="p-2 flex justify-start items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer text-theme"
@@ -38,10 +38,17 @@
                     <span class="fa fa-dollar-sign w-8" style="font-size: 18px;"></span>
                     Finance
                 </a>
-                <a class="p-2 flex justify-start items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer text-theme">
+                
+                <a href="{% url 'announcements' %}?page=1" class="p-2 flex justify-start items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer text-theme"
+                        up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
+                    <span class="fa fa-bullhorn w-8" style="font-size: 18px;"></span>
+                    Announcements
+                </a>
+                
+                <!-- <a class="p-2 flex justify-start items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer text-theme">
                     <span class="fa fa-toolbox w-8" style="font-size: 18px;"></span>
                     Tools
-                </a>
+                </a> -->
 
                 <div id="nav_menu_more" class="menu hidden relative">
                     <button class="menu-button space-y-1 p-3  items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer">
@@ -61,7 +68,7 @@
 
 
     <!-- This div contains a button for the school dropdown menu, it only appears when user is in school mangement page. -->
-    {% if select != 'schools' %}
+    {% if select != 'schools' and select != 'announcements' %}
         <div id="menu-school" class="menu relative">
             <div id="current-school-infor" school-id="{{ school.pk }}" class="hidden"></div>
             <button class="menu-button flex justify-center items-center

@@ -31,12 +31,13 @@ from django.db.models import Q, Count, Sum  # 'Sum' is imported here
 # Import forms
 from .forms import (
     SchoolForm, StudentForm, ClassForm, AttendanceForm, FinancialTransactionForm, FinancialTransactionNoteForm,
-    TuitionPaymentForm, TuitionPaymentOldForm, TuitionPaymentSpecialForm, StudentNoteForm, StudentConvertForm
+    TuitionPaymentForm, TuitionPaymentOldForm, TuitionPaymentSpecialForm, StudentNoteForm, StudentConvertForm,
+    AnnouncementForm
 )
 # Import models
 from django.contrib.auth.models import User
 from .models import (
-    School, Student, SchoolUser, Class, StudentClass, Attendance, FinancialTransaction
+    School, Student, SchoolUser, Class, StudentClass, Attendance, FinancialTransaction, Announcement
 )
 from django.db.models import F, FloatField
 
@@ -60,10 +61,7 @@ def is_admin(user):
 
 # GENERAL PAGES ==============================================================
 def landing_page(request):
-    if settings.DOMAIN == 'mycenter':
-        return redirect('schools')
-    else:
-        return render(request, 'pages/landing_page.html')
+    return redirect('schools')
 
 import os
 from django.shortcuts import render
@@ -316,6 +314,8 @@ class BaseViewSet(LoginRequiredMixin, View):
         if self.model_class==School:
             user = request.user
             records = self.model_class.objects.filter(users=user)
+        elif self.model_class == Announcement:
+            records = self.model_class.objects.all()
         elif self.model_class in [Student, Class, FinancialTransaction, Attendance]:
             if is_all:
                 records = self.model_class.objects.all()
@@ -337,7 +337,7 @@ class BaseViewSet(LoginRequiredMixin, View):
         if self.page == 'schools':
             fields = ['all', 'name', 'description']
         elif self.page == 'students' or self.page == 'CRM':
-            fields = ['all', 'name','status', 'gender', 'mother_phone', 'father_phone', 'mother', 'father', 'note']
+            fields = ['all', 'name','status', 'gender', 'mother_phone', 'father_phone', 'mother', 'father', 'address', 'note']
         elif self.page == 'classes':
             fields = ['all', 'name', 'status', 'note']
         elif self.page == 'financial_transactions':
@@ -587,6 +587,10 @@ class BaseViewSet(LoginRequiredMixin, View):
                 if not instance:
                     school_user = SchoolUser(school=instance_form, user=request.user)
                     school_user.save()
+            elif self.model_class == Announcement:
+                instance_form = form.save(commit=False)
+                instance_form.user = request.user
+                instance_form.save()
             else:
                 school = School.objects.filter(pk=request.POST.get('school_id')).first()
                 school_user = SchoolUser.objects.filter(school=school, user=request.user).first()
@@ -1255,3 +1259,10 @@ class TuitionPaymentSpecialViewSet(BaseViewSet):
     def post(self, request, school_id=None, student_id=None, pk=None):
         return super().post(request, school_id, pk)
 
+
+class AnnouncementViewSet(BaseViewSet):
+    model_class = Announcement
+    form_class = AnnouncementForm
+    title = 'Manage Announcements'
+    modal = 'modal_announcement'
+    page = 'announcements'

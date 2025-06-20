@@ -28,13 +28,13 @@ def format_vnd(amount):
 
 
 @register.filter
-def calculate_bonus(value, arg):
+def calculate_bonus(balance_increase, amount):
     try:
-        number = round(int(value) / int(arg) - 1,3)
-        result = "Extra " + str(number*100) + "%" 
+        number = round((int(balance_increase) - int(amount)) / int(balance_increase)*100,1)
+        result = "Extra " + str(number) + "%" 
         return result
-    except Exception as e:
-        return e
+    except ZeroDivisionError as e:
+        return "0%"
 
 
 @register.inclusion_tag('components/display_cards.html')

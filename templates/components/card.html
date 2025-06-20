@@ -118,14 +118,14 @@
                             href="/schools/{{school.pk}}/students/{{record.pk}}/pay-tuition-old/?get=form"
                             up-target="#modal" up-history="false">
                             <i class="fa fa-money ml-3 mr-5"></i> 
-                            Pay tuition (Cách tính cũ)
+                            Pay tuition (Đóng theo gói học phí)
                         </a>
 
                         <a id="pay_tuition" class="menu-item menu-item-border"
                             href="/schools/{{school.pk}}/students/{{record.pk}}/pay-tuition/?get=form"
                             up-target="#modal" up-history="false">
                             <i class="fa fa-money ml-3 mr-5"></i> 
-                            Pay tuition (Cách tính mới)
+                            Pay tuition (Đóng theo số tiền học)
                         </a>
                     {% endif %}
                     {% if select == 'students' or select == 'CRM' or select == 'classroom' %}
@@ -232,6 +232,14 @@
                 </div>
             </div>
             
+
+
+            <div class="flex items-start">
+                <i class="fas fa-address-card w-6 pt-1"></i>
+                <div class="max-h-40 overflow-y-scroll ml-2">
+                    <div class="whitespace-pre-line"> {{ record.address }} </div>
+                </div>
+            </div>
 
             <div class="flex">
                 <div class="flex-1 mr-2 h-10 truncate flex items-center">

@@ -52,19 +52,21 @@
             {% elif select == 'students' %}
                 <!-- Don't allow add new student, only convert from CRM -->
             {% else %}
-                {% if select == 'financial_transactions' %}
-                    <a href="/schools/all/financialtransactions/" class="max-sm:hidden btn btn-primary">
-                        <span class="max-sm:hidden me-3"> Xem cả tất chi nhánh </span>
+                <div class="flex gap-4">
+                    {% if select == 'financial_transactions' %}
+                        <a href="/schools/all/financialtransactions/" class="max-sm:hidden btn btn-primary">
+                            <span class="max-sm:hidden me-3"> Xem cả tất chi nhánh </span>
+                        </a>
+                        <button class="btn btn-primary" onclick="var x = document.getElementById('transaction-table'); x.classList.toggle('hidden');">
+                            Show / Hide transaction table
+                        </button>
+        
+                    {% endif %}
+                    <a href="?get=form" class="max-sm:hidden btn btn-primary" up-target="#modal" up-history="false">
+                        <i class="fas fa-plus me-3" style="font-size: 16px;"></i>
+                        <span class="max-sm:hidden me-3"> Add new </span>
                     </a>
-                    <button class="btn btn-primary" onclick="var x = document.getElementById('transaction-table'); x.classList.toggle('hidden');">
-                        Show / Hide transaction table
-                    </button>
-    
-                {% endif %}
-                <a href="?get=form" class="max-sm:hidden btn btn-primary" up-target="#modal" up-history="false">
-                    <i class="fas fa-plus me-3" style="font-size: 16px;"></i>
-                    <span class="max-sm:hidden me-3"> Add new </span>
-                </a>
+                </div>
             {% endif %}
         {% endif %}
 
