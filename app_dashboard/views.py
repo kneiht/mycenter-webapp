@@ -442,6 +442,12 @@ class BaseViewSet(LoginRequiredMixin, View):
         except EmptyPage:
             records_page = paginator.page(paginator.num_pages)
 
+        # Preserve query parameters for pagination
+        query_params_for_pagination = request.GET.copy()
+        if 'page' in query_params_for_pagination:
+            del query_params_for_pagination['page']
+        pagination_query_string = query_params_for_pagination.urlencode()
+
         context = {
             'select': self.page, 
             'title': self.title, 
@@ -455,6 +461,7 @@ class BaseViewSet(LoginRequiredMixin, View):
             'total_pages': paginator.num_pages,
             'total_records': paginator.count,
             'page_size': int(page_size),
+            'pagination_query_string': pagination_query_string,
         }
 
         if self.page == 'financial_transactions':

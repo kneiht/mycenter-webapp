@@ -537,3 +537,43 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
 
 
 
+
+class Announcement(BaseModel):
+    allow_display = True
+    excel_downloadable = True
+    excel_uploadable = True
+    vietnamese_name = "Thông báo"
+
+    PRIORITY_CHOICES = [
+        ("low", "Thấp"),
+        ("medium", "Trung bình"),
+        ("high", "Cao"),
+        ("urgent", "Khẩn cấp"),
+    ]
+
+    title = models.CharField(max_length=255, verbose_name="Tiêu đề")
+    content = models.TextField(verbose_name="Nội dung")
+    user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, verbose_name="Người đăng"
+    )
+    publish_date = models.DateTimeField(verbose_name="Ngày đăng", default=timezone.now)
+    attachment = models.FileField(
+        upload_to="announcements/", verbose_name="Tệp đính kèm", null=True, blank=True
+    )
+    is_pinned = models.BooleanField(default=False, verbose_name="Ghim thông báo")
+    created_at = models.DateTimeField(default=timezone.now, verbose_name="Ngày tạo")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Cập nhật lần cuối")
+
+    class Meta:
+        ordering = ["-is_pinned", "-publish_date"]
+
+    def __str__(self):
+        return str(self.title) + "- " + str(self.user) + " - " + str(self.publish_date)
+
+    def save(self):
+        # Skip if user changed (keep first user)
+        if self.pk:
+            old_instance = Announcement.objects.get(pk=self.pk)
+            if old_instance.user:
+                self.user = old_instance.user
+        super().save()

@@ -64,48 +64,81 @@
                 {% endif %}
             </div>
             {% if is_paginated %}
-            <nav aria-label="Page navigation" class="flex justify-center fixed bottom-0 left-4 bg-[#F0F2F5] dark:bg-slate-900" style="width: 100vw; height: 50px;">
+            <nav id="pagination" aria-label="Page navigation" class="flex justify-center fixed bottom-0 right-0 bg-[#F0F2F5] dark:bg-slate-900" style="width: 100vw; height: 50px;">
               <ul class="inline-flex items-center -space-x-px">
                 {% if page_obj.has_previous %}
                   <li>
-                    <a href="?page={{ page_obj.previous_page_number }}&page_size={{ page_size }}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'page_size' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
-                       class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 transition">
+                    <a href="?page={{ page_obj.previous_page_number }}{% if pagination_query_string %}&{{ pagination_query_string }}{% endif %}"
+                        up-preload
+                    class="px-3 md:px-7 py-2 leading-tight ml-0 text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white transition">
                       Previous
                     </a>
                   </li>
                 {% else %}
                   <li>
-                    <span class="px-3 py-2 ml-0 leading-tight text-gray-400 bg-gray-100 border border-gray-300 rounded-l-lg cursor-not-allowed">
+                    <span class="px-3 md:px-7 py-2 leading-tight ml-0 text-gray-400 bg-gray-100 border border-gray-300 rounded-l-lg cursor-not-allowed dark:bg-gray-700 dark:border-gray-600 dark:text-gray-500">
                       Previous
                     </span>
                   </li>
                 {% endif %}
 
                 {% for num in paginator.page_range %}
-                  {% if page_obj.number == num %}
-                    <li>
-                      <span class="px-3 py-2 leading-tight text-white bg-blue-600 border border-blue-600">{{ num }}</span>
-                    </li>
-                  {% else %}
-                    <li>
-                      <a href="?page={{ num }}&page_size={{ page_size }}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'page_size' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
-                         class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 transition">
-                        {{ num }}
-                      </a>
-                    </li>
+                  {% if num == 1 or num == paginator.num_pages or num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+                    {% if num == 1 and page_obj.number > 3 %}
+                      <li>
+                        <a href="?page={{ num }}{% if pagination_query_string %}&{{ pagination_query_string }}{% endif %}"
+                        up-preload
+                        class="px-3 md:px-7 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white transition">
+                          {{ num }}
+                        </a>
+                      </li>
+                      {% if page_obj.number > 4 %}
+                        <li>
+                          <span class="px-3 md:px-7 py-2 leading-tight text-gray-500 bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400">...</span>
+                        </li>
+                      {% endif %}
+                    {% elif num == paginator.num_pages and page_obj.number < paginator.num_pages|add:"-3" %}
+                      {% if page_obj.number < paginator.num_pages|add:"-4" %}
+                        <li>
+                          <span class="px-3 md:px-7 py-2 leading-tight text-gray-500 bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400">...</span>
+                        </li>
+                      {% endif %}
+                      <li>
+                        <a href="?page={{ num }}{% if pagination_query_string %}&{{ pagination_query_string }}{% endif %}"
+                        up-preload
+                        class="px-3 md:px-7 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white transition">
+                          {{ num }}
+                        </a>
+                      </li>
+                    {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+                      {% if page_obj.number == num %}
+                        <li>
+                          <span class="px-3 md:px-7 py-2 leading-tight text-white bg-blue-600 border border-blue-600">{{ num }}</span>
+                        </li>
+                      {% else %}
+                        <li>
+                          <a href="?page={{ num }}{% if pagination_query_string %}&{{ pagination_query_string }}{% endif %}"
+                          up-preload
+                          class="px-3 md:px-7 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white transition">
+                            {{ num }}
+                          </a>
+                        </li>
+                      {% endif %}
+                    {% endif %}
                   {% endif %}
                 {% endfor %}
 
                 {% if page_obj.has_next %}
                   <li>
-                    <a href="?page={{ page_obj.next_page_number }}&page_size={{ page_size }}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'page_size' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
-                       class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 transition">
+                    <a href="?page={{ page_obj.next_page_number }}{% if pagination_query_string %}&{{ pagination_query_string }}{% endif %}"
+                        up-preload
+                    class="px-3 md:px-7 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white transition">
                       Next
                     </a>
                   </li>
                 {% else %}
                   <li>
-                    <span class="px-3 py-2 leading-tight text-gray-400 bg-gray-100 border border-gray-300 rounded-r-lg cursor-not-allowed">
+                    <span class="px-3 md:px-7 py-2 leading-tight text-gray-400 bg-gray-100 border border-gray-300 rounded-r-lg cursor-not-allowed dark:bg-gray-700 dark:border-gray-600 dark:text-gray-500">
                       Next
                     </span>
                   </li>

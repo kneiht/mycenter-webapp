@@ -1,4 +1,5 @@
-
+import markdown2
+from django.utils.safestring import mark_safe
 from django import template
 from django.urls import reverse
 
@@ -98,3 +99,14 @@ def get_thumbnail(image_url):
         thumbnail_url = 'no_thumbnail_found'
      
     return thumbnail_url
+
+
+@register.filter(name="markdown")
+def markdown_filter(text):
+    if not text:
+        return ""
+    return mark_safe(
+        markdown2.markdown(
+            text, extras=["fenced-code-blocks", "tables", "break-on-newline"]
+        )
+    )

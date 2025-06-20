@@ -88,7 +88,7 @@
     <!-- Toolbar for database interactions -->
     <form
         action="{{ request.path|slice:'?' }}"
-        up-target="#display_cards, #infor-bar:maybe, #calculation_section:maybe, #transaction-table:maybe   ">
+        up-submit>
     <div id="db-tool-bar">
         <div class="mt-2">
             <!-- Separate 2 sections of controls -->
@@ -181,7 +181,7 @@
                     </button>
 
                     <!-- Button to toggle information bar visibility -->
-                    <button id="toggle-infor-bar" type="button" class="max-lg:hidden btn btn-outline h-full w-11">
+                    <button id="toggle-infor-bar" type="button" class="hidden btn btn-outline h-full w-11">
                         <i class="fas fa-info-circle" style="font-size: 20px;"></i>
                     </button>
 

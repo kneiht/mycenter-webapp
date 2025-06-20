@@ -15,25 +15,25 @@
                     Home
                 </a>
 
-                <a href="{% url 'classes' school.pk %}" class="p-2 flex justify-start items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer text-theme" 
+                <a href="{% url 'classes' school.pk %}?page=1" class="p-2 flex justify-start items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer text-theme" 
                             up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
                     <span class="fa fa-chalkboard w-8" style="font-size: 18px;"></span>
                     Classes
                 </a>
 
-                <a href="{% url 'students' school.pk %}" class="p-2 flex justify-start items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer text-theme" 
+                <a href="{% url 'students' school.pk %}?page=1" class="p-2 flex justify-start items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer text-theme" 
                             up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
                     <span class="fa fa-user-graduate w-8" style="font-size: 18px;"></span>
                     Students
                 </a>
-                <a href="{% url 'crm' school.pk %}" class="p-2 flex justify-start items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer text-theme" 
+                <a href="{% url 'crm' school.pk %}?page=1" class="p-2 flex justify-start items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer text-theme" 
                             up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
                     <span class="fa fa-users w-8" style="font-size: 18px;"></span>
                     CRM
                 </a>
 
 
-                <a href="{% url 'financialtransactions' school.pk %}" class="p-2 flex justify-start items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer text-theme"
+                <a href="{% url 'financialtransactions' school.pk %}?page=1" class="p-2 flex justify-start items-center rounded-xl hover:bg-gray-200 dark:hover:bg-gray-800 text-nowrap cursor-pointer text-theme"
                         up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
                     <span class="fa fa-dollar-sign w-8" style="font-size: 18px;"></span>
                     Finance
@@ -109,45 +109,20 @@
             </label>
 
             <!-- Toggle for languages. -->
-            <label class="text-theme transition-all duration-300 ease-in-out cursor-pointer">
+            <!-- <label class="text-theme transition-all duration-300 ease-in-out cursor-pointer"> -->
                 <!-- this hidden checkbox controls the state -->
-                <input id="theme-toggle" class="hidden" type="checkbox">
+                <!-- <input id="theme-toggle" class="hidden" type="checkbox"> -->
                         
-                <div class="relative w-7 h-7">
-                    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--emojione" preserveAspectRatio="xMidYMid meet" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><circle cx="32" cy="32" r="30" fill="#f42f4c"></circle><path fill="#ffe62e" d="M32 39l9.9 7l-3.7-11.4l9.8-7.4H35.8L32 16l-3.7 11.2H16l9.8 7.4L22.1 46z"></path></g></svg>
-                </div> 
-            </label>
+                <!-- <div class="relative w-7 h-7"> -->
+                    <!-- <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--emojione" preserveAspectRatio="xMidYMid meet" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><circle cx="32" cy="32" r="30" fill="#f42f4c"></circle><path fill="#ffe62e" d="M32 39l9.9 7l-3.7-11.4l9.8-7.4H35.8L32 16l-3.7 11.2H16l9.8 7.4L22.1 46z"></path></g></svg> -->
+                <!-- </div>  -->
+            <!-- </label> -->
         </div>
 
         <!-- Profile Picture and Dropdown  -->
-        <div id="profile" class="menu relative">
-            <!-- Profile picture dropdown button. -->
-            <div class="menu-button cursor-pointer">
-                <div class="flex justify-center items-center w-10 h-10 border-2 border-cyan-700 rounded-full shadow-xl">
-                    <img src="https://tecdn.b-cdn.net/img/new/standard/nature/184.jpg" alt="Profile Picture" class="rounded-full object-cover w-11 h-9">
-                </div>
-            </div>
-            <!-- Dropdown Menu -->
-            <ul id="menu-profile" class="dropdown-menu hidden right-0">
-
-                <a href="#" class="">
-                    <i class="fa fa-user ml-3 mr-6"></i>
-                    <span>Profile</span>
-                </a>
-                <a href="#" class="">
-                    <i class="fa fa-gear ml-3 mr-5"></i>
-                    <span>Settings</span>
-                </a>
-                <a href="{% url 'password_change' %}" class="">
-                    <i class="fa fa-key ml-3 mr-5"></i> 
-                    <span>Change password</span>
-                </a>
-                <a href="{% url 'logout' %}" class="">
-                    <i class="fa fa-sign-out ml-3 mr-5"></i>
-                    <span>Log out</span>
-                </a>
-            </ul>
-        </div>
+        <a href="{% url 'logout' %}" class="">
+            <i class="fa fa-sign-out ml-3 mr-5 text-theme" style="font-size: 20px;"></i>
+        </a>
     </div>
 </div>
 <!-- Horizontal line to separate the navagation bar from the rest of the content. -->

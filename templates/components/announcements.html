@@ -1,0 +1,62 @@
+{% load static %}
+{% load humanize %}
+{% load custom_tags %}
+
+<div id="display-records" class="overflow-scroll mt-4 px-4">
+  <h2 class="text-2xl font-bold text-center text-gray-800 dark:text-gray-100 mb-4">BẢNG THÔNG BÁO TÍN NGHĨA XUYÊN MỘC</h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+    {% for announcement in records %}
+      <div id="record_{{ announcement.pk }}" record-id="{{ announcement.pk }}" class="relative bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden {% if announcement.is_pinned %}border-2 border-yellow-400 dark:border-yellow-500{% endif %}">
+        <div class="p-4">
+          <div class="flex justify-between items-start mb-2">
+            <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100 flex-grow">{{ announcement.title }}</h3>
+            {% comment %} {% if announcement.is_pinned %}
+              <span class="text-yellow-500 dark:text-yellow-400">
+                <i class="fas fa-thumbtack"></i>
+              </span>
+            {% endif %} {% endcomment %}
+          </div>
+          
+          <div class="text-theme mb-4 prose dark:prose-invert max-w-none markdown-content">
+            {{ announcement.content|markdown }}
+          </div>
+          
+          <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
+            <i class="fas fa-user mr-2"></i>
+            <span>{{ announcement.user.username }}
+                {% if announcement.user.first_name %}
+                   - {{ announcement.user.first_name }}
+                {% endif %}
+
+            </span>
+          </div>
+          
+          <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
+            <i class="fas fa-clock mr-2"></i>
+            <span>{{ announcement.publish_date|naturaltime }}</span>
+          </div>
+          
+          {% if announcement.attachment %}
+            <div class="flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+              <i class="fas fa-paperclip mr-2"></i>
+              <a href="{{ announcement.attachment.url }}" target="_blank">Tệp đính kèm</a>
+            </div>
+          {% endif %}
+          
+          <div class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+            <span>Cập nhật lần cuối: {{ announcement.updated_at|naturaltime }}</span>
+          </div>
+          {% if request.user == announcement.user %}
+            <a id="record-edit" class="flex flex-row justify-center items-center absolute top-5 right-2"
+            up-preload="reveal" up-cache="auto"
+            href="" up-target="#modal">
+                <img src="{% static 'images/icons/edit.png' %}?v={{ STATIC_VERSION }}" alt="Edit Record" class="w-8 h-8">
+            </a>
+          {% endif %}
+
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
