@@ -18,12 +18,7 @@ import socket
 
 import json
 
-# Version to reload static files
-STATIC_VERSION = timezone.now().strftime("%Y%m%d%H%M%S")
 
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = str(Path(__file__).resolve().parent.parent)
 
 
 # Quick-start development settings - unsuitable for production
@@ -33,6 +28,12 @@ BASE_DIR = str(Path(__file__).resolve().parent.parent)
 SECRET_KEY = "django-insecure-4!qf!8%y5=6ny_01gbgw_wcfb=6+czumg&ig5*$m-2ok@*s=3*"
 
 # SECURITY WARNING: don't run with debug turned on in production!
+
+# Version to reload static files
+STATIC_VERSION = timezone.now().strftime("%Y%m%d%H%M%S")
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = str(Path(__file__).resolve().parent.parent)
 
 
 # Load from a file

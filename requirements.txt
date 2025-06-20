@@ -1,13 +1,13 @@
-# requirements.txt
-
 annotated-types==0.6.0
 asgiref==3.7.2
 autoflake==2.2.1
+beautifulsoup4==4.13.4
 cachetools==5.3.2
 certifi==2023.11.17
 charset-normalizer==3.3.2
 decorator==5.1.1
 Django==5.0.1
+django-humanize==0.1.2
 django-pwa==1.1.0
 django-qr-code==4.0.1
 django-ratelimit==4.1.0
@@ -23,7 +23,9 @@ googleapis-common-protos==1.62.0
 greenlet==3.0.3
 grpcio==1.60.0
 grpcio-status==1.60.0
+humanize==4.12.3
 idna==3.6
+markdown2==2.5.3
 numpy==1.26.3
 openpyxl==3.1.2
 orjson==3.9.13
