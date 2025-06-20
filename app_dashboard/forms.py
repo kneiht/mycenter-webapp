@@ -582,7 +582,7 @@ class TuitionPaymentSpecialForm(forms.ModelForm):
 class AnnouncementForm(forms.ModelForm):
     class Meta:
         model = Announcement
-        fields = ['title', 'publish_date', 'attachment', 'is_pinned', 'note']
+        fields = ['title', 'attachment', 'is_pinned', 'note']
         widgets = {
             'title': forms.TextInput(attrs={
                 'placeholder': 'Title',
