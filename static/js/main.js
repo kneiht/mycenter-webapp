@@ -138,76 +138,6 @@ up.compiler('.modal', function(element) {
 });
 
 
-
-// // CARD DROPDOWN MENU =========================================
-// // this code must be placed before the dropdown menu code
-// up.compiler('.card', function(element) {
-//     const card = element;
-//     const menuButton = element.querySelector('.menu-button');
-//     if (menuButton) {
-//         menuButton.addEventListener('click', function() {
-//             var menuCardContext = document.getElementById('menu-card-context');
-//             if (menuCardContext) {
-//                 let recordId = card.getAttribute('record-id');
-
-//                 // Update the URL for the edit link
-//                 let recordEdit = document.getElementById('record-edit');
-//                 if (recordEdit) {
-//                     let href = window.location.pathname
-//                     href = href + '/' + recordId + '/?get=form';
-//                     href = href.replace('//', '/');
-//                     recordEdit.setAttribute('href', href);
-//                 }
-
-//                 // Update the URL for the tuition payment link
-//                 let payTuition = document.getElementById('pay_tuition');
-//                 if (payTuition) {
-//                     let href = window.location.pathname
-//                     href = href + '/' + recordId + '/pay-tuition/?get=form';
-//                     href = href.replace('//', '/');
-//                     payTuition.setAttribute('href', href);
-//                 }
-
-
-//                 // Update the URL for the tuition payment link
-//                 let payTuitionOld = document.getElementById('pay_tuition_old');
-//                 if (payTuitionOld) {
-//                     let href = window.location.pathname
-//                     href = href + '/' + recordId + '/pay-tuition-old/?get=form';
-//                     href = href.replace('//', '/');
-//                     payTuitionOld.setAttribute('href', href);
-//                 }
-
-//                 // Update the URL for the tuition payment link
-//                 let payTuitionSpecial = document.getElementById('pay_tuition_special');
-//                 if (payTuitionSpecial) {
-//                     let href = window.location.pathname
-//                     href = href + '/' + recordId + '/pay-tuition-special/?get=form';
-//                     href = href.replace('//', '/');
-//                     payTuitionSpecial.setAttribute('href', href);
-//                 }
-
-//                 // Update the URL for attendance link
-//                 let attendanceCalendar = document.getElementById('attendance-calendar');
-//                 if (attendanceCalendar) {
-//                     href = window.location.pathname;
-//                     console.log(href);
-//                     href = href + '/' + recordId + '/attendance-calendar/'
-//                     href = href.replace('//', '/');
-//                     attendanceCalendar.setAttribute('href', href);
-//                 }
-//             }
-//             if (menuCardContext && !card.contains(menuCardContext)) {
-//                 // Move #menu-card-context to be after the clicked element
-//                 // Check if menuCardContext exists before trying to move it
-//                     menuButton.insertAdjacentElement('afterend', menuCardContext);
-//                     menuCardContext.classList.add('hidden');
-//             }
-
-//         });
-//     }
-// });
-
 // DROPDOWN MENUS =========================================
 up.compiler('.menu', function(element) {
     // Function to show a menu
@@ -551,13 +481,34 @@ up.compiler('.modal', function(element) {
 });
 
 
+// GLOBAL tuition plan map
+let tuitionPlanMap = null;
+
+function extractTuitionPlans() {
+    const plansDiv = document.getElementById('tuition-plans');
+    if (!plansDiv) return null;
+    const plans = plansDiv.querySelectorAll('.plan');
+    let map = new Map();
+    plans.forEach(plan => {
+        const name = plan.querySelector('.name span')?.innerText?.trim();
+        const amount = plan.querySelector('.amount span')?.innerText?.trim();
+        const balanceIncrease = plan.querySelector('.balance-increase span')?.innerText?.trim();
+        if (amount && balanceIncrease) {
+            // Use amount as key, balanceIncrease as value (both as string for now)
+            map.set(amount, balanceIncrease);
+        }
+    });
+    return map;
+}
+
 // CALCULATE BALANCE IN STUDENT FORM =========================================
 up.compiler('#calculate-balance', function(element) {
+    // Extract tuition plans if not already done
+    if (tuitionPlanMap === null) {
+        tuitionPlanMap = extractTuitionPlans();
+    }
     // when the url has "attendance-calendar" in the url, reload when the button ok is pressed
     document.getElementById('id_amount').addEventListener('input', function() {
-        calculateBalance();
-    });
-    document.getElementById('id_bonus').addEventListener('input', function() {
         calculateBalance();
     });
     document.getElementById('id_student_balance_increase').addEventListener('input', function() {
@@ -582,27 +533,11 @@ up.compiler('#calculate-balance', function(element) {
             }
             else {
                 let amount = document.getElementById('id_amount').value;
-                // create a map of amount and balance increase
-                let map = new Map();
-                map.set('1800000', 1800000);
-                map.set('1620000', 1800000);
-                map.set('1440000', 1800000);
-                map.set('1350000', 1800000);
-                map.set('1300000', 1800000);
-                map.set('3240000', 3600000);
-                map.set('2916000', 3600000);
-                map.set('5640000', 7200000);
-                map.set('5076000', 7200000);
-
-                map.set('2200000', 2200000);
-                map.set('1980000', 2200000);
-                map.set('3960000', 4400000);
-                map.set('3564000', 4400000);
-                map.set('7080000', 8800000);
-                map.set('6372000', 2200000);
-
-
-                let balance = map.get(amount);
+                // use the global tuitionPlanMap
+                let balance = null;
+                if (tuitionPlanMap && tuitionPlanMap.has(amount)) {
+                    balance = tuitionPlanMap.get(amount);
+                }
                 element.innerText = Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(balance);
                 let balanceElement = document.getElementById('id_student_balance_increase');
                 if (balanceElement) { 
@@ -612,6 +547,7 @@ up.compiler('#calculate-balance', function(element) {
         }
         
     }
+    calculateBalance();
 });
 
 
@@ -746,3 +682,325 @@ up.compiler('.show-hide-table', function(button) {
         table.classList.toggle('hidden');
     });
 });
+
+
+
+
+function formatNumber(number) {
+    // Check if the number is a valid number
+    if (number === '' || isNaN(parseFloat(number))) {
+        return '';
+    }
+
+    // Convert the number to a float, just in case it's passed as a string
+    let num = parseFloat(number);
+
+    // Convert the number to a string with two decimal places
+    let parts = num.toString().split('.');
+
+    // Add thousand separators (dots) to the integer part
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    // Join the integer and fractional parts with a comma
+    return parts.join('.');
+}
+up.compiler('.form-input', function (inputfield) {
+    if (inputfield.classList.contains('no-readable')) {
+        return;
+    }
+
+    // Check if the input field is a number field by getting the input type
+    if (inputfield.type !== 'number') {
+        return;
+    }
+
+    function formatNumber(number) {
+        // Check if the number is a valid number
+        if (number === '' || isNaN(parseFloat(number))) {
+            return '';
+        }
+
+        // Convert the number to a float, just in case it's passed as a string
+        let num = parseFloat(number);
+
+        // Convert the number to a string with two decimal places
+        let parts = num.toString().split('.');
+
+        // Add thousand separators (dots) to the integer part
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+        // Join the integer and fractional parts with a comma
+        return parts.join(',');
+    }
+
+    function formatVerboseCurrency(number) {
+        if (isNaN(number) || number < 0) {
+            return "Invalid input";
+        }
+
+        const billion = 1000000000;
+        const million = 1000000;
+        const thousand = 1000;
+
+        let result = "";
+
+        // Handle billions
+        if (number >= billion) {
+            const billions = Math.floor(number / billion);
+            result += `${billions} tỷ `;
+            number %= billion;
+        }
+
+        // Handle millions
+        if (number >= million) {
+            const millions = Math.floor(number / million);
+            result += `${millions} triệu `;
+            number %= million;
+        }
+
+        // Handle thousands
+        if (number >= thousand) {
+            const thousands = Math.floor(number / thousand);
+            result += `${thousands} ngàn `;
+            number %= thousand;
+        }
+
+        // Handle the remaining units
+        if (number > 0) {
+            result += `${number} `;
+        }
+
+        // Append "đồng" at the end
+        result += "đồng";
+
+        // Remove any extra spaces and return the result
+        return result.replace(/\s+/g, ' ').trim();
+    }
+
+
+
+    // Create a popup element
+    const popup = document.createElement('div');
+    popup.classList.add('text-blue-500');
+    popup.classList.add('ms-3');
+
+    function formatPopup(popup, inputfield) {
+        const listVerbose = ['requested_amount', 'transferred_amount'];
+        // If name attribute = requested_amount, use formatVerBoseCurrency
+        if (listVerbose.includes(inputfield.name)) {
+            popup.innerText = formatVerboseCurrency(inputfield.value);
+        }
+        else {
+            popup.innerText = formatNumber(inputfield.value);
+        }
+    }
+
+
+    // Insert the popup after the input field
+    formatPopup(popup, inputfield)
+    inputfield.parentNode.insertBefore(popup, inputfield.nextSibling);
+
+    // Add keyup event listener to format the value and update tooltip
+    inputfield.addEventListener('keyup', function () {
+        formatPopup(popup, inputfield)
+    });
+
+});
+
+// function handleNewSelectElement(select) {
+//     // If there are only about 5 options, don't create the wrapper
+//     if ((select.options.length <= 6 && !select.hasAttribute('readonly')) && !select.classList.contains('new-select')) {
+//         return;
+//     }
+
+//     // If there are only about 5 options, don't create the wrapper
+//     if (select.classList.contains('no-new-select')) {
+//         return;
+//     }
+
+//     // id =sort-select
+//     if (select.id === 'sort-select') {
+//         return;
+//     }
+
+//     // Check if there an element ".select-wrapper" below the select element => return
+//     if (select.parentNode.querySelector('.select-wrapper')) {
+//         // delete the element ".select-wrapper" below the select element
+//         select.parentNode.querySelector('.select-wrapper').remove();
+//     }
+//     // Create the wrapper div for card and dropdown
+//     const wrapper = document.createElement('div');
+//     const width = select.style.width;
+//     if (width) {
+//         wrapper.style.width = width;
+//     }
+//     wrapper.classList.add('select-wrapper', 'relative'); // Add TailwindCSS classes for positioning and spacing
+
+
+//     // Create the card element
+//     const card = document.createElement('div');
+//     Array.from(select.classList).forEach(c => {
+//         card.classList.add(c);
+//     });
+//     card.classList.add('form-input', 'cursor-pointer');
+//     card.innerHTML = `
+//       <div class="card-body flex items-center justify-between">
+//         <span class="selected-option text-nowrap overflow-hidden">${select.options[select.selectedIndex]?.text || 'Select an option'}</span>
+//         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 dark:text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+//           <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+//         </svg>
+//       </div>
+//     `;
+
+//     if (select.hasAttribute('readonly')) {
+//         // Hide the arror icon
+//         card.querySelector('svg').style.display = 'none';
+//     }
+
+//     // Create the dropdown element
+//     const dropdown = document.createElement('div');
+//     dropdown.classList.add(
+//         'dropdown',
+//         'hidden',
+//         'absolute',
+//         'left-0',
+//         'right-0',
+//         'bg-white',
+//         'dark:bg-gray-900',
+//         'border',
+//         'dark:border-gray-700',
+//         'rounded-md',
+//         'shadow-lg',
+//         'mt-1',
+//         'z-10',
+//     );
+
+//     // Create the input for filtering
+//     const input = document.createElement('input');
+//     input.type = 'text';
+//     input.placeholder = 'Tìm ...';
+//     input.classList.add(
+//         'text-sm',
+//         'w-full',
+//         'p-2',
+//         'border-b',
+//         'border-slate-300',
+//         'dark:border-slate-600',
+//         'outline-none',
+//         'dark:bg-gray-800',
+//         'dark:text-white',
+//         'rounded-t-md',
+//         'focus:border-theme-600',
+//         'focus:ring-1',
+//         'focus:ring-theme-700',
+//         'focus:outline-none',
+//     );
+//     // Add input to dropdown
+//     dropdown.appendChild(input);
+
+//     // Add options to dropdown
+//     const optionsContainer = document.createElement('div');
+//     optionsContainer.classList.add(
+//         'overflow-y-auto',
+//         'max-h-64',
+
+//     );
+//     Array.from(select.options).forEach(option => {
+//         const optionDiv = document.createElement('div');
+//         optionDiv.textContent = option.text;
+//         optionDiv.dataset.value = option.value;
+//         optionDiv.classList.add(
+//             'p-2',
+//             'hover:bg-gray-100',
+//             'dark:hover:bg-gray-700',
+//             'cursor-pointer',
+//             'text-gray-800',
+//             'dark:text-gray-300'
+//         );
+//         optionsContainer.appendChild(optionDiv);
+//     });
+//     dropdown.appendChild(optionsContainer);
+
+//     // Append card and dropdown to the wrapper
+//     wrapper.appendChild(card);
+//     wrapper.appendChild(dropdown);
+
+//     // Insert the wrapper into the DOM
+//     select.parentNode.insertBefore(wrapper, select.nextSibling);
+//     // select.style.display = 'none'; // Hide the original select
+//     select.style.position = 'absolute';
+//     // select.style.width = '100px';
+//     select.style.opacity = '0';
+//     select.style.pointerEvents = 'none';
+
+
+
+//     // Toggle dropdown on card click
+//     card.addEventListener('click', () => {
+//         if (!select.hasAttribute('readonly')) {
+//             dropdown.classList.toggle('hidden');
+//             input.focus();
+//         }
+//     });
+
+//     // Filter options on input
+//     input.addEventListener('input', () => {
+//         const filter = input.value.toLowerCase();
+//         Array.from(optionsContainer.children).forEach(optionDiv => {
+//             optionDiv.classList.toggle('hidden', !optionDiv.textContent.toLowerCase().includes(filter));
+//         });
+//     });
+
+//     // Handle option selection
+//     optionsContainer.addEventListener('click', event => {
+//         if (event.target.dataset) {
+//             select.value = event.target.dataset.value;
+//             // Manually trigger the change event
+//             const eventSelect = new Event('change', { bubbles: true });
+//             select.dispatchEvent(eventSelect);
+
+//             card.querySelector('.selected-option').textContent = event.target.textContent;
+//             dropdown.classList.add('hidden');
+//         }
+//     });
+
+//     // Close dropdown on outside click
+//     document.addEventListener('click', event => {
+//         if (!wrapper.contains(event.target)) {
+//             dropdown.classList.add('hidden');
+//         }
+//     });
+
+
+//     // Add if the select value change the wrapper change too
+//     select.addEventListener('change', () => {
+//         // console.log('change');
+//         card.querySelector('.selected-option').textContent = select.options[select.selectedIndex]?.text || 'Select an option';
+//     });
+// }
+
+
+// // Set up a MutationObserver
+// const observer = new MutationObserver((mutationsList) => {
+//     for (const mutation of mutationsList) {
+//         if (mutation.type === 'childList') {
+//             // Check added nodes
+//             mutation.addedNodes.forEach((node) => {
+//                 // If it's a <select> element
+//                 if (node.nodeType === 1 && node.tagName.toLowerCase() === 'select') {
+//                     handleNewSelectElement(node)
+//                 }
+
+//                 // If a container with nested <select> elements
+//                 if (node.nodeType === 1) {
+//                     const nestedSelects = node.querySelectorAll('select');
+//                     nestedSelects.forEach((nestedSelect) => handleNewSelectElement(nestedSelect));
+//                 }
+//             });
+//         }
+//     }
+// });
+
+// // Start observing the document body for changes
+// observer.observe(document.body, { childList: true, subtree: true });
+

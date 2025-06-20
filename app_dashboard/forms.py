@@ -4,9 +4,9 @@ from django.shortcuts import get_object_or_404
 
 
 from django.db.models import Exists, OuterRef
-
+    
 from .models import (School, Student, Class, 
-                     StudentClass, FinancialTransaction, Attendance, Announcement)
+                     StudentClass, FinancialTransaction, Attendance, Announcement, TuitionPlan)
 
 class SchoolForm(forms.ModelForm):
     class Meta:
@@ -378,9 +378,8 @@ class FinancialTransactionForm(forms.ModelForm):
     class Meta:
         model = FinancialTransaction
         fields = ['income_or_expense', 'transaction_type', 
-                  'giver', 'receiver', 'amount', 'student', 
-                  'bonus', 'student_balance_increase',
-                  'image1', 'image2', 'image3', 'image4', 'created_at','note']
+                  'giver', 'receiver', 'amount', 'student', 'student_balance_increase', 'created_at',
+                  'image1', 'image2', 'image3', 'image4','note']
         widgets = {
             'income_or_expense': forms.Select(attrs={
                 'class': 'form-input'
@@ -407,10 +406,6 @@ class FinancialTransactionForm(forms.ModelForm):
             }),
 
             'student': forms.Select(attrs={
-                'class': 'form-input',
-            }),
-
-            'bonus': forms.Select(attrs={
                 'class': 'form-input',
             }),
 
@@ -507,30 +502,9 @@ class TuitionPaymentOldForm(forms.ModelForm):
                 'class': 'form-input',
             }),
             'amount': forms.Select(
-                choices = [(0, "Chọn gói học phí"),
-                           (1800000, "Mầm non và tiểu học - Quý 1.800.000 VNĐ (gốc)"),
-                           (1620000, "Mầm non và tiểu học - Quý 1.620.000 VNĐ (gốc - 10%)"),
-                           (1440000, "Mầm non và tiểu học - Quý 1.440.000 VNĐ (gốc - 20%)"),
-                           (1350000, "Mầm non và tiểu học - Quý 1.350.000 VNĐ (gốc - 25%)"),
-                           (1300000, "Mầm non và tiểu học - Quý 1.300.000 VNĐ (Hp chính sách cũ)"),
-                           (3240000, "Mầm non và tiểu học - Nửa năm 3.240.000 VNĐ (gốc)"),
-                           (2916000, "Mầm non và tiểu học - Nửa năm 2.916.000 VNĐ (gốc - 10%)"),
-                           (5640000, "Mầm non và tiểu học - Năm 5.640.000 VNĐ (gốc)"),
-                           (5076000, "Mầm non và tiểu học - Năm 5.076.000 VNĐ (gốc - 10%)"),
-                           
-
-                           (2200000, "Trung học và giao tiếp - Quý 2.200.000 VNĐ (gốc)"),
-                           (1980000, "Trung học và giao tiếp - Quý 1.980.000 VNĐ (gốc - 10%)"),
-                           (3960000, "Trung học và giao tiếp - Nửa năm 3.960.000 VNĐ (gốc)"),
-                           (3564000, "Trung học và giao tiếp - Nửa năm 3.564.000 VNĐ (gốc - 10%)"),
-                           (7080000, "Trung học và giao tiếp - Năm 7.080.000 VNĐ (gốc)"),
-                           (6372000, "Trung học và giao tiếp - Năm 6.372.000 VNĐ (gốc - 10%)"),
-                           ],
-
-
-
+                choices = TuitionPlan.to_amount_selections(),
                 attrs={
-                'class': 'form-input text-xl h-16'
+                'class': 'form-input text-lg h-16'
             }),
 
             'note': forms.Textarea(attrs={
@@ -557,6 +531,8 @@ class TuitionPaymentOldForm(forms.ModelForm):
         payments = FinancialTransaction.objects.filter(school_id=self.school_id,student_id=self.student_id).order_by('created_at')
         return payments
 
+    def get_tuition_plans(self):
+        return TuitionPlan.to_amount_and_balance_increase_selections()
 
 class TuitionPaymentSpecialForm(forms.ModelForm):
     class Meta:

@@ -64,6 +64,9 @@ urlpatterns = [
     # DATABASE UPLOAD AND DOWNLOAD
     path('download_database_backup/', views_db.download_database_backup, name='download_database_backup'),
     path('database_handle/', views_db.database_handle, name='database_handle'),
+
+    path('seed/', views.seed, name='seed'),
+
 ]
 
 # urlpatterns = [

@@ -421,14 +421,6 @@ class Attendance(SecondaryIDMixin, BaseModel):
         return "{} - {} - {} - {}".format(str(self.student), str(self.check_class), str(self.check_date), str(self.is_payment_required), str(self.status))
 
 
-class TuitionPlan(models.Model):
-    name = models.CharField(max_length=255, default="", blank=True, null=True)
-    amount = models.FloatField(default=0, null=True, blank=True)
-    balance_increase = models.FloatField(default=0, null=True, blank=True)
-    def __str__(self):
-        return self.name + " - " + str(self.amount)
-    def to_amount_selections(self):
-        pass
 
 class FinancialTransaction(SecondaryIDMixin, BaseModel):
     school = models.ForeignKey(School, on_delete=models.SET_NULL, null=True, blank=True)
@@ -456,20 +448,6 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
         ('expense_human_resources_expenses', 'EXPENSE - Human Resources Expenses'),
         ('expense_other_expenses', 'EXPENSE - Other Expenses'),
     )
-    BONUSES = (
-        (1.0, 'No bonus'),
-        (1.05, 'Extra 5%'),
-        (1.1, 'Extra 10%'),
-        (1.15, 'Extra 15%'),
-        (1.2, 'Extra 20%'),
-        (1.25, 'Extra 25%'),
-        (1.3, 'Extra 30%'),
-        (1.35, 'Extra 35%'),
-        (1.4, 'Extra 40%'),
-        (1.45, 'Extra 45%'),
-        (1.5, 'Extra 50%'),
-
-    )   
     income_or_expense = models.CharField(max_length=20, choices=IN_OR_OUT_CHOICES)
     status =  models.CharField(max_length=50, choices=STATUS, default="unchecked")
     transaction_type = models.CharField(max_length=255, choices=TRANSACTION_TYPES)
@@ -479,7 +457,6 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
 
     # fields for tuition payments
     student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True, blank=True)
-    bonus = models.FloatField(default=1.0, choices=BONUSES, null=True, blank=True)
     student_balance_increase = models.FloatField(default=0, null=True, blank=True)
     legacy_discount = models.TextField(default="", blank=True, null=True)
     legacy_tuition_plan = models.TextField(default="", blank=True, null=True)
@@ -567,3 +544,30 @@ class Announcement(BaseModel):
             if old_instance.user:
                 self.user = old_instance.user
         super().save()
+
+
+
+class TuitionPlan(models.Model):
+    name = models.CharField(max_length=255, default="", blank=True, null=True, unique=True)
+    amount = models.FloatField(default=0, null=True, blank=True)
+    balance_increase = models.FloatField(default=0, null=True, blank=True)
+    def __str__(self):
+        return self.name + " - " + str(self.amount)
+    
+    @staticmethod
+    def to_amount_selections():
+        print([(plan.amount, plan.name) for plan in TuitionPlan.objects.all()])
+        return [(plan.amount, plan.name) for plan in TuitionPlan.objects.all()]
+
+    @staticmethod
+    def to_amount_and_balance_increase_selections():
+        # plan dict
+        plans = []
+        for plan in TuitionPlan.objects.all():
+            plans.append({
+                "name": plan.name,
+                "amount": plan.amount,
+                "balance_increase": plan.balance_increase
+            })
+        # convert to json
+        return plans

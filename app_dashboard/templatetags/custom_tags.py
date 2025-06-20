@@ -31,7 +31,7 @@ def format_vnd(amount):
 def calculate_bonus(balance_increase, amount):
     try:
         number = round((int(balance_increase) - int(amount)) / int(balance_increase)*100,1)
-        result = "Extra " + str(number) + "%" 
+        result = str(number) + "%" 
         return result
     except ZeroDivisionError as e:
         return "0%"

@@ -37,7 +37,7 @@ from .forms import (
 # Import models
 from django.contrib.auth.models import User
 from .models import (
-    School, Student, SchoolUser, Class, StudentClass, Attendance, FinancialTransaction, Announcement
+    School, Student, SchoolUser, Class, StudentClass, Attendance, FinancialTransaction, Announcement, TuitionPlan
 )
 from django.db.models import F, FloatField
 
@@ -54,6 +54,7 @@ from django.contrib.auth.decorators import user_passes_test
 
 from django.db.models import Sum
 from django.db.models.functions import TruncMonth
+
 
 def is_admin(user):
     return user.is_authenticated and user.is_active and user.is_staff and user.is_superuser
@@ -1266,3 +1267,39 @@ class AnnouncementViewSet(BaseViewSet):
     title = 'Manage Announcements'
     modal = 'modal_announcement'
     page = 'announcements'
+
+
+
+def seed(request):
+    if not request.user.is_superuser:
+        return JsonResponse({'status': 'error', 'message': 'You are not authorized to access this page'})
+    
+    plans = [
+        (1800000, 1800000, "Mầm non và tiểu học - Quý 1.800.000 VNĐ (gốc)"),
+        (1620000, 1800000, "Mầm non và tiểu học - Quý 1.620.000 VNĐ (gốc - 10%)"),
+        (1440000, 1800000, "Mầm non và tiểu học - Quý 1.440.000 VNĐ (gốc - 20%)"),
+        (1350000, 1800000, "Mầm non và tiểu học - Quý 1.350.000 VNĐ (gốc - 25%)"),
+        (1300000, 1800000, "Mầm non và tiểu học - Quý 1.300.000 VNĐ (Hp chính sách cũ)"),
+        (3240000, 3600000, "Mầm non và tiểu học - Nửa năm 3.240.000 VNĐ (gốc)"),
+        (2916000, 3600000, "Mầm non và tiểu học - Nửa năm 2.916.000 VNĐ (gốc - 10%)"),
+        (5640000, 7200000, "Mầm non và tiểu học - Năm 5.640.000 VNĐ (gốc)"),
+        (5076000, 7200000, "Mầm non và tiểu học - Năm 5.076.000 VNĐ (gốc - 10%)"),
+        (2200000, 2200000, "Trung học và giao tiếp - Quý 2.200.000 VNĐ (gốc)"),
+        (1980000, 2200000, "Trung học và giao tiếp - Quý 1.980.000 VNĐ (gốc - 10%)"),
+        (3960000, 4400000, "Trung học và giao tiếp - Nửa năm 3.960.000 VNĐ (gốc)"),
+        (3564000, 4400000, "Trung học và giao tiếp - Nửa năm 3.564.000 VNĐ (gốc - 10%)"),
+        (7080000, 8800000, "Trung học và giao tiếp - Năm 7.080.000 VNĐ (gốc)"),
+        (6372000, 8800000, "Trung học và giao tiếp - Năm 6.372.000 VNĐ (gốc - 10%)"),
+    ]
+    created = 0
+    for amount, balance_increase, name in plans:
+        obj, was_created = TuitionPlan.objects.get_or_create(
+            name=name,
+            defaults={'amount': amount, 'balance_increase': balance_increase}
+        )
+        if was_created:
+            created += 1
+    return JsonResponse({'status': 'ok', 'created': created})
+
+
+

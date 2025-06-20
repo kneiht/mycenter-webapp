@@ -1951,8 +1951,16 @@ select {
   height: 10rem;
 }
 
+.h-5 {
+  height: 1.25rem;
+}
+
 .max-h-40 {
   max-height: 10rem;
+}
+
+.max-h-64 {
+  max-height: 16rem;
 }
 
 .min-h-full {
@@ -2385,6 +2393,11 @@ select {
 .rounded-r-lg {
   border-top-right-radius: 0.5rem;
   border-bottom-right-radius: 0.5rem;
+}
+
+.rounded-t-md {
+  border-top-left-radius: 0.375rem;
+  border-top-right-radius: 0.375rem;
 }
 
 .border {
@@ -3099,6 +3112,11 @@ select {
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
+.outline-none {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
 .blur {
   --tw-blur: blur(8px);
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
@@ -3174,6 +3192,27 @@ select {
 
 .hover\:underline:hover {
   text-decoration-line: underline;
+}
+
+.focus\:border-theme-600:focus {
+  --tw-border-opacity: 1;
+  border-color: rgb(6 124 198 / var(--tw-border-opacity));
+}
+
+.focus\:outline-none:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.focus\:ring-1:focus {
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+
+.focus\:ring-theme-700:focus {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(6 97 158 / var(--tw-ring-opacity));
 }
 
 .group:hover .group-hover\:text-blue-600 {
@@ -3321,6 +3360,11 @@ select {
   background-color: rgb(161 98 7 / var(--tw-bg-opacity));
 }
 
+.dark\:bg-gray-900:is(.dark *) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(17 24 39 / var(--tw-bg-opacity));
+}
+
 .dark\:from-theme-700:is(.dark *) {
   --tw-gradient-from: #06619e var(--tw-gradient-from-position);
   --tw-gradient-to: rgb(6 97 158 / 0) var(--tw-gradient-to-position);
@@ -3369,6 +3413,16 @@ select {
 .dark\:text-yellow-400:is(.dark *) {
   --tw-text-opacity: 1;
   color: rgb(250 204 21 / var(--tw-text-opacity));
+}
+
+.dark\:text-gray-300:is(.dark *) {
+  --tw-text-opacity: 1;
+  color: rgb(209 213 219 / var(--tw-text-opacity));
+}
+
+.dark\:text-white:is(.dark *) {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
 .dark\:hover\:bg-gray-800:hover:is(.dark *) {

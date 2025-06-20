@@ -1,61 +1,29 @@
+from .models import *
+
+
+
 
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from .models import School, SchoolUser, UserProfile, FilterValues, Student, Class, StudentClass, Attendance, FinancialTransaction, TimeFrame
-from django.utils.safestring import mark_safe
-from django import forms
+from django.apps import apps
 
-class SchoolAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'image', 'moved_to_trash')
-    list_filter = ('moved_to_trash',)
-    search_fields = ('name', 'description')
+class DefaultModelAdmin(admin.ModelAdmin):
+    def get_list_display(self, request):
+        # Get all field names from the model
+        return [field.name for field in self.model._meta.fields]
 
-class SchoolUserAdmin(admin.ModelAdmin):
-    list_display = ('user', 'school')
+    def get_search_fields(self, request):
+        # Get all character/text field names for searching
+        return [field.name for field in self.model._meta.fields 
+                if field.get_internal_type() in ['CharField', 'TextField']]
 
-class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'name', 'gender', 'date_of_birth', 'phone', 'bio', 'image', 'settings', 'created_at')
-    list_filter = ('created_at',)
-    search_fields = ('name', 'phone', 'bio')
+# Get all models from your app
+app_models = apps.get_app_config('app_dashboard').get_models()
 
-class FilterValuesAdmin(admin.ModelAdmin):
-    list_display = ('user', 'school', 'filter', 'value')
+# Register any model that hasn't been registered yet with the default admin class
+for model in app_models:
+    try:
+        admin.site.register(model, DefaultModelAdmin)
+    except admin.sites.AlreadyRegistered:
+        pass
 
-class StudentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'gender', 'date_of_birth', 'mother', 'mother_phone', 'status', 'reward_points', 'balance', 'image', 'image_portrait', 'note', 'last_note', 'created_at')
-    list_filter = ('created_at', 'status')
-    search_fields = ('name', 'mother', 'mother_phone')
-
-class ClassAdmin(admin.ModelAdmin):
-    list_display = ('name', 'school', 'price_per_hour', 'note', 'created_at')
-    list_filter = ('created_at',)
-    search_fields = ('name',)
-
-class StudentClassAdmin(admin.ModelAdmin):
-    list_display = ('student', 'class_name', 'is_payment_required')
-
-class AttendanceAdmin(admin.ModelAdmin):
-    list_display = ('student', 'check_class', 'check_date', 'status', 'learning_hours', 'price_per_hour', 'is_payment_required', 'note', 'created_at')
-    list_filter = ('check_date', 'status')
-    search_fields = ('student__name', 'check_class__name', 'check_date')
-
-class FinancialTransactionAdmin(admin.ModelAdmin):
-    list_display = ('get_transaction_type_display', 'income_or_expense', 'amount', 'student', 'bonus', 'student_balance_increase', 'legacy_discount', 'legacy_tuition_plan', 'note', 'created_at')
-    list_filter = ('created_at', 'income_or_expense', 'transaction_type')
-    search_fields = ('student__name', 'receiver')
-
-
-class TimeFrameAdmin(admin.ModelAdmin):
-    list_display = ('time_frame',)
-    search_fields = ('time_frame',)
-
-admin.site.register(School, SchoolAdmin)
-admin.site.register(TimeFrame, TimeFrameAdmin)
-admin.site.register(SchoolUser, SchoolUserAdmin)
-admin.site.register(UserProfile, UserProfileAdmin)
-admin.site.register(FilterValues, FilterValuesAdmin)
-admin.site.register(Student, StudentAdmin)
-admin.site.register(Class, ClassAdmin)
-admin.site.register(StudentClass, StudentClassAdmin)
-admin.site.register(Attendance, AttendanceAdmin)
-admin.site.register(FinancialTransaction, FinancialTransactionAdmin)
+# Your existing custom admin classes below

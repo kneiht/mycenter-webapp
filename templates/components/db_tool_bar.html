@@ -86,9 +86,13 @@
 
 {% else %}
     <!-- Toolbar for database interactions -->
+     <!-- up-target="#display_cards, #infor-bar:maybe, #calculation_section:maybe, #transaction-table:maybe, #pagination" -->
     <form
-        action="{{ request.path|slice:'?' }}"
-        up-submit>
+        action="{{ request.path|slice:'?' }}" up-submit
+        up-history="true"
+        up-target="#display_cards, #infor-bar:maybe, #calculation_section:maybe, #transaction-table:maybe, #pagination:maybe"
+        >
+        <input type="hidden" name="page" value="1">
     <div id="db-tool-bar">
         <div class="mt-2">
             <!-- Separate 2 sections of controls -->

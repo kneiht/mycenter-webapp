@@ -116,7 +116,7 @@
                         <div class="grid grid-cols-1 [@media(min-width:650px)]:grid-cols-2 [@media(min-width:650px)]:w-[600px] [@media(min-width:990px)]:grid-cols-4 [@media(min-width:990px)]:w-[900px] gap-4 px-6">
 
                     {% else %}
-                        <div class="grid grid-cols-1 w-[400px]  gap-4 px-6">
+                        <div class="grid grid-cols-1 w-[600px] gap-4 px-6">
                     {% endif %}
 
                         {% if form.non_field_errors %}
@@ -146,21 +146,6 @@
                                         </div>
                                     {% endif %}
                                 {% endif %}
-
-
-                                {% if field.name == 'student_balance_increase' and modal == 'modal_financial_transaction' %}
-                                    <div>
-                                        <label for="{{ field.name }}" class="text-theme">{{ field.label }}</label>
-                                        {{ field }}    
-                                    
-                                        {% if field.help_text %}
-                                            <p class="text-blue-500 px-3">{{ field.help_text }}</p>
-                                        {% endif %}
-                                        {% for error in field.errors %}
-                                            <p class="text-red-500 px-3">{{ error }}</p>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
                         {% endfor %}
                     </div>
 
@@ -187,7 +172,7 @@
                         {% endif %}
 
                         {% if field.name == 'address' or field.name == 'note' %}
-                            <div>
+                            <div class="mt-3">
                                 <label for="{{ field.name }}" class="text-theme">{{ field.label }}</label>
                                 {% if field.name == 'address' %}
                                     <textarea name="{{ field.name }}" class="form-input" rows="3" placeholder="{{ field.label }}" style="height: 60px;"></textarea>
@@ -327,14 +312,14 @@
                         </div>
                         {% endif %}
 
-                        <div class="sm:w-[600px] px-6">
+                        <div class="sm:w-[600px] px-6 mt-3">
                             <label for="tuitions" class="text-theme">Tuition payment history</label>
                             <div class="form-input flex flex-col h-52 gap-4 pt-4 pb-6 overflow-scroll">
                                 <div class="w-[600px]">
                                     <div class="border-b pb-0.5 flex justify-between w-full">
                                         <span class="w-2/12"> Date </span>
                                         <span class="w-3/12"> Amount </span>
-                                        <span class="w-2/12"> Bonus </span>
+                                        <span class="w-2/12"> Discount </span>
                                         <span class="w-3/12"> Balance increase </span>
                                         <span class="w-3/12"> Note </span>
                                     </div>
@@ -355,10 +340,6 @@
                             </div>
                         </div>
                     {% endif %}
-
-
-
-
                     
                     <div class="flex justify-center items-center gap-5 pt-8 pb-7">
                         <button type="submit" class="btn btn-primary rounded-full w-36" onclick="this.form.delete.value = 'false';">
@@ -381,5 +362,23 @@
                 </form>
             </div>
         </div>
+
+        {% if modal == 'modal_pay_tuition_old' %}
+            <div id="tuition-plans" class="hidden">
+                {% for plan in form.get_tuition_plans %}
+                    <div class="plan">
+                        <div class="name">
+                            <span>{{ plan.name }}</span>
+                        </div>
+                        <div class="amount">
+                            <span>{{ plan.amount }}</span>
+                        </div>
+                        <div class="balance-increase">
+                            <span>{{ plan.balance_increase }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 {% endif %}
