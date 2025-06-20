@@ -2084,6 +2084,10 @@ select {
   width: 100vw;
 }
 
+.w-\[250px\] {
+  width: 250px;
+}
+
 .min-w-full {
   min-width: 100%;
 }

@@ -41,8 +41,6 @@
                 </div>
         </div>
 
-
-
         <div id='attendance-controls' class="grid grid-cols-1 min-[906px]:grid-cols-3 mt-2 mb-8 h-full p-2 bg-theme-200 dark:bg-theme-900 rounded-xl hidden">
             <!-- Right controls for select -->
             <div id='left-controls' class="flex flex-col items-center justify-center gap-1 py-3">
@@ -90,152 +88,127 @@
     <form
         action="{{ request.path|slice:'?' }}" up-submit
         up-history="true"
-        up-target="#display_cards, #infor-bar:maybe, #calculation_section:maybe, #transaction-table:maybe, #pagination:maybe"
+        up-target="#display_cards, #infor-bar:maybe, #calculation_section:maybe, #transaction-table:maybe, #pagination:maybe, #count"
         >
         <input type="hidden" name="page" value="1">
-    <div id="db-tool-bar">
-        <div class="mt-2">
-            <!-- Separate 2 sections of controls -->
-            <div  class="flex flex-wrap justify-between gap-4">
-                <!-- Left controls for filtering and sorting -->
-                <div id='left-controls' class="flex justify-start gap-4 h-10 w-[800px]">
+        <div id="db-tool-bar">
+            <div class="mt-2">
+                <!-- Separate 2 sections of controls -->
+                <div  class="flex flex-wrap justify-between gap-4">
+                    <!-- Left controls for filtering and sorting -->
+                    <div id='left-controls' class="flex justify-start gap-4 h-10">
 
-                            <!-- Controls to manage search and filter options -->
-                    <div id="search-control" class="z-10 w-full">
+                        <!-- Controls to manage search and filter options -->
+                        <div id="search-control" class="z-10 w-full">
 
-                        <!-- Toggle search bar in small screen -->
-                        <button id="toggle-search" type="button" class="btn btn-outline h-full w-11 sm:hidden">
-                            <i class="fas fa-search text-theme" style="font-size: 18px;"></i>
-                        </button>  
+                            <!-- Toggle search bar in small screen -->
+                            <button id="toggle-search" type="button" class="btn btn-outline h-full w-11 sm:hidden">
+                                <i class="fas fa-search text-theme" style="font-size: 18px;"></i>
+                            </button>  
 
-                        <!-- Search bar and filter options -->
-                        <div id="search-bar" class="flex w-full h-10 max-sm:hidden">
+                            <!-- Search bar and filter options -->
+                            <div id="search-bar" class="flex w-full h-10 max-sm:hidden">
 
-                            <!-- Filter dropdown to select filter type -->
-                            <select id="filter-select" class="form-input w-fit rounded-none h-full rounded-l-lg border border-theme border-opacity-50 text-theme pr-10">
+                                <!-- Filter dropdown to select filter type -->
+                                <select id="filter-select" class="form-input w-fit rounded-none h-full rounded-l-lg border border-theme border-opacity-50 text-theme pr-10">
 
-                                {% for field in fields %}
-                                    <option value="{{ field }}">{{ field|capfirst }}</option>
-                                {% endfor %}
-                            </select>
+                                    {% for field in fields %}
+                                        {% if field != 'status' %}
+                                            <option value="{{ field }}">{{ field|capfirst }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
 
                             
+                                <!-- Input field for filter values -->
+                                <input id="filter-input" name="all" type="text" placeholder="Type to search ..." class="form-input rounded-none h-full border-r-0 border-l-0 border-theme border-opacity-50 text-theme w-[250px]" autocomplete="off"/>
+                                <!-- Button to submit search -->
+                                <button id="search-button" type="submit" class="btn btn-outline rounded-l-none h-full shadow-none"> 
+                                    <i class="fas fa-search text-theme" style="font-size: 18px;"></i>
+                                </button>
+                            </div>
+                        </div>
 
-                            <!-- Input field for filter values -->
-                            <input id="filter-input" name="all" type="text" placeholder="Type to search ..." class="form-input rounded-none h-full border-r-0 border-l-0 border-theme border-opacity-50 text-theme" autocomplete="off"/>
-                            <!-- Button to submit search -->
-                            <button id="search-button" type="submit" class="btn btn-outline rounded-l-none h-full shadow-none"> 
-                                <i class="fas fa-search text-theme" style="font-size: 18px;"></i>
-                            </button>
+
+                        <div class="flex justify-start items-center gap-2">
+                        {% if status_list %}
+                            <select id="status-select" name="status" class="form-input w-fit border border-theme border-opacity-50">
+                                <option value="">All statuses &nbsp;&nbsp;</option>
+                                {% for status in status_list %}
+                                    <option value="{{ status.0 }}">{{ status.1 }} &nbsp;&nbsp;</option>
+                                {% endfor %}
+                            </select>
+                        {% endif %}
+
+                        {% if select == 'financial_transactions' %}
+                            <select id="in_or_out" name="in_or_out" class="form-input w-fit border border-theme border-opacity-50">
+                                <option value="">Incomes or Expenses &nbsp;&nbsp;</option>
+                                {% for in_or_out in in_or_out_list %}
+                                    <option value="{{ in_or_out.0 }}">{{ in_or_out.1 }} &nbsp;&nbsp;</option>
+                                {% endfor %}
+                            </select>
+                            <select id="transaction_type" name="transaction_type" class="form-input w-fit border border-theme border-opacity-50">
+                                <option value="">Transaction type &nbsp;&nbsp;</option>
+                                    {% for transaction_type in transaction_type_list %}
+                                    <option value="{{ transaction_type.0 }}">{{ transaction_type.1 }} &nbsp;&nbsp;</option>
+                                {% endfor %}
+                            </select>
+                            <div class="flex w-full my-3 items-center">
+                                <div class="flex justify-cennter items-center">
+                                    <input type="date" id="start_date" name="start_date" class="form-input">
+                                </div>
+                                <span class="mx-2">➜</span>
+                                <div class="flex justify-center items-center">
+                                    <input type="date" id="end_date" name="end_date" class="form-input">
+                                </div>
+                            </div>
+
+                        {% endif %}
+
+                        {% if select == 'students' or select == 'CRM' %}
+                            <select id="sort-select" name="sort" class="form-input w-fit border border-theme border-opacity-50">
+                                <option value="-pk" selected>Sort by ...&nbsp;&nbsp;</option>
+                                <option value="name">Name&nbsp;&nbsp;</option>
+                                <option value="last_saved">Last saved&nbsp;&nbsp;</option>
+                                <option value="balance_up">Balance up&nbsp;&nbsp;</option>
+                                <option value="balance_up_active">Balance up (Enrolled)&nbsp;&nbsp;</option>
+                            </select>
+                        {% endif %}
                         </div>
                     </div>
 
-                    <!-- Button to access sorting options -->
-                    <!-- Converted to comment as per instructions -->
-                    <!-- <button id="sort-button" type="button" class="hidden btn btn-outline h-full max-sm:w-11">
-                        <span class="max-sm:hidden me-3"> Sorts </span>
-                        <i class="fas fa-sort text-theme" style="font-size: 20px;"></i> Icon for filter
-                    </button> -->
+                    <!-- Right controls for view toggle and information display -->
+                    <div id='right-controls' class="flex items-center justify-end gap-4">
+                        <div id='mid-controls' class="flex flex-col items-center justify-center w-auto">
+                            <span id="count" class="px-3 py-2 border border-1 border-blue-500 rounded-2xl text-theme">Count: {{ records_count }}</span>
+                        </div>
+                        <!-- Button to toggle view settings -->
+                        <button id='toggle-note' type="button" class="btn btn-outline h-full w-11">
+                            <i class="fas fa-sticky-note" style="font-size: 20px;"></i>
+                        </button>
 
-                    <!-- Add startdate and enddate for financial records -->
-  
 
 
-                    {% if select == 'students' or select == 'CRM' %}
-                        <select id="sort-select" name="sort" class="form-input w-fit border border-theme border-opacity-50">
-                            <option value="-pk" selected>Sort by ...</option>
-                            <option value="name">Name</option>
-                            <option value="last_saved">Last saved</option>
-                            <option value="balance_up">Balance up</option>
-                            <option value="balance_up_active">Balance up (Enrolled)</option>
-                        </select>
-                    {% endif %}
+                        {% if select != 'students' %}
+                            <!-- Don't allow add new student, only convert from CRM -->
+                            <!-- Button to open a modal (for additional actions or information) -->
+                            <a href="{{ base_url }}?get=form" class="sm:hidden btn btn-primary h-full w-11"
+                                    up-target="#modal" up-history="false">
+                                <i class="fas fa-plus" style="font-size: 20px;"></i>
+                            </a>
+                        {% endif %}
                     </div>
-
-
-                <!-- <div id='mid-controls' class="flex flex-col items-center justify-center w-auto">
-                    <span id="count" class="px-3 py-2 border border-1 border-blue-500 rounded-2xl text-theme">Count: </span>
-                </div> -->
-
-                
-                <!-- Right controls for view toggle and information display -->
-                <div id='right-controls' class="flex items-center justify-end gap-4">
-                    <div id='mid-controls' class="flex flex-col items-center justify-center w-auto mr-10">
-                        <span id="count" class="px-3 py-2 border border-1 border-blue-500 rounded-2xl text-theme">Count: </span>
-                    </div>
-                    <a href="{{ request.path|slice:'?' }}?all=" up-target="#display_cards, #infor-bar:maybe" type="button" class="btn btn-outline">
-                        All
-                    </a>
-                    {% if select == 'students' %}
-                        <a href="{{ request.path|slice:'?' }}?status=discontinued" up-target="#display_cards, #infor-bar:maybe" type="button" class="btn btn-outline">
-                            Discontinued
-                        </a>
-                    {% elif select == 'classes' or select == 'CRM' %}
-                        <a href="{{ request.path|slice:'?' }}?status=archived" up-target="#display_cards, #infor-bar:maybe" type="button" class="btn btn-outline">
-                            Archived
-                        </a>
-                    {% endif %}
-                    <a href="{{ request.path|slice:'?' }}" up-target="#display_cards, #infor-bar:maybe" type="button" class="btn btn-outline me-5">
-                        Others (default)
-                    </a>
-
-
-
-
-                    <!-- Button to toggle view settings -->
-                    <button id='toggle-note' type="button" class="btn btn-outline h-full w-11">
-                        <i class="fas fa-sticky-note" style="font-size: 20px;"></i>
-                    </button>
-
-                    <!-- Button to toggle information bar visibility -->
-                    <button id="toggle-infor-bar" type="button" class="hidden btn btn-outline h-full w-11">
-                        <i class="fas fa-info-circle" style="font-size: 20px;"></i>
-                    </button>
-
-                    {% if select != 'students' %}
-                        <!-- Don't allow add new student, only convert from CRM -->
-                        <!-- Button to open a modal (for additional actions or information) -->
-                        <a href="{{ base_url }}?get=form" class="sm:hidden btn btn-primary h-full w-11"
-                                up-target="#modal" up-history="false">
-                            <i class="fas fa-plus" style="font-size: 20px;"></i>
-                        </a>
-                    {% endif %}
                 </div>
             </div>
+
+            {% if select == 'students' or select == 'CRM' %}
+                <div>
+                    <a id="also-search-in" href="" class="text-theme font-bold text-xl flex items-center justify-center my-3" target="_blank"></a>
+                </div>
+            {% else %}
+                <div class="mb-6"></div>
+            {% endif %}
+            
         </div>
-
-
-        {% if select == 'financial_transactions' %}
-            <div class="flex w-full my-3 justify-center items-center">
-                <div class="flex mr-2 justify-cennter items-center">
-                    <label for="start_date">From:</label>
-                    <input type="date" id="start_date" name="start_date" class="form-input">
-                </div>
-                <div class="flex mr-2 justify-center items-center">
-                    <label for="end_date">To:</label>
-                    <input type="date" id="end_date" name="end_date" class="form-input">
-                </div>
-
-                {% for dropdown_name, dropdown_options in dropdown_filters.items %}
-                    <div class="flex mr-2 justify-cennter items-center">
-                        <select id="{{ dropdown_name }}" name="{{ dropdown_name }}" class="form-input">
-                            <option value="">{{ dropdown_name }}</option>
-                            {% for option_value, option_name in dropdown_options %}
-                                <option value="{{ option_value }}">{{ option_name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                {% endfor %}
-        {% endif %}
-
-        {% if select == 'students' or select == 'CRM' %}
-            <div>
-                <a id="also-search-in" href="" class="text-theme font-bold text-xl flex items-center justify-center my-3" target="_blank"></a>
-            </div>
-        {% else %}
-            <div class="mb-6"></div>
-        {% endif %}
-         
-    </div>
     </form>
 {% endif %}

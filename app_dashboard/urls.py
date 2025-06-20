@@ -58,8 +58,8 @@ urlpatterns = [
     # path('classroom/<int:pk>/', views.classroom, name='classroom'),
 
     # Announcements
-    path('announcements/', AnnouncementViewSet.as_view(), name='announcements'),
-    path('announcements/<int:pk>/', AnnouncementViewSet.as_view(), name='announcement_detail'),
+    path('schools/<int:school_id>/announcements/', AnnouncementViewSet.as_view(), name='announcements'),
+    path('schools/<int:school_id>/announcements/<int:pk>/', AnnouncementViewSet.as_view(), name='announcement_detail'),
     
     # DATABASE UPLOAD AND DOWNLOAD
     path('download_database_backup/', views_db.download_database_backup, name='download_database_backup'),

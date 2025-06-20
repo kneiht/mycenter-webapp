@@ -582,15 +582,15 @@ class TuitionPaymentSpecialForm(forms.ModelForm):
 class AnnouncementForm(forms.ModelForm):
     class Meta:
         model = Announcement
-        fields = ['title', 'content', 'attachment', 'is_pinned', 'publish_date']
+        fields = ['title', 'publish_date', 'attachment', 'is_pinned', 'note']
         widgets = {
             'title': forms.TextInput(attrs={
-                'placeholder': 'Tiêu đề thông báo',
+                'placeholder': 'Title',
                 'required': 'required',
                 'class': 'form-input'
             }),
-            'content': forms.Textarea(attrs={
-                'placeholder': 'Nội dung thông báo',
+            'note': forms.Textarea(attrs={
+                'placeholder': 'Content',
                 'class': 'form-input',
                 'rows': 6
             }),
@@ -598,7 +598,7 @@ class AnnouncementForm(forms.ModelForm):
                 'class': 'form-input-file'
             }),
             'is_pinned': forms.CheckboxInput(attrs={
-                'class': 'checkbox'
+                'class': 'checkbox form-input w-10 h-10'
             }),
             'publish_date': forms.DateTimeInput(attrs={
                 'class': 'form-input',

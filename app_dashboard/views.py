@@ -142,7 +142,7 @@ def get_students_with_wrong_attendances(school):
                 if attendance.check_date.weekday() not in most_weekdays:
                     if attendance.note is None or attendance.note == '':
                         if attendance.student not in students_with_wrong_attendances:
-                            print('students_with_wrong_attendances:', attendance.student, attendance.check_class, attendance.check_date, attendance.check_date.weekday(), most_weekdays)
+                            # print('students_with_wrong_attendances:', attendance.student, attendance.check_class, attendance.check_date, attendance.check_date.weekday(), most_weekdays)
                             students_with_wrong_attendances.append(attendance.student)
     return students_with_wrong_attendances
 
@@ -172,7 +172,7 @@ def get_students_missing_attendance(school):
                     if current_date.weekday() in most_weekdays and not Attendance.objects.filter(check_class=_class, student=student, check_date__date=current_date).exists():
                         if student not in students_missing_attendance:
                             students_missing_attendance.append(student)
-                            print('students_missing_attendance:', student, _class, current_date, current_date.weekday(), most_weekdays)
+                            # print('students_missing_attendance:', student, _class, current_date, current_date.weekday(), most_weekdays)
     return students_missing_attendance
 
 
@@ -186,19 +186,19 @@ def dashboard(request, school_id):
     import time
     s = time.time()
     absent_students = get_absent_students(school, number_of_checked_days, number_of_absent_days)
-    print('get_absent_students:', time.time() - s)
+    # print('get_absent_students:', time.time() - s)
     s= time.time()
     uncharged_students = get_students_with_no_charged_class(school)
-    print('uncharged_students:', time.time() - s)
+    # print('uncharged_students:', time.time() - s)
     s= time.time()
     more_than_one_charged_class_students = get_students_with_more_than_one_charged_class(school)
-    print('more_than_one_charged_class_students:', time.time() - s)
+    # print('more_than_one_charged_class_students:', time.time() - s)
     s= time.time()
     wrong_attendance_students = get_students_with_wrong_attendances(school)
-    print('wrong_attendance_students:', time.time() - s)
+    # print('wrong_attendance_students:', time.time() - s)
     s= time.time()
     missing_attendance_students = get_students_missing_attendance(school)
-    print('missing_attendance_students:', time.time() - s)
+    # print('missing_attendance_students:', time.time() - s)
     context = {
         'absent_students': absent_students,
         'uncharged_students': uncharged_students,
@@ -210,8 +210,6 @@ def dashboard(request, school_id):
         'school': School.objects.filter(pk=school_id).first() if school_id else None
     }
     return render(request, 'pages/single_page.html', context)
-
-
 
 
 
@@ -348,28 +346,30 @@ class BaseViewSet(LoginRequiredMixin, View):
 
         # Get all query parameters except 'sort' as they are assumed to be field filters
         query_params = {k: v for k, v in request.GET.lists() if k != 'sort'}
+
         #print(query_params)
         
-        if not query_params:
-            # Filter Discontinued and Archived
-            if hasattr(self.model_class, 'status'):
-                records = records.exclude(status__in=['discontinued', 'archived'])
+        # if not query_params:
+        #     # Filter Discontinued and Archived
+        #     if hasattr(self.model_class, 'status'):
+        #         records = records.exclude(status__in=['discontinued', 'archived'])
                 
-        else:
+        if query_params:
             # Construct Q objects for filtering
             combined_query = Q()
+            status_value = None
+            if 'status' in query_params:
+                status_value = query_params['status'][0] if isinstance(query_params['status'], list) else query_params['status']
             if 'all' in query_params:
-                specified_fields = fields[1:]  # Exclude 'all' to get the specified fields
+                specified_fields = [f for f in fields[1:] if f != 'status']  # Exclude 'all' and 'status'
                 all_fields_query = Q()
                 for value in query_params['all']:
                     for specified_field in specified_fields:
                         if specified_field in [field.name for field in self.model_class._meta.get_fields()]:
-                            if specified_field == 'status':
-                                print(specified_field)
-                                all_fields_query |= Q(**{specified_field: value})
-                            else:
-                                all_fields_query |= Q(**{f"{specified_field}__icontains": value})
+                            all_fields_query |= Q(**{f"{specified_field}__icontains": value})
                 combined_query &= all_fields_query
+                if status_value:
+                    combined_query &= Q(status=status_value)
             else:
                 for field, values in query_params.items():
                     if field in fields:
@@ -377,18 +377,21 @@ class BaseViewSet(LoginRequiredMixin, View):
                             self.model_class._meta.get_field(field)
                             field_query = Q()
                             for value in values:
-                                field_query |= Q(**{f"{field}__icontains": value})
+                                if field == 'status':
+                                    field_query &= Q(**{f"{field}": value})
+                                else:
+                                    field_query |= Q(**{f"{field}__icontains": value})
                             combined_query &= field_query
                         except FieldDoesNotExist:
                             print(f"Ignoring invalid field: {field}")
-    
+
             # Filter records based on the query
             records = records.filter(combined_query)
 
         if self.page == 'financial_transactions':
             start_date = request.GET.get('start_date')
             end_date = request.GET.get('end_date')
-            income_or_expense = request.GET.get('income_or_expense')
+            income_or_expense = request.GET.get('in_or_out')
             transaction_type = request.GET.get('transaction_type')
             
             if start_date:
@@ -431,6 +434,9 @@ class BaseViewSet(LoginRequiredMixin, View):
                 else:
                     records = records.order_by('-pk')
 
+        # Count the number of records
+        records_count = records.count()
+
         # Pagination
         page = request.GET.get('page', 1)
         page_size = request.GET.get('page_size', 20)  # mặc định 20 bản ghi/trang
@@ -449,6 +455,19 @@ class BaseViewSet(LoginRequiredMixin, View):
             del query_params_for_pagination['page']
         pagination_query_string = query_params_for_pagination.urlencode()
 
+        # Add the list of status if the model has status field
+        status_list = []
+        if hasattr(self.model_class, 'status'):
+            if self.page == 'students':
+                status_list = [status for status in self.model_class.STUDENT_STATUS]
+            elif self.page == 'CRM':
+                status_list = [status for status in self.model_class.CRM_STATUS]
+            else:
+                status_list = [status for status in self.model_class.STATUS_CHOICES]
+        if self.page == 'financial_transactions':
+           in_or_out_list = [status for status in self.model_class.IN_OR_OUT_CHOICES]
+           transaction_type_list = [status for status in self.model_class.TRANSACTION_TYPES]
+
         context = {
             'select': self.page, 
             'title': self.title, 
@@ -463,18 +482,14 @@ class BaseViewSet(LoginRequiredMixin, View):
             'total_records': paginator.count,
             'page_size': int(page_size),
             'pagination_query_string': pagination_query_string,
+            'status_list': status_list,
+            'records_count': records_count,
+            'page': self.page,
         }
 
         if self.page == 'financial_transactions':
-            dropdown_filters = {
-                'income_or_expense': [
-                    (income_or_expense[0], income_or_expense[1]) for income_or_expense in FinancialTransaction.IN_OR_OUT_CHOICES
-                ],
-                'transaction_type': [
-                    (transaction_type[0], transaction_type[1]) for transaction_type in FinancialTransaction.TRANSACTION_TYPES
-                ]
-            }
-            context['dropdown_filters'] = dropdown_filters
+            context['in_or_out_list'] = in_or_out_list
+            context['transaction_type_list'] = transaction_type_list
 
             # calculation financial transactions
             total_income = records.filter(income_or_expense='income').aggregate(Sum('amount'))['amount__sum']
@@ -1128,7 +1143,7 @@ class StudentAttendanceCalendarViewSet(BaseViewSet):
         # Adjust start_day and end_day to cover all attendance records
         start_day = earliest_attendance_date
         end_day = latest_attendance_date
-        print(start_day, end_day)
+        # print(start_day, end_day)
 
         # Fetch attendances within the expanded date range
         attendances = Attendance.objects.filter(

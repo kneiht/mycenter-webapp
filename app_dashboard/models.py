@@ -1,5 +1,5 @@
 import time    
-
+from django.core.exceptions import ValidationError
 
 from django.db import models
 from django.utils import timezone
@@ -428,31 +428,35 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
         ('income', 'Income'),
         ('expense', 'Expense'),
     )
-    STATUS = (
+    STATUS_CHOICES = (
         ('checked', 'Checked'),
         ('unchecked', 'Unchecked'),
         ('suspect', 'Suspect'),
     )
 
-    TRANSACTION_TYPES = (
-        ('income_tuition_fee', 'INCOME - Tuition Fee'),
-        ('income_capital_contribution', 'INCOME - Capital Contribution'),
-        ('income_product_sales', 'INCOME - Product Sales'),
-        ('income_other_income', 'INCOME - Other Income'),
-        ('expense_operational_expenses', 'EXPENSE - Operational Expenses'),
-        ('expense_asset_expenditure', 'EXPENSE - Asset Expenditure'),
-        ('expense_marketing_expenses', 'EXPENSE - Marketing Expenses'),
-        ('expense_salary_expenses', 'EXPENSE - Salary Expenses'),
-        ('expense_dividend_distribution', 'EXPENSE - Dividend Distribution'),
-        ('expense_event_organization_expenses', 'EXPENSE - Event Organization Expenses'),
-        ('expense_human_resources_expenses', 'EXPENSE - Human Resources Expenses'),
-        ('expense_other_expenses', 'EXPENSE - Other Expenses'),
+    TRANSACTION_INCOME_TYPES = (
+        ('income_tuition_fee', 'In - Tuition'),
+        ('income_capital_contribution', 'In - Capital'),
+        ('income_product_sales', 'In - Product Sales'),
+        ('income_other_income', 'In - Other Income'),
     )
+    TRANSACTION_EXPENSE_TYPES = (
+        ('expense_operational_expenses', 'Exp - Operation'),
+        ('expense_asset_expenditure', 'Exp - Assets'),
+        ('expense_marketing_expenses', 'Exp - Marketing'),
+        ('expense_salary_expenses', 'Exp - Salary'),
+        ('expense_dividend_distribution', 'Exp - Dividend'),
+        ('expense_event_organization_expenses', 'Exp - Events'),
+        ('expense_human_resources_expenses', 'Exp - HR'),
+        ('expense_other_expenses', 'Exp - Other'),
+    )
+    TRANSACTION_TYPES = list(TRANSACTION_INCOME_TYPES) + list(TRANSACTION_EXPENSE_TYPES)
+
     income_or_expense = models.CharField(max_length=20, choices=IN_OR_OUT_CHOICES)
-    status =  models.CharField(max_length=50, choices=STATUS, default="unchecked")
+    status =  models.CharField(max_length=50, choices=STATUS_CHOICES, default="unchecked")
     transaction_type = models.CharField(max_length=255, choices=TRANSACTION_TYPES)
-    giver = models.CharField(max_length=100, default="Undefined", null=True, blank=True)
-    receiver = models.CharField(max_length=100, default="Undefined", null=True, blank=True)
+    giver = models.CharField(max_length=100, default="Không xác định", null=True, blank=True)
+    receiver = models.CharField(max_length=100, default="Không xác định", null=True, blank=True)
     amount = models.FloatField(default=0, null=True, blank=True)
 
     # fields for tuition payments
@@ -473,7 +477,6 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
     def __str__(self):
         return self.get_transaction_type_display()
 
-
     def save(self, *args, **kwargs):
         # The balance is calculated based on the transaction type
         if self.transaction_type=='income_tuition_fee' and self.student and self.amount: 
@@ -492,6 +495,13 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
                 self.student.balance = float(self.student.balance) - float(old_student_balance_increase) + float(self.student_balance_increase)
             
             self.student.save()
+        
+        # If the transaction is not tuition fee, remove the student_balance_increase, and student
+        if self.transaction_type != 'income_tuition_fee' and self.student:
+            self.student_balance_increase = 0
+            self.student = None
+
+            
         super().save(*args, **kwargs)
         if self.transaction_type=='income_tuition_fee' and self.student:
             self.student.calculate_student_balance()
@@ -501,35 +511,38 @@ class FinancialTransaction(SecondaryIDMixin, BaseModel):
         if self.transaction_type == 'income_tuition_fee' and self.student:
             self.student.calculate_student_balance()
 
-
+    def clean(self):
+        errors = ""
+        if self.amount is not None and self.amount < 0:
+            errors += "- Amount không được âm.\n"
+        if self.student_balance_increase is not None and self.student_balance_increase < 0:
+            errors += "- Balance increase không được âm.\n"
+        # Add rule: income_or_expense must match transaction_type
+        income_types = [t[0] for t in self.TRANSACTION_INCOME_TYPES]
+        expense_types = [t[0] for t in self.TRANSACTION_EXPENSE_TYPES]
+        if self.income_or_expense == 'income' and self.transaction_type not in income_types:
+            errors += "- Transaction type does not match 'income'.\n"
+        if self.income_or_expense == 'expense' and self.transaction_type not in expense_types:
+            errors += "- Transaction type does not match 'expense'.\n"
+        if errors:
+            raise ValidationError(errors)
 
 
 
 class Announcement(BaseModel):
-    allow_display = True
-    excel_downloadable = True
-    excel_uploadable = True
-    vietnamese_name = "Thông báo"
 
-    PRIORITY_CHOICES = [
-        ("low", "Thấp"),
-        ("medium", "Trung bình"),
-        ("high", "Cao"),
-        ("urgent", "Khẩn cấp"),
-    ]
-
-    title = models.CharField(max_length=255, verbose_name="Tiêu đề")
-    content = models.TextField(verbose_name="Nội dung")
+    title = models.CharField(max_length=255, verbose_name="Title")
+    note = models.TextField(verbose_name="Content", default="", blank=True, null=True)
     user = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, verbose_name="Người đăng"
+        User, on_delete=models.SET_NULL, null=True, verbose_name="User"
     )
-    publish_date = models.DateTimeField(verbose_name="Ngày đăng", default=timezone.now)
+    publish_date = models.DateTimeField(verbose_name="Publish Date", default=timezone.now)
     attachment = models.FileField(
-        upload_to="announcements/", verbose_name="Tệp đính kèm", null=True, blank=True
+        upload_to="announcements/", verbose_name="Attachment", null=True, blank=True
     )
-    is_pinned = models.BooleanField(default=False, verbose_name="Ghim thông báo")
-    created_at = models.DateTimeField(default=timezone.now, verbose_name="Ngày tạo")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Cập nhật lần cuối")
+    is_pinned = models.BooleanField(default=False, verbose_name="Pinned")
+    created_at = models.DateTimeField(default=timezone.now, verbose_name="Created At")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated At")
 
     class Meta:
         ordering = ["-is_pinned", "-publish_date"]
@@ -538,6 +551,7 @@ class Announcement(BaseModel):
         return str(self.title) + "- " + str(self.user) + " - " + str(self.publish_date)
 
     def save(self):
+        print(self.note)
         # Skip if user changed (keep first user)
         if self.pk:
             old_instance = Announcement.objects.get(pk=self.pk)
@@ -556,7 +570,6 @@ class TuitionPlan(models.Model):
     
     @staticmethod
     def to_amount_selections():
-        print([(plan.amount, plan.name) for plan in TuitionPlan.objects.all()])
         return [(plan.amount, plan.name) for plan in TuitionPlan.objects.all()]
 
     @staticmethod

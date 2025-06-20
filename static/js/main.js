@@ -72,9 +72,7 @@ up.compiler('.display_cards', function(element) {
     // count the number of cards in display_cards then put in the element with id "count"
     const displayCards = element;
     const count = displayCards.children.length;
-    if (document.getElementById("count")) {
-        document.getElementById("count").textContent = "Count: " + count;
-    }
+
     // Function to adjust the number of grid columns
     function adjustGridColumns() {
         const container = element;
@@ -123,11 +121,13 @@ up.compiler('.display_cards', function(element) {
 // MODAL HANDLING =========================================
 up.compiler('.modal', function(element) {
     let modal = element;
-    let cancelButton = modal.querySelector('#cancel');
+    let cancelButtons = modal.querySelectorAll('.cancel');
     let okButton = modal.querySelector('#ok');
-    if (cancelButton) {
-        cancelButton.addEventListener('click', function() {
-            element.remove();
+    if (cancelButtons) {
+        cancelButtons.forEach(cancelButton => {
+            cancelButton.addEventListener('click', function() {
+                element.remove();
+            });
         });
     }
     if (okButton) {
@@ -388,6 +388,49 @@ up.compiler('#sort-select', function(element) {
     });
 });
 
+up.compiler('#status-select', function(element) {
+    const statusSelect = element
+    statusSelect.addEventListener('change', function() {
+        // press search button
+        document.getElementById('search-button').click();
+
+        // let searchUrl = new URL(window.location.href);
+        // let searchTerm = searchUrl.searchParams.get('search');
+    });
+});
+
+up.compiler('#in_or_out', function(element) {
+    const inOrOut = element
+    inOrOut.addEventListener('change', function() {
+        // press search button
+        document.getElementById('search-button').click();
+    });
+});
+
+up.compiler('#start_date', function(element) {
+    const startDate = element
+    startDate.addEventListener('change', function() {
+        // press search button
+        document.getElementById('search-button').click();
+    });
+});
+
+up.compiler('#end_date', function(element) {
+    const endDate = element
+    endDate.addEventListener('change', function() {
+        // press search button
+        document.getElementById('search-button').click();
+    });
+});
+
+up.compiler('#transaction_type', function(element) {
+    const transactionType = element
+    transactionType.addEventListener('change', function() {
+        // press search button
+        document.getElementById('search-button').click();
+    });
+});
+
 up.compiler('#filter-input', function(element) {
     const filterInput = element
     filterInput.addEventListener('change', function() {
@@ -430,14 +473,6 @@ up.compiler('#db-tool-bar', function(element) {
         document.getElementById('right-controls').classList.add('hidden');
     });
 
-
-    // Toggle information bar visibility
-    document.getElementById('toggle-infor-bar').addEventListener('click', function() {
-        const infoBar = document.getElementById('infor-bar');
-        if (infoBar) {
-            infoBar.classList.toggle('hidden');
-        }
-    });
 
     document.getElementById('filter-select').addEventListener('change', function() {
         const filterSelectValue = this.value;

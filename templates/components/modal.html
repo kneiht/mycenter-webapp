@@ -74,7 +74,11 @@
         <div class="modal z-50 fixed inset-0 bg-slate-600 bg-opacity-60 overflow-y-auto h-full w-full flex justify-center">
 
             <!-- Modal Content -->
-            <div class="relative top-1/2 -translate-y-1/2 mb-10 mx-4 card h-fit w-full sm:w-fit">
+            <div class="relative top-10 mb-10 mx-4 card h-fit w-full sm:w-fit">
+                <button id='close-modal' type="button" class="btn btn-outline w-10 h-10 rounded-full border-0 text-theme cancel absolute top-5 right-5">
+                    <i class="fas fa-times text-lg "></i>
+                </button>
+
 
                 {% if modal == 'modal_note' %}
                     <h3 class="mt-7 mb-8 text-xl font-bold leading-6 text-center text-theme">Add note to: {{ record }}</h3>
@@ -92,13 +96,23 @@
 
 
                     {% if modal == 'modal_pay_tuition' or modal == 'modal_pay_tuition_old' %}
-                        <div class="text-green-500 text-center text-lg font-bold mb-3 uppercase mt-7 mb-8">Đóng học phí cho: {{ form.get_student }}</div>
+                        <div class="text-green-500 text-center text-lg font-bold mb-3 uppercase my-5">Đóng học phí cho: {{ form.get_student }}</div>
                     {% else %}
-                        <h3 class="mt-7 mb-8 text-xl font-bold leading-6 text-center text-theme">{% if record_id %} Edit Information {% else %} Create New {% endif %}</h3>
+                        <h3 class="my-5 text-xl font-bold leading-6 text-center text-theme">{% if record_id %} Edit Information {% else %} Create New {% endif %}</h3>
                     {% endif %}
                 
                 
-                    {% endif %}
+                {% endif %}
+
+
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                    <p class="text-red-500 px-6 mb-3">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+
+
+
                 <!-- Result could be a html card if success or a new form modal with error if fail, if success, the card will be added right after the div cards, else the form will be the same place but display as fixed -->
                 <form enctype="multipart/form-data" method="post"
                     {% if record_id %}
@@ -109,6 +123,8 @@
                         up-target="#modal:maybe, #display_cards:before:maybe"
                     {% endif %} >
                         
+
+
                     {% if form.fields|length >= 5 and form.fields|length < 8 or modal == 'modal_class' %}
                         <div class="grid grid-cols-1 sm:grid-cols-2 sm:w-[600px] gap-4 px-6">
 
@@ -119,12 +135,6 @@
                         <div class="grid grid-cols-1 w-[600px] gap-4 px-6">
                     {% endif %}
 
-                        {% if form.non_field_errors %}
-                            {% for error in form.non_field_errors %}
-                            <p class="text-red-500 pt-3">{{ error }}</p>
-                            {% endfor %}
-                        {% endif %}
-
                         {% csrf_token %}
                         <input type="hidden" name="school_id" value="{{ school_id }}">
                         {% for field in form %}
@@ -133,7 +143,7 @@
                                     {% if modal == 'modal_pay_tuition' or modal == 'modal_pay_tuition_old' %}
                                             <input type="hidden" name="{{ field.name }}" value="{{ field.value }}">
                                     {% else %}
-                                        <div>
+                                        <div class="form-row">
                                             <label for="{{ field.name }}" class="text-theme">{{ field.label }}</label>
                                             {{ field }}    
                                         
@@ -157,14 +167,14 @@
                     {% for field in form %}
                         {% if modal == 'modal_pay_tuition' %}
                             {% if field.name == 'amount' or field.name == 'student_balance_increase' %}
-                                <div>
+                                <div class="form-row">
                                     <label for="{{ field.name }}" class="text-theme">{{ field.label }}</label>
                                     {{ field }}    
                                 </div>
                             {% endif %}
                         {% elif modal == 'modal_pay_tuition_old' %}
                             {% if field.name == 'amount' %}
-                                <div>
+                                <div class="form-row">
                                     <label for="{{ field.name }}" class="text-theme">{{ field.label }}</label>
                                     {{ field }}    
                                 </div>
@@ -172,12 +182,12 @@
                         {% endif %}
 
                         {% if field.name == 'address' or field.name == 'note' %}
-                            <div class="mt-3">
+                            <div class="mt-3 form-row">
                                 <label for="{{ field.name }}" class="text-theme">{{ field.label }}</label>
                                 {% if field.name == 'address' %}
-                                    <textarea name="{{ field.name }}" class="form-input" rows="3" placeholder="{{ field.label }}" style="height: 60px;"></textarea>
+                                    <textarea name="{{ field.name }}" class="form-input" rows="3" placeholder="{{ field.label }}" style="height: 60px;">{{ field.value|default_if_none:'' }}</textarea>
                                 {% else %}
-                                    <textarea name="{{ field.name }}" class="form-input" rows="3" placeholder="{{ field.label }}" style="height: 60px;"></textarea>
+                                    <textarea name="{{ field.name }}" class="form-input" rows="3" placeholder="{{ field.label }}" style="height: 60px;">{{ field.value|default_if_none:'' }}</textarea>
                                 {% endif %}
                             
                                 {% if field.help_text %}
@@ -345,7 +355,7 @@
                         <button type="submit" class="btn btn-primary rounded-full w-36" onclick="this.form.delete.value = 'false';">
                             {% if record_id %} Update {% else %} Create {% endif %}
                         </button>
-                        <button id='cancel' type="button" class="btn btn-secondary rounded-full w-36">
+                        <button id='cancel' type="button" class="btn btn-secondary rounded-full w-36 cancel">
                             Cancel
                         </button>
                         {% if record_id %} {% if modal == 'modal_financial_transaction' or modal == 'modal_attendance' %}
@@ -379,6 +389,26 @@
                     </div>
                 {% endfor %}
             </div>
+        {% endif %}
+
+        {% if modal == 'modal_financial_transaction' %}
+            <script>
+                console.log('DOMContentLoaded');
+                function toggleStudentFields() {
+                    var transactionType = document.getElementById('id_transaction_type').value;
+                    var studentField = document.getElementById('id_student').closest('.form-row');
+                    var balanceField = document.getElementById('id_student_balance_increase').closest('.form-row');
+                    if (transactionType !== 'income_tuition_fee') {
+                        studentField.style.visibility = 'hidden';
+                        balanceField.style.visibility = 'hidden';
+                    } else {
+                        studentField.style.visibility = 'visible';
+                        balanceField.style.visibility = 'visible';
+                    }
+                }
+                document.getElementById('id_transaction_type').addEventListener('change', toggleStudentFields);
+                toggleStudentFields(); // Initial call
+            </script>
         {% endif %}
     </div>
 {% endif %}

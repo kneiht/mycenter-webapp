@@ -45,7 +45,13 @@
                 {% include 'components/display_attendance_calendar.html' %}
             </div>
         </main>
-        
+    {% elif page == 'announcements' %}
+        <main class="flex mt-4 gap-3">
+            <div class="overflow-y-scroll w-full pr-2" style="height: 90vh;">
+                {% include 'components/title_bar.html' %}
+                {% include 'components/announcements.html' %}
+            </div>
+        </main>
     {% else %}
         <main class="flex flex-col mt-4 gap-3">
             <!-- Keep the display fit the screen, only content inside can be scrolled -->
@@ -148,10 +154,6 @@
             {% else %}
             <nav id="pagination"></nav>
             {% endif %}
-
-
-            <!-- The information panel -->
-            <!-- {% include 'components/infor_bar.html' %} -->
         </main>
 
     {% endif %}

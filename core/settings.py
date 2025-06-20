@@ -50,17 +50,31 @@ if DOMAIN != "localhost":
         "www.mycenter.edu.vn",
         "mycenter.edu.vn",
         "ielts.gen8.edu.vn",
+        "happyenglish.vn",
+        "www.happyenglish.vn",
+        "manage.happyenglish.vn",
+        "manage.mycenter.edu.vn",
+        "manage.gen8.edu.vn",
+        "manage.ielts.gen8.edu.vn",
     ]
 
 else:
     DEBUG = True
     ALLOWED_HOSTS = [
+        "localhost",
+        "*",
         "minhthienk.pythonanywhere.com",
         "www.gen8.edu.vn",
-        "localhost",
         "gen8.edu.vn",
-        "*",
+        "www.mycenter.edu.vn",
+        "mycenter.edu.vn",
         "ielts.gen8.edu.vn",
+        "happyenglish.vn",
+        "www.happyenglish.vn",
+        "manage.happyenglish.vn",
+        "manage.mycenter.edu.vn",
+        "manage.gen8.edu.vn",
+        "manage.ielts.gen8.edu.vn",
     ]
 
 
@@ -78,6 +92,7 @@ INSTALLED_APPS = [
     "app_portal",
     "widget_tweaks",
     "pwa",
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
