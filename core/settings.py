@@ -57,6 +57,8 @@ if DOMAIN != "localhost":
         "manage.mycenter.edu.vn",
         "manage.gen8.edu.vn",
         "manage.ielts.gen8.edu.vn",
+        "happyenglish.chillteacher.com",
+        "manage.happyenglish.chillteacher.com",
     ]
 
 else:
