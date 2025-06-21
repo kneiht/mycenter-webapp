@@ -17,3 +17,4 @@ db.sqlite3
 templates/.DS_Store
 *.DS_Store
 /staticfiles
+staticfiles
