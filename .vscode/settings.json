@@ -10,7 +10,6 @@
         "**/Thumbs.db": true,
         "media/images": true,
         "node_modules": true,
-        "staticfiles": true,
         "package-lock.json": true,
         "tailwind.config.js": true,
         "env_example.json": true,
@@ -21,7 +20,6 @@
     "hide-files.files": [
         "media/images",
         "node_modules",
-        "staticfiles",
         "package-lock.json",
         "tailwind.config.js",
         "env_example.json",
