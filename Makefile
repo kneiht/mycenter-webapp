@@ -20,17 +20,17 @@ confirm:
 ## runserver
 .PHONY: run
 run:
-	python manage.py runserver 0.0.0.0:8000
+	python3 manage.py runserver 0.0.0.0:8000
 
 ## makemigrations
 .PHONY: migrations
 migrations:
-	python manage.py makemigrations
+	python3 manage.py makemigrations
 
 ## migrate
 .PHONY: migrate
 migrate:
-	python manage.py migrate
+	python3 manage.py migrate
 
 ## tailwind
 .PHONY: tailwind
@@ -40,7 +40,7 @@ tailwind:
 ## collect
 .PHONY: collect
 collect:
-	python manage.py collectstatic
+	python3 manage.py collectstatic
 
 ## activate env
 .PHONY: env

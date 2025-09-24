@@ -398,12 +398,14 @@ class BaseViewSet(LoginRequiredMixin, View):
                 start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
                 records = records.filter(created_at__date__gte=start_date_obj)
             else:
-                start_date_obj = records.first().created_at.date()
+                if records.exists():
+                    start_date_obj = records.first().created_at.date()
             if end_date:
                 end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
                 records = records.filter(created_at__date__lte=end_date_obj)
             else:
-                end_date_obj = records.last().created_at.date()
+                if records.exists():
+                    end_date_obj = records.last().created_at.date()
 
             if income_or_expense:
                 records = records.filter(income_or_expense=income_or_expense)
@@ -521,12 +523,14 @@ class BaseViewSet(LoginRequiredMixin, View):
                     transaction_summary[month]['expense'] = 0
                     for i_transaction_type in FinancialTransaction.TRANSACTION_TYPES:
                         transaction_summary[month][i_transaction_type[0]] = 0
+                
+                amount = record.amount or 0
                 if "income" in transaction_type:
-                    transaction_summary[month]['income'] += record.amount
+                    transaction_summary[month]['income'] += amount
                 else:
-                    transaction_summary[month]['expense'] += record.amount
+                    transaction_summary[month]['expense'] += amount
 
-                transaction_summary[month][transaction_type] += record.amount
+                transaction_summary[month][transaction_type] += amount
 
             context['transaction_summary'] = transaction_summary
             context['transaction_types'] = FinancialTransaction.TRANSACTION_TYPES
