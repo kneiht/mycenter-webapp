@@ -1320,5 +1320,17 @@ def seed(request):
             created += 1
     return JsonResponse({'status': 'ok', 'created': created})
 
+@login_required
+def classroom_exams_view(request, school_id, class_id):
+    school = get_object_or_404(School, pk=school_id)
+    context = {
+        'school_id': school_id,
+        'class_id': class_id,
+        'page': 'classroom_exams',
+        'select': 'classroom_exams',
+        'school': school,
+    }
+    return render(request, 'pages/single_page.html', context)
+
 
 

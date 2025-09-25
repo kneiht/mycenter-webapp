@@ -58,6 +58,8 @@
             <div class="overflow-y-scroll w-full pr-2 pb-20" style="height: 90vh;">
                 {% if page == "dashboard" %}
                     {% include 'components/dashboard.html' %}
+                {% elif page == 'classroom_exams' %}
+                    {% include 'components/classroom_exams.html' %}
                 {% else %}
                     <!-- The title bar -->
                     {% include 'components/title_bar.html' %}

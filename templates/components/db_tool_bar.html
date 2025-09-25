@@ -2,6 +2,11 @@
 {% if select == 'classroom' %}
     <!-- Toolbar for classroom interactions -->
     <div id="db-tool-bar">
+        <div class="flex justify-end mb-4">
+            <a href="{% url 'classroom_exams' school_id=school.id class_id=class_instance.id %}" class="btn btn-info h-full w-fit text-nowrap">
+                Exams
+            </a>
+        </div>
         <div id='reward-controls' class="flex flex-wrap justify-around px-10 min-[906px]:grid-cols-2 mt-2 mb-8 h-full bg-theme-200 dark:bg-theme-900 rounded-xl">
                 <!-- Left controls for select -->
                 <div id='left-controls' class="flex items-center justify-center gap-4 py-3">
