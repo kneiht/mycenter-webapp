@@ -233,3 +233,35 @@
   background-image: linear-gradient(310deg, #ea0606 0%, #ff667c 100%);
 }
 
+.sticky-column-1 {
+  position: sticky;
+  left: 35px; 
+  background: #f9fafb;
+  z-index: 10;
+}
+.dark .sticky-column-1 {
+  background: #1e293b;
+} 
+
+
+.sticky-column-2 {
+  position: sticky;
+  left: 200px; 
+  background: #f9fafb;
+  z-index: 10;
+}
+.dark .sticky-column-2 {
+  background: #1e293b;
+}
+
+
+.sticky-column-3 {
+  position: sticky;
+  left: 300px; /* Approximate width of first +
+second */
+  background: #f9fafb;
+  z-index: 10;
+}
+.dark .sticky-column-3 {
+  background: #1e293b;
+}

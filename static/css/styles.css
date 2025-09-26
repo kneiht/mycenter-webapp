@@ -1836,6 +1836,10 @@ select {
   display: table;
 }
 
+.\!table {
+  display: table !important;
+}
+
 .grid {
   display: grid;
 }
