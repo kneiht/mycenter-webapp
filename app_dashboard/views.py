@@ -26,7 +26,8 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Q, Count, Sum  # 'Sum' is imported here
+from django.db.models import Q, Count, Sum, Case, When, Value  # 'Sum' is imported here
+from django.db.models.functions import Coalesce
 
 # Import forms
 from .forms import (
@@ -1328,10 +1329,10 @@ def classroom_exams_view(request, school_id, class_id):
     
     # Get all examinations for this class
     examinations = Examination.objects.filter(
-        examination_class=class_obj, 
+        examination_class=class_obj,
         is_active=True,
         school=school
-    ).order_by('created_at')
+    ).order_by('-date', 'created_at')
     
     # Get current students in the class
     current_students = class_obj.get_current_students()

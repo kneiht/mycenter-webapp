@@ -34,6 +34,9 @@
                                 <th scope="col" class="px-6 py-3 border-b border-gray-200 dark:border-gray-700 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                     Status
                                 </th>
+                                <th scope="col" class="px-6 py-3 border-b border-gray-200 dark:border-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                    Average
+                                </th>
                                 {% for exam in examinations %}
                                 <th scope="col" class="px-6 py-3 border-b border-gray-200 dark:border-gray-700 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider exam-column" data-exam-id="{{ exam.id }}" data-coefficient="{{ exam.coefficient }}">
                                     <div class="flex flex-col items-center gap-1">
@@ -52,9 +55,6 @@
                                     </div>
                                 </th>
                                 {% endfor %}
-                                <th scope="col" class="px-6 py-3 border-b border-gray-200 dark:border-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Average
-                                </th>
                             </tr>
                         </thead>
                         <tbody class="bg-gray-50 dark:bg-slate-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -70,6 +70,9 @@
                                         {{ student_data.status_display }}
                                     </span>
                                 </td>
+                                <td class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 font-bold average-cell">
+                                    {{ student_data.average }}
+                                </td>
                                 {% for score_data in student_data.scores %}
                                 <td class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 whitespace-nowrap text-center exam-score" data-exam-id="{{ score_data.exam_id }}">
                                     <input type="number" min="0" max="10" step="0.1" value="{{ score_data.score }}" 
@@ -78,9 +81,6 @@
                                            {% if not student_data.is_current_student %}title="Học sinh đã ngưng lớp - cần cẩn thận khi chỉnh sửa điểm"{% endif %} disabled>
                                 </td>
                                 {% endfor %}
-                                <td class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 font-bold average-cell">
-                                    {{ student_data.average }}
-                                </td>
                             </tr>
                             {% empty %}
                             <tr>
@@ -128,7 +128,7 @@
 
             <div class="form-row">
                 <label for="add_exam_date" class="text-theme">Exam Date (Optional)</label>
-                <input type="date" id="add_exam_date" name="exam_date" class="form-input">
+                <input type="date" id="add_exam_date" name="exam_date" class="form-input" value="{% now 'Y-m-d' %}">
             </div>
             
             <div class="flex justify-center items-center gap-5 pt-6 pb-7">

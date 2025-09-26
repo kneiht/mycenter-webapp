@@ -606,7 +606,10 @@ class Examination(SecondaryIDMixin, BaseModel):
     
     name = models.CharField(max_length=255, verbose_name='Examination Name')
     exam_type = models.CharField(max_length=20, choices=EXAM_TYPE_CHOICES, default='quiz', verbose_name='Exam Type')
-    date = models.DateField(verbose_name='Date of Examination', null=True, blank=True)
+    def get_default_exam_date():
+        return timezone.now().date()
+
+    date = models.DateField(verbose_name='Date of Examination', default=get_default_exam_date)
     note = models.TextField(blank=True, null=True, verbose_name='Note')
     examination_class = models.ForeignKey('Class', on_delete=models.CASCADE, related_name='examinations', verbose_name='Class')
     school = models.ForeignKey('School', on_delete=models.SET_NULL, null=True, blank=True)
