@@ -1347,13 +1347,13 @@ def classroom_exams_view(request, school_id, class_id):
     students_data = []
     for student in all_students:
         student_scores = []
-        total_score = 0
-        exam_count = 0
-        
+        total_weighted_score = 0
+        total_coefficient = 0
+
         for exam in examinations:
             try:
                 student_exam = StudentExamination.objects.get(
-                    student=student, 
+                    student=student,
                     examination=exam
                 )
                 score = student_exam.score
@@ -1366,16 +1366,16 @@ def classroom_exams_view(request, school_id, class_id):
                     color_class = 'bg-yellow-100 text-yellow-800'
                 else:
                     color_class = 'bg-red-100 text-red-800'
-            
+
             student_scores.append({
                 'exam_id': exam.id,
                 'score': score,
                 'color_class': color_class
             })
-            total_score += score
-            exam_count += 1
-        
-        average = round(total_score / exam_count, 2) if exam_count > 0 else 0
+            total_weighted_score += score * exam.coefficient
+            total_coefficient += exam.coefficient
+
+        average = round(total_weighted_score / total_coefficient, 2) if total_coefficient > 0 else 0
         
         # Check if student is currently in the class or has left
         is_current_student = student.id in current_student_ids
@@ -1430,24 +1430,26 @@ def add_exam_column(request, school_id, class_id):
             exam_name = data.get('exam_name')
             exam_type = data.get('exam_type', 'quiz')
             default_score = float(data.get('default_score', 0))
-            
+            coefficient = float(data.get('coefficient', 1.0))
+
             # Check if exam name already exists in this class
             if Examination.objects.filter(
-                examination_class=class_obj, 
+                examination_class=class_obj,
                 name=exam_name
             ).exists():
                 return JsonResponse({
                     'status': 'error',
                     'message': f'Exam "{exam_name}" already exists in this class'
                 })
-            
+
             # Create new examination
             examination = Examination.objects.create(
                 name=exam_name,
                 exam_type=exam_type,
                 examination_class=class_obj,
                 school=school,
-                default_score=default_score
+                default_score=default_score,
+                coefficient=coefficient
             )
             
             # Create default scores for all current students
@@ -1487,10 +1489,11 @@ def edit_exam_column(request, school_id, class_id):
             data = json.loads(request.body)
             exam_id = data.get('exam_id')
             examination = get_object_or_404(Examination, pk=exam_id, school=school)
-            
+
             new_name = data.get('exam_name')
             new_type = data.get('exam_type', examination.exam_type)
-            
+            new_coefficient = float(data.get('coefficient', examination.coefficient))
+
             # Check if new name already exists (excluding current exam)
             if Examination.objects.filter(
                 examination_class=examination.examination_class,
@@ -1500,18 +1503,20 @@ def edit_exam_column(request, school_id, class_id):
                     'status': 'error',
                     'message': f'Exam "{new_name}" already exists in this class'
                 })
-            
+
             # Update examination
             examination.name = new_name
             examination.exam_type = new_type
+            examination.coefficient = new_coefficient
             examination.save()
-            
+
             return JsonResponse({
                 'status': 'success',
                 'message': f'Exam column updated successfully',
                 'exam_id': examination.id,
                 'exam_name': examination.name,
-                'exam_type': examination.exam_type
+                'exam_type': examination.exam_type,
+                'coefficient': examination.coefficient
             })
             
         except Exception as e:
@@ -1627,7 +1632,8 @@ def get_exam_data(request, school_id, class_id):
             'id': exam.id,
             'name': exam.name,
             'type': exam.exam_type,
-            'default_score': exam.default_score
+            'default_score': exam.default_score,
+            'coefficient': exam.coefficient
         })
     
     student_data = []

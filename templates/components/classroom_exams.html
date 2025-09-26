@@ -35,11 +35,11 @@
                                     Status
                                 </th>
                                 {% for exam in examinations %}
-                                <th scope="col" class="px-6 py-3 border-b border-gray-200 dark:border-gray-700 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider exam-column" data-exam-id="{{ exam.id }}">
+                                <th scope="col" class="px-6 py-3 border-b border-gray-200 dark:border-gray-700 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider exam-column" data-exam-id="{{ exam.id }}" data-coefficient="{{ exam.coefficient }}">
                                     <div class="flex flex-col items-center gap-2">
-                                        <span class="exam-name">{{ exam.name }}</span>
+                                        <span class="exam-name">{{ exam.name }} (x{{ exam.coefficient }})</span>
                                         <div class="flex gap-1">
-                                            <button class="edit-exam-column-btn text-indigo-500 hover:text-indigo-700 p-1" data-exam-id="{{ exam.id }}" data-exam-name="{{ exam.name }}" title="Edit Exam">
+                                            <button class="edit-exam-column-btn text-indigo-500 hover:text-indigo-700 p-1" data-exam-id="{{ exam.id }}" data-exam-name="{{ exam.name }}" data-coefficient="{{ exam.coefficient }}" title="Edit Exam">
                                                 <i class="fas fa-edit text-xs"></i>
                                             </button>
                                             <button class="delete-exam-column-btn text-red-500 hover:text-red-700 p-1" data-exam-id="{{ exam.id }}" data-exam-name="{{ exam.name }}" title="Delete Exam">
@@ -128,13 +128,18 @@
                 <label for="add_default_score" class="text-theme">Default Score (Optional)</label>
                 <input type="number" id="add_default_score" name="default_score" class="form-input" min="0" max="10" step="0.1" placeholder="Leave empty for 0">
             </div>
+
+            <div class="form-row">
+                <label for="add_coefficient" class="text-theme">Coefficient</label>
+                <input type="number" id="add_coefficient" name="coefficient" class="form-input" min="0.1" max="10" step="0.1" value="1.0" placeholder="e.g. 1.0 for regular, 2.0 for double weight">
+            </div>
             
             <div class="flex justify-center items-center gap-5 pt-6 pb-7">
-                <button type="button" id="cancel-add" class="btn btn-secondary rounded-full w-36">
-                    Cancel
-                </button>
                 <button type="submit" class="btn btn-primary rounded-full w-36">
                     Add Column
+                </button>
+                <button type="button" id="cancel-add" class="btn btn-secondary rounded-full w-36">
+                    Cancel
                 </button>
             </div>
         </form>
@@ -169,13 +174,18 @@
                     <option value="other">Other</option>
                 </select>
             </div>
-            
+
+            <div class="form-row">
+                <label for="edit_coefficient" class="text-theme">Coefficient</label>
+                <input type="number" id="edit_coefficient" name="coefficient" class="form-input no-readable" min="0.1" max="10" step="0.1" placeholder="e.g. 1.0 for regular, 2.0 for double weight">
+            </div>
+
             <div class="flex justify-center items-center gap-5 pt-6 pb-7">
-                <button type="button" id="cancel-edit" class="btn btn-secondary rounded-full w-36">
-                    Cancel
-                </button>
                 <button type="submit" class="btn btn-primary rounded-full w-36">
                     Update Column
+                </button>
+                <button type="button" id="cancel-edit" class="btn btn-secondary rounded-full w-36">
+                    Cancel
                 </button>
             </div>
         </form>
@@ -197,11 +207,11 @@
             <p class="text-sm text-red-600 mb-6">This will permanently delete all scores for this exam. This action cannot be undone.</p>
             
             <div class="flex justify-center gap-4">
-                <button type="button" id="cancel-delete" class="btn btn-secondary rounded-full w-32">
-                    Cancel
-                </button>
                 <button type="button" id="confirm-delete" class="btn btn-danger rounded-full w-32">
                     Delete Column
+                </button>
+                <button type="button" id="cancel-delete" class="btn btn-secondary rounded-full w-32">
+                    Cancel
                 </button>
             </div>
         </div>
@@ -364,17 +374,20 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateRowAverage(row) {
         const scoreInputsInRow = row.querySelectorAll('.score-input');
         const averageCell = row.querySelector('.average-cell');
-        
-        let total = 0;
-        let count = 0;
-        
+
+        let totalWeighted = 0;
+        let totalCoefficient = 0;
+
         scoreInputsInRow.forEach(function(input) {
             const value = parseFloat(input.value) || 0;
-            total += value;
-            count++;
+            const examId = input.dataset.examId;
+            const th = document.querySelector(`th[data-exam-id="${examId}"]`);
+            const coefficient = parseFloat(th.dataset.coefficient) || 1.0;
+            totalWeighted += value * coefficient;
+            totalCoefficient += coefficient;
         });
-        
-        const average = count > 0 ? (total / count) : 0;
+
+        const average = totalCoefficient > 0 ? (totalWeighted / totalCoefficient) : 0;
         averageCell.textContent = average.toFixed(2);
     }
     
@@ -423,7 +436,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const examName = document.getElementById('add_exam_name').value;
         const examType = document.getElementById('add_exam_type').value;
         const defaultScore = parseFloat(document.getElementById('add_default_score').value) || 0;
-        
+        const coefficient = parseFloat(document.getElementById('add_coefficient').value) || 1.0;
+
         // Make API call to add exam
         fetch(`/schools/${SCHOOL_ID}/classes/${CLASS_ID}/exams/add/`, {
             method: 'POST',
@@ -434,7 +448,8 @@ document.addEventListener('DOMContentLoaded', function() {
             body: JSON.stringify({
                 exam_name: examName,
                 exam_type: examType,
-                default_score: defaultScore
+                default_score: defaultScore,
+                coefficient: coefficient
             })
         })
         .then(response => response.json())
@@ -457,10 +472,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const button = e.target.closest('.edit-exam-column-btn');
         const examId = button.getAttribute('data-exam-id');
         const examName = button.getAttribute('data-exam-name');
-        
+        const coefficient = button.getAttribute('data-coefficient');
+
         document.getElementById('edit_exam_id').value = examId;
         document.getElementById('edit_exam_name').value = examName;
-        
+        document.getElementById('edit_coefficient').value = coefficient;
+
         editExamModal.classList.remove('hidden');
     }
     
@@ -477,8 +494,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const newExamName = document.getElementById('edit_exam_name').value;
         const newExamType = document.getElementById('edit_exam_type').value;
+        const newCoefficient = parseFloat(document.getElementById('edit_coefficient').value) || 1.0;
         const examId = document.getElementById('edit_exam_id').value;
-        
+
         // Make API call to edit exam
         fetch(`/schools/${SCHOOL_ID}/classes/${CLASS_ID}/exams/edit/`, {
             method: 'POST',
@@ -489,7 +507,8 @@ document.addEventListener('DOMContentLoaded', function() {
             body: JSON.stringify({
                 exam_id: examId,
                 exam_name: newExamName,
-                exam_type: newExamType
+                exam_type: newExamType,
+                coefficient: newCoefficient
             })
         })
         .then(response => response.json())
@@ -498,12 +517,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Update header name
                 const header = document.querySelector(`[data-exam-id="${examId}"]`);
                 const examNameSpan = header.querySelector('.exam-name');
-                examNameSpan.textContent = newExamName;
-                
+                examNameSpan.textContent = `${newExamName} (x${newCoefficient})`;
+                header.setAttribute('data-coefficient', newCoefficient);
+
                 // Update button data attributes
                 const editBtn = header.querySelector('.edit-exam-column-btn');
                 const deleteBtn = header.querySelector('.delete-exam-column-btn');
                 editBtn.setAttribute('data-exam-name', newExamName);
+                editBtn.setAttribute('data-coefficient', newCoefficient);
                 deleteBtn.setAttribute('data-exam-name', newExamName);
                 
                 editExamModal.classList.add('hidden');

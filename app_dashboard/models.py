@@ -612,6 +612,7 @@ class Examination(SecondaryIDMixin, BaseModel):
     school = models.ForeignKey('School', on_delete=models.SET_NULL, null=True, blank=True)
     is_active = models.BooleanField(default=True, verbose_name='Is Active')
     default_score = models.FloatField(default=0.0, verbose_name='Default Score')
+    coefficient = models.FloatField(default=1.0, verbose_name='Coefficient', help_text='Weight for calculating averages (e.g., 1.0 for regular, 2.0 for double weight)')
     created_at = models.DateTimeField(default=timezone.now)
     
     class Meta:
