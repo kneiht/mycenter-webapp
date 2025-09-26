@@ -189,6 +189,13 @@
                             <i class="fa fa-calendar ml-3 mr-5"></i> 
                             Attendance calendar
                         </a>
+                        <a id="exam-scores" class="menu-item menu-item-border"
+                            href="/schools/{{school.pk}}/students/{{record.pk}}/exam-scores/"
+                            target="_blank"
+                            up-target="#title_bar, #db_tool_bar, #display_cards, #infor-bar">
+                            <i class="fa fa-graduation-cap ml-3 mr-5"></i> 
+                            Exam Scores
+                        </a>
                     {% endif %}
 
                     {% if select == 'schools' %}

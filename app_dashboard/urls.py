@@ -3,7 +3,7 @@ from .views import (
     StudentConvertViewSet, CMRViewSet, CRMNoteViewSet, SchoolViewSet, ClassViewSet, StudentViewSet, StudentNoteViewSet, TuitionPaymentViewSet, ClassRoomViewSet, TuitionPaymentOldViewSet, TuitionPaymentSpecialViewSet,
     FinancialTransactionViewSet, AttendanceViewSet, StudentAttendanceCalendarViewSet, FinancialTransactionNoteViewSet, AnnouncementViewSet,
     home,wheel,calculate_student_balance, landing_page, classroom_exams_view,
-    add_exam_column, edit_exam_column, delete_exam_column, save_scores, get_exam_data
+    add_exam_column, edit_exam_column, delete_exam_column, save_scores, get_exam_data, student_exam_scores_view
 )
 
 from django.urls import re_path, path
@@ -52,6 +52,7 @@ urlpatterns = [
 
     path('schools/<int:school_id>/students/<int:student_id>/attendance-calendar/view/', views.student_attendance_calendar_view, name='student_attendance_calendar_view'),
     path('schools/<int:school_id>/students/<int:student_id>/view/', views.student_view, name='student_view'),
+    path('schools/<int:school_id>/students/<int:student_id>/exam-scores/', views.student_exam_scores_view, name='student_exam_scores'),
     
 
 

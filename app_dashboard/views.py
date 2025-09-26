@@ -1654,4 +1654,29 @@ def get_exam_data(request, school_id, class_id):
     })
 
 
+@login_required
+def student_exam_scores_view(request, school_id, student_id):
+    student = get_object_or_404(Student, pk=student_id)
+    school = get_object_or_404(School, pk=school_id)
+    
+    # Get all exam scores for the student
+    student_exams = StudentExamination.objects.filter(student=student).order_by('examination__examination_class', 'examination__created_at')
+    
+    # Group scores by class
+    scores_by_class = {}
+    for se in student_exams:
+        class_obj = se.examination.examination_class
+        if class_obj not in scores_by_class:
+            scores_by_class[class_obj] = []
+        scores_by_class[class_obj].append(se)
+        
+    context = {
+        'student': student,
+        'school': school,
+        'scores_by_class': scores_by_class,
+        'page': 'student_exam_scores',
+        'select': 'student_exam_scores',
+        'title': f'Exam Scores for {student.name}',
+    }
+    return render(request, 'pages/single_page.html', context)
 
