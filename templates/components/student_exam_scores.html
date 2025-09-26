@@ -33,7 +33,11 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 whitespace-nowrap  text-gray-600 dark:text-gray-300 text-center">
-                                        {{ se.examination.created_at|date:"d-m-Y" }}
+                                        {% if se.examination.date %}
+                                            {{ se.examination.date|date:"d-m-Y" }}
+                                        {% else %}
+                                            {{ se.examination.created_at|date:"d-m-Y" }}
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}

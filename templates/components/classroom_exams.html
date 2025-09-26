@@ -36,10 +36,13 @@
                                 </th>
                                 {% for exam in examinations %}
                                 <th scope="col" class="px-6 py-3 border-b border-gray-200 dark:border-gray-700 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider exam-column" data-exam-id="{{ exam.id }}" data-coefficient="{{ exam.coefficient }}">
-                                    <div class="flex flex-col items-center gap-2">
+                                    <div class="flex flex-col items-center gap-1">
                                         <span class="exam-name">{{ exam.name }} (x{{ exam.coefficient }})</span>
+                                        {% if exam.date %}
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 exam-date">{{ exam.date|date:"d/m" }}</span>
+                                        {% endif %}
                                         <div class="flex gap-1">
-                                            <button class="edit-exam-column-btn text-indigo-500 hover:text-indigo-700 p-1" data-exam-id="{{ exam.id }}" data-exam-name="{{ exam.name }}" data-coefficient="{{ exam.coefficient }}" title="Edit Exam">
+                                            <button class="edit-exam-column-btn text-indigo-500 hover:text-indigo-700 p-1" data-exam-id="{{ exam.id }}" data-exam-name="{{ exam.name }}" data-coefficient="{{ exam.coefficient }}" data-exam-date="{% if exam.date %}{{ exam.date|date:'Y-m-d' }}{% endif %}" title="Edit Exam">
                                                 <i class="fas fa-edit text-xs"></i>
                                             </button>
                                             <button class="delete-exam-column-btn text-red-500 hover:text-red-700 p-1" data-exam-id="{{ exam.id }}" data-exam-name="{{ exam.name }}" title="Delete Exam">
@@ -133,6 +136,11 @@
                 <label for="add_coefficient" class="text-theme">Coefficient</label>
                 <input type="number" id="add_coefficient" name="coefficient" class="form-input" min="0.1" max="10" step="0.1" value="1.0" placeholder="e.g. 1.0 for regular, 2.0 for double weight">
             </div>
+
+            <div class="form-row">
+                <label for="add_exam_date" class="text-theme">Exam Date (Optional)</label>
+                <input type="date" id="add_exam_date" name="exam_date" class="form-input">
+            </div>
             
             <div class="flex justify-center items-center gap-5 pt-6 pb-7">
                 <button type="submit" class="btn btn-primary rounded-full w-36">
@@ -178,6 +186,11 @@
             <div class="form-row">
                 <label for="edit_coefficient" class="text-theme">Coefficient</label>
                 <input type="number" id="edit_coefficient" name="coefficient" class="form-input no-readable" min="0.1" max="10" step="0.1" placeholder="e.g. 1.0 for regular, 2.0 for double weight">
+            </div>
+
+            <div class="form-row">
+                <label for="edit_exam_date" class="text-theme">Exam Date (Optional)</label>
+                <input type="date" id="edit_exam_date" name="exam_date" class="form-input">
             </div>
 
             <div class="flex justify-center items-center gap-5 pt-6 pb-7">
@@ -437,6 +450,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const examType = document.getElementById('add_exam_type').value;
         const defaultScore = parseFloat(document.getElementById('add_default_score').value) || 0;
         const coefficient = parseFloat(document.getElementById('add_coefficient').value) || 1.0;
+        const examDate = document.getElementById('add_exam_date').value || null;
 
         // Make API call to add exam
         fetch(`/schools/${SCHOOL_ID}/classes/${CLASS_ID}/exams/add/`, {
@@ -449,7 +463,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 exam_name: examName,
                 exam_type: examType,
                 default_score: defaultScore,
-                coefficient: coefficient
+                coefficient: coefficient,
+                exam_date: examDate
             })
         })
         .then(response => response.json())
@@ -473,10 +488,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const examId = button.getAttribute('data-exam-id');
         const examName = button.getAttribute('data-exam-name');
         const coefficient = button.getAttribute('data-coefficient');
+        const examDate = button.getAttribute('data-exam-date');
 
         document.getElementById('edit_exam_id').value = examId;
         document.getElementById('edit_exam_name').value = examName;
         document.getElementById('edit_coefficient').value = coefficient;
+        document.getElementById('edit_exam_date').value = examDate;
 
         editExamModal.classList.remove('hidden');
     }
@@ -495,6 +512,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const newExamName = document.getElementById('edit_exam_name').value;
         const newExamType = document.getElementById('edit_exam_type').value;
         const newCoefficient = parseFloat(document.getElementById('edit_coefficient').value) || 1.0;
+        const newExamDate = document.getElementById('edit_exam_date').value || null;
         const examId = document.getElementById('edit_exam_id').value;
 
         // Make API call to edit exam
@@ -508,7 +526,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 exam_id: examId,
                 exam_name: newExamName,
                 exam_type: newExamType,
-                coefficient: newCoefficient
+                coefficient: newCoefficient,
+                exam_date: newExamDate
             })
         })
         .then(response => response.json())
@@ -520,13 +539,39 @@ document.addEventListener('DOMContentLoaded', function() {
                 examNameSpan.textContent = `${newExamName} (x${newCoefficient})`;
                 header.setAttribute('data-coefficient', newCoefficient);
 
+                // Update date display
+                let dateSpan = header.querySelector('.exam-date');
+                if (newExamDate) {
+                    const dateObj = new Date(newExamDate);
+                    const formattedDate = `${dateObj.getDate().toString().padStart(2, '0')}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}`;
+                    if (dateSpan) {
+                        dateSpan.textContent = formattedDate;
+                    } else {
+                        // Create new date span
+                        dateSpan = document.createElement('span');
+                        dateSpan.className = 'text-xs text-gray-500 dark:text-gray-400 exam-date';
+                        dateSpan.textContent = formattedDate;
+                        examNameSpan.insertAdjacentElement('afterend', dateSpan);
+                    }
+                } else {
+                    if (dateSpan) {
+                        dateSpan.remove();
+                    }
+                }
+
                 // Update button data attributes
                 const editBtn = header.querySelector('.edit-exam-column-btn');
                 const deleteBtn = header.querySelector('.delete-exam-column-btn');
                 editBtn.setAttribute('data-exam-name', newExamName);
                 editBtn.setAttribute('data-coefficient', newCoefficient);
+                editBtn.setAttribute('data-exam-date', newExamDate || '');
                 deleteBtn.setAttribute('data-exam-name', newExamName);
-                
+
+                // Recalculate averages for all rows since coefficient changed
+                document.querySelectorAll('tr[data-student-id]').forEach(function(row) {
+                    updateRowAverage(row);
+                });
+
                 editExamModal.classList.add('hidden');
             } else {
                 alert('Error editing exam: ' + (data.message || 'Unknown error'));

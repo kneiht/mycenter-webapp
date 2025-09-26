@@ -1431,6 +1431,10 @@ def add_exam_column(request, school_id, class_id):
             exam_type = data.get('exam_type', 'quiz')
             default_score = float(data.get('default_score', 0))
             coefficient = float(data.get('coefficient', 1.0))
+            exam_date = data.get('exam_date')
+            if exam_date:
+                from datetime import datetime
+                exam_date = datetime.strptime(exam_date, '%Y-%m-%d').date()
 
             # Check if exam name already exists in this class
             if Examination.objects.filter(
@@ -1449,7 +1453,8 @@ def add_exam_column(request, school_id, class_id):
                 examination_class=class_obj,
                 school=school,
                 default_score=default_score,
-                coefficient=coefficient
+                coefficient=coefficient,
+                date=exam_date
             )
             
             # Create default scores for all current students
@@ -1493,6 +1498,10 @@ def edit_exam_column(request, school_id, class_id):
             new_name = data.get('exam_name')
             new_type = data.get('exam_type', examination.exam_type)
             new_coefficient = float(data.get('coefficient', examination.coefficient))
+            new_exam_date = data.get('exam_date')
+            if new_exam_date:
+                from datetime import datetime
+                new_exam_date = datetime.strptime(new_exam_date, '%Y-%m-%d').date()
 
             # Check if new name already exists (excluding current exam)
             if Examination.objects.filter(
@@ -1508,6 +1517,7 @@ def edit_exam_column(request, school_id, class_id):
             examination.name = new_name
             examination.exam_type = new_type
             examination.coefficient = new_coefficient
+            examination.date = new_exam_date
             examination.save()
 
             return JsonResponse({
@@ -1516,7 +1526,8 @@ def edit_exam_column(request, school_id, class_id):
                 'exam_id': examination.id,
                 'exam_name': examination.name,
                 'exam_type': examination.exam_type,
-                'coefficient': examination.coefficient
+                'coefficient': examination.coefficient,
+                'exam_date': examination.date.isoformat() if examination.date else None
             })
             
         except Exception as e:
