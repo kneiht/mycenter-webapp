@@ -1569,16 +1569,12 @@ select {
   top: 1.25rem;
 }
 
-.left-48 {
-  left: 12rem;
-}
-
-.left-80 {
-  left: 20rem;
-}
-
 .z-10 {
   z-index: 10;
+}
+
+.z-20 {
+  z-index: 20;
 }
 
 .z-50 {
@@ -1832,12 +1828,12 @@ select {
   display: inline-flex;
 }
 
-.table {
-  display: table;
-}
-
 .\!table {
   display: table !important;
+}
+
+.table {
+  display: table;
 }
 
 .grid {
@@ -1905,12 +1901,56 @@ select {
   height: 100%;
 }
 
+.h-\[70vh\] {
+  height: 70vh;
+}
+
 .max-h-40 {
   max-height: 10rem;
 }
 
 .max-h-64 {
   max-height: 16rem;
+}
+
+.max-h-\[50vh\] {
+  max-height: 50vh;
+}
+
+.max-h-\[70vh\] {
+  max-height: 70vh;
+}
+
+.max-h-\[80vh\] {
+  max-height: 80vh;
+}
+
+.max-h-\[90vh\] {
+  max-height: 90vh;
+}
+
+.max-h-\[95vh\] {
+  max-height: 95vh;
+}
+
+.max-h-\[94vh\] {
+  max-height: 94vh;
+}
+
+.max-h-\[92vh\] {
+  max-height: 92vh;
+}
+
+.max-h-\[85vh\] {
+  max-height: 85vh;
+}
+
+.max-h-\[82vh\] {
+  max-height: 82vh;
+}
+
+.max-h-\[83vh\] {
+  max-height: 83vh;
 }
 
 .min-h-full {
@@ -1983,10 +2023,6 @@ select {
 
 .w-36 {
   width: 9rem;
-}
-
-.w-48 {
-  width: 12rem;
 }
 
 .w-5 {
@@ -2074,10 +2110,6 @@ select {
   flex: 1 1 0%;
 }
 
-.flex-shrink-0 {
-  flex-shrink: 0;
-}
-
 .flex-grow {
   flex-grow: 1;
 }
@@ -2146,10 +2178,6 @@ select {
 
 .flex-wrap {
   flex-wrap: wrap;
-}
-
-.flex-nowrap {
-  flex-wrap: nowrap;
 }
 
 .items-start {
