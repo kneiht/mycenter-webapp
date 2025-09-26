@@ -8,7 +8,6 @@
             <div class="flex gap-4">
                 
 
-
                 <input id="check_date" type="date" name="check_date" class="form-input">
                 <button id="attendance-button" class="btn btn-primary text-nowrap">
 
@@ -20,6 +19,10 @@
                     <span class="max-sm:hidden me-3"> Image Switch </span>
                 </button>
 
+                <a href="{% url 'classroom_exams' school_id=school.id class_id=class_instance.id %}" class="btn btn-success text-nowrap" target="_blank">
+                    <i class="fas fa-clipboard-list mx-3" style="font-size: 16px;"></i>
+                    <span class="max-sm:hidden me-3"> Exams </span>
+                </a>
             </a>
 
             </div>

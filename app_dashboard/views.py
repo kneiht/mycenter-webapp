@@ -1408,6 +1408,7 @@ def classroom_exams_view(request, school_id, class_id):
         'class_id': class_id,
         'page': 'classroom_exams',
         'select': 'classroom_exams',
+        'title': 'Exam Scores',
         'school': school,
         'class_obj': class_obj,
         'examinations': examinations,
