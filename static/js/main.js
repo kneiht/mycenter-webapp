@@ -366,7 +366,7 @@ up.compiler('#nav_bar', function(element) {
 document.addEventListener('click', function(event) {
     const searchControl = document.getElementById('search-control')
     const toolBar = document.getElementById('db-tool-bar')
-    if (!toolBar.contains(event.target) && searchControl) {
+    if (toolBar && !toolBar.contains(event.target) && searchControl) {
         let sortSelect = document.getElementById('sort-select');
         if (sortSelect) {
             document.getElementById('sort-select').classList.remove('hidden');

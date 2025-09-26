@@ -666,8 +666,8 @@ class StudentExamination(BaseModel):
     def score_color_class(self):
         """Return CSS class based on score range"""
         if self.score >= 8:
-            return 'bg-green-100 text-green-800'
+            return 'text-green-600 dark:text-green-400'
         elif self.score >= 5:
-            return 'bg-yellow-100 text-yellow-800'
+            return 'text-yellow-600 dark:text-yellow-400'
         else:
-            return 'bg-red-100 text-red-800'
+            return 'text-red-600 dark:text-red-400'

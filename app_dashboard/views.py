@@ -1382,11 +1382,13 @@ def classroom_exams_view(request, school_id, class_id):
         
         # Determine student status display
         if is_current_student:
-            status_display = "Đang học"
-            status_class = "bg-green-100 text-green-800"
+            # English
+            status_display = "Currently attending"
+            status_class = "text-green-600 dark:text-green-400"
         else:
-            status_display = "Đã ngưng lớp"
-            status_class = "bg-red-100 text-red-800"
+            # English
+            status_display = "No longer attending"
+            status_class = "text-red-600 dark:text-red-400"
         
         students_data.append({
             'student': student,
