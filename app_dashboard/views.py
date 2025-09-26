@@ -1428,7 +1428,6 @@ def add_exam_column(request, school_id, class_id):
             
             data = json.loads(request.body)
             exam_name = data.get('exam_name')
-            exam_type = data.get('exam_type', 'quiz')
             default_score = float(data.get('default_score', 0))
             coefficient = float(data.get('coefficient', 1.0))
             exam_date = data.get('exam_date')
@@ -1449,7 +1448,6 @@ def add_exam_column(request, school_id, class_id):
             # Create new examination
             examination = Examination.objects.create(
                 name=exam_name,
-                exam_type=exam_type,
                 examination_class=class_obj,
                 school=school,
                 default_score=default_score,
@@ -1496,7 +1494,6 @@ def edit_exam_column(request, school_id, class_id):
             examination = get_object_or_404(Examination, pk=exam_id, school=school)
 
             new_name = data.get('exam_name')
-            new_type = data.get('exam_type', examination.exam_type)
             new_coefficient = float(data.get('coefficient', examination.coefficient))
             new_exam_date = data.get('exam_date')
             if new_exam_date:
@@ -1515,7 +1512,6 @@ def edit_exam_column(request, school_id, class_id):
 
             # Update examination
             examination.name = new_name
-            examination.exam_type = new_type
             examination.coefficient = new_coefficient
             examination.date = new_exam_date
             examination.save()
@@ -1525,7 +1521,6 @@ def edit_exam_column(request, school_id, class_id):
                 'message': f'Exam column updated successfully',
                 'exam_id': examination.id,
                 'exam_name': examination.name,
-                'exam_type': examination.exam_type,
                 'coefficient': examination.coefficient,
                 'exam_date': examination.date.isoformat() if examination.date else None
             })
@@ -1642,7 +1637,6 @@ def get_exam_data(request, school_id, class_id):
         exam_data.append({
             'id': exam.id,
             'name': exam.name,
-            'type': exam.exam_type,
             'default_score': exam.default_score,
             'coefficient': exam.coefficient
         })

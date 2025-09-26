@@ -115,18 +115,7 @@
                 <input type="text" id="add_exam_name" name="exam_name" class="form-input" placeholder="e.g. Quiz 1, Homework 1, Midterm 2" required>
             </div>
             
-            <div class="form-row">
-                <label for="add_exam_type" class="text-theme">Exam Type</label>
-                <select id="add_exam_type" name="exam_type" class="form-input">
-                    <option value="quiz">Quiz</option>
-                    <option value="homework">Homework</option>
-                    <option value="midterm">Mid-term Test</option>
-                    <option value="final">Final Test</option>
-                    <option value="project">Project</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-            
+
             <div class="form-row">
                 <label for="add_default_score" class="text-theme">Default Score (Optional)</label>
                 <input type="number" id="add_default_score" name="default_score" class="form-input" min="0" max="10" step="0.1" placeholder="Leave empty for 0">
@@ -134,7 +123,7 @@
 
             <div class="form-row">
                 <label for="add_coefficient" class="text-theme">Coefficient</label>
-                <input type="number" id="add_coefficient" name="coefficient" class="form-input" min="0.1" max="10" step="0.1" value="1.0" placeholder="e.g. 1.0 for regular, 2.0 for double weight">
+                <input type="number" id="add_coefficient" name="coefficient" class="form-input no-readable" min="0.1" max="10" step="0.1" value="1.0" placeholder="e.g. 1.0 for regular, 2.0 for double weight">
             </div>
 
             <div class="form-row">
@@ -171,17 +160,6 @@
                 <input type="text" id="edit_exam_name" name="exam_name" class="form-input" required>
             </div>
             
-            <div class="form-row">
-                <label for="edit_exam_type" class="text-theme">Exam Type</label>
-                <select id="edit_exam_type" name="exam_type" class="form-input">
-                    <option value="quiz">Quiz</option>
-                    <option value="homework">Homework</option>
-                    <option value="midterm">Mid-term Test</option>
-                    <option value="final">Final Test</option>
-                    <option value="project">Project</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
 
             <div class="form-row">
                 <label for="edit_coefficient" class="text-theme">Coefficient</label>
@@ -447,7 +425,6 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         
         const examName = document.getElementById('add_exam_name').value;
-        const examType = document.getElementById('add_exam_type').value;
         const defaultScore = parseFloat(document.getElementById('add_default_score').value) || 0;
         const coefficient = parseFloat(document.getElementById('add_coefficient').value) || 1.0;
         const examDate = document.getElementById('add_exam_date').value || null;
@@ -461,7 +438,6 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify({
                 exam_name: examName,
-                exam_type: examType,
                 default_score: defaultScore,
                 coefficient: coefficient,
                 exam_date: examDate
@@ -510,7 +486,6 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         
         const newExamName = document.getElementById('edit_exam_name').value;
-        const newExamType = document.getElementById('edit_exam_type').value;
         const newCoefficient = parseFloat(document.getElementById('edit_coefficient').value) || 1.0;
         const newExamDate = document.getElementById('edit_exam_date').value || null;
         const examId = document.getElementById('edit_exam_id').value;
@@ -525,7 +500,6 @@ document.addEventListener('DOMContentLoaded', function() {
             body: JSON.stringify({
                 exam_id: examId,
                 exam_name: newExamName,
-                exam_type: newExamType,
                 coefficient: newCoefficient,
                 exam_date: newExamDate
             })

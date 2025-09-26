@@ -612,16 +612,14 @@ class ExaminationForm(forms.ModelForm):
     """Form for creating and editing exam columns"""
     class Meta:
         model = Examination
-        fields = ['name', 'exam_type', 'date', 'default_score', 'note']
+        fields = ['name', 'date', 'default_score', 'note']
         widgets = {
             'name': forms.TextInput(attrs={
                 'placeholder': 'e.g. Quiz 1, Midterm Test, Final Exam',
                 'required': 'required',
                 'class': 'form-input'
             }),
-            'exam_type': forms.Select(attrs={
-                'class': 'form-input'
-            }),
+
             'date': forms.DateInput(attrs={
                 'class': 'form-input',
                 'type': 'date'
