@@ -324,6 +324,10 @@ class Class(SecondaryIDMixin, BaseModel):
 
     def get_charge_student_number(self):
         return StudentClass.objects.filter(_class=self, student__in=self.students.all(), is_payment_required=True).count()
+    
+    def get_current_students(self):
+        """Get all students currently in this class"""
+        return self.students.filter(moved_to_trash=False)
 
 
 class StudentClass(models.Model):
@@ -584,3 +588,86 @@ class TuitionPlan(models.Model):
             })
         # convert to json
         return plans
+
+
+class Examination(SecondaryIDMixin, BaseModel):
+    """
+    Model representing an exam column (e.g., Mid-term Test, Final Test, Quiz 1, etc.)
+    Each examination belongs to a specific class in a specific school
+    """
+    EXAM_TYPE_CHOICES = [
+        ('quiz', 'Quiz'),
+        ('homework', 'Homework'),
+        ('midterm', 'Mid-term Test'),
+        ('final', 'Final Test'),
+        ('project', 'Project'),
+        ('other', 'Other')
+    ]
+    
+    name = models.CharField(max_length=255, verbose_name='Examination Name')
+    exam_type = models.CharField(max_length=20, choices=EXAM_TYPE_CHOICES, default='quiz', verbose_name='Exam Type')
+    date = models.DateField(verbose_name='Date of Examination', null=True, blank=True)
+    note = models.TextField(blank=True, null=True, verbose_name='Note')
+    examination_class = models.ForeignKey('Class', on_delete=models.CASCADE, related_name='examinations', verbose_name='Class')
+    school = models.ForeignKey('School', on_delete=models.SET_NULL, null=True, blank=True)
+    is_active = models.BooleanField(default=True, verbose_name='Is Active')
+    default_score = models.FloatField(default=0.0, verbose_name='Default Score')
+    created_at = models.DateTimeField(default=timezone.now)
+    
+    class Meta:
+        unique_together = ['examination_class', 'name']  # Prevent duplicate exam names in same class
+        ordering = ['created_at']
+    
+    def __str__(self):
+        return f"{self.name} - {self.examination_class.name}"
+    
+    def get_all_student_scores(self):
+        """Get all student scores for this examination"""
+        return StudentExamination.objects.filter(examination=self)
+    
+    def get_students_with_scores(self):
+        """Get all students in the class with their scores for this exam"""
+        students = self.examination_class.get_current_students()
+        scores_data = []
+        
+        for student in students:
+            try:
+                score = StudentExamination.objects.get(student=student, examination=self).score
+            except StudentExamination.DoesNotExist:
+                score = self.default_score
+            
+            scores_data.append({
+                'student': student,
+                'score': score
+            })
+        
+        return scores_data
+
+
+class StudentExamination(BaseModel):
+    """
+    Model representing a student's score for a specific examination
+    This preserves scores even if student is removed from class
+    """
+    student = models.ForeignKey('Student', on_delete=models.CASCADE, related_name='exam_scores')
+    examination = models.ForeignKey('Examination', on_delete=models.CASCADE, related_name='student_scores')
+    score = models.FloatField(verbose_name='Score')
+    note = models.TextField(blank=True, null=True, verbose_name='Note')
+    created_at = models.DateTimeField(default=timezone.now)
+    
+    class Meta:
+        unique_together = [('student', 'examination')]
+        ordering = ['created_at']
+    
+    def __str__(self):
+        return f"{self.student.name} - {self.examination.name}: {self.score}"
+    
+    @property
+    def score_color_class(self):
+        """Return CSS class based on score range"""
+        if self.score >= 8:
+            return 'bg-green-100 text-green-800'
+        elif self.score >= 5:
+            return 'bg-yellow-100 text-yellow-800'
+        else:
+            return 'bg-red-100 text-red-800'

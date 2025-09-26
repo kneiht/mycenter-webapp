@@ -32,12 +32,13 @@ from django.db.models import Q, Count, Sum  # 'Sum' is imported here
 from .forms import (
     SchoolForm, StudentForm, ClassForm, AttendanceForm, FinancialTransactionForm, FinancialTransactionNoteForm,
     TuitionPaymentForm, TuitionPaymentOldForm, TuitionPaymentSpecialForm, StudentNoteForm, StudentConvertForm,
-    AnnouncementForm
+    AnnouncementForm, ExaminationForm, StudentExaminationForm, BulkScoreUpdateForm
 )
 # Import models
 from django.contrib.auth.models import User
 from .models import (
-    School, Student, SchoolUser, Class, StudentClass, Attendance, FinancialTransaction, Announcement, TuitionPlan
+    School, Student, SchoolUser, Class, StudentClass, Attendance, FinancialTransaction, Announcement, TuitionPlan,
+    Examination, StudentExamination
 )
 from django.db.models import F, FloatField
 
@@ -1323,14 +1324,334 @@ def seed(request):
 @login_required
 def classroom_exams_view(request, school_id, class_id):
     school = get_object_or_404(School, pk=school_id)
+    class_obj = get_object_or_404(Class, pk=class_id)
+    
+    # Get all examinations for this class
+    examinations = Examination.objects.filter(
+        examination_class=class_obj, 
+        is_active=True,
+        school=school
+    ).order_by('created_at')
+    
+    # Get current students in the class
+    current_students = class_obj.get_current_students()
+    current_student_ids = set(current_students.values_list('id', flat=True))
+    
+    # Get all students: current students OR students who have exam scores for this class
+    all_students = Student.objects.filter(
+        Q(classes=class_obj, moved_to_trash=False) |  # Current students in class
+        Q(exam_scores__examination__examination_class=class_obj, moved_to_trash=False)  # Students with exam scores
+    ).distinct()
+    
+    # Prepare data structure for template
+    students_data = []
+    for student in all_students:
+        student_scores = []
+        total_score = 0
+        exam_count = 0
+        
+        for exam in examinations:
+            try:
+                student_exam = StudentExamination.objects.get(
+                    student=student, 
+                    examination=exam
+                )
+                score = student_exam.score
+                color_class = student_exam.score_color_class
+            except StudentExamination.DoesNotExist:
+                score = exam.default_score
+                if score >= 8:
+                    color_class = 'bg-green-100 text-green-800'
+                elif score >= 5:
+                    color_class = 'bg-yellow-100 text-yellow-800'
+                else:
+                    color_class = 'bg-red-100 text-red-800'
+            
+            student_scores.append({
+                'exam_id': exam.id,
+                'score': score,
+                'color_class': color_class
+            })
+            total_score += score
+            exam_count += 1
+        
+        average = round(total_score / exam_count, 2) if exam_count > 0 else 0
+        
+        # Check if student is currently in the class or has left
+        is_current_student = student.id in current_student_ids
+        
+        # Determine student status display
+        if is_current_student:
+            status_display = "Đang học"
+            status_class = "bg-green-100 text-green-800"
+        else:
+            status_display = "Đã ngưng lớp"
+            status_class = "bg-red-100 text-red-800"
+        
+        students_data.append({
+            'student': student,
+            'scores': student_scores,
+            'average': average,
+            'is_current_student': is_current_student,
+            'status_display': status_display,
+            'status_class': status_class
+        })
+    
+    # Sort students: current students first, then students who left the class
+    students_data.sort(key=lambda x: (not x['is_current_student'], x['student'].name))
+    
     context = {
         'school_id': school_id,
         'class_id': class_id,
         'page': 'classroom_exams',
         'select': 'classroom_exams',
         'school': school,
+        'class_obj': class_obj,
+        'examinations': examinations,
+        'students_data': students_data,
     }
     return render(request, 'pages/single_page.html', context)
+
+
+# ============= EXAMINATION CRUD VIEWS =============
+
+@login_required
+@csrf_exempt
+def add_exam_column(request, school_id, class_id):
+    """Add new exam column"""
+    if request.method == 'POST':
+        try:
+            school = get_object_or_404(School, pk=school_id)
+            class_obj = get_object_or_404(Class, pk=class_id)
+            
+            data = json.loads(request.body)
+            exam_name = data.get('exam_name')
+            exam_type = data.get('exam_type', 'quiz')
+            default_score = float(data.get('default_score', 0))
+            
+            # Check if exam name already exists in this class
+            if Examination.objects.filter(
+                examination_class=class_obj, 
+                name=exam_name
+            ).exists():
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Exam "{exam_name}" already exists in this class'
+                })
+            
+            # Create new examination
+            examination = Examination.objects.create(
+                name=exam_name,
+                exam_type=exam_type,
+                examination_class=class_obj,
+                school=school,
+                default_score=default_score
+            )
+            
+            # Create default scores for all current students
+            students = class_obj.get_current_students()
+            for student in students:
+                StudentExamination.objects.create(
+                    student=student,
+                    examination=examination,
+                    score=default_score
+                )
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': f'Exam column "{exam_name}" added successfully',
+                'exam_id': examination.id,
+                'exam_name': examination.name,
+                'exam_type': examination.exam_type
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+
+@login_required
+@csrf_exempt
+def edit_exam_column(request, school_id, class_id):
+    """Edit exam column name and type"""
+    if request.method == 'POST':
+        try:
+            school = get_object_or_404(School, pk=school_id)
+            
+            data = json.loads(request.body)
+            exam_id = data.get('exam_id')
+            examination = get_object_or_404(Examination, pk=exam_id, school=school)
+            
+            new_name = data.get('exam_name')
+            new_type = data.get('exam_type', examination.exam_type)
+            
+            # Check if new name already exists (excluding current exam)
+            if Examination.objects.filter(
+                examination_class=examination.examination_class,
+                name=new_name
+            ).exclude(id=exam_id).exists():
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Exam "{new_name}" already exists in this class'
+                })
+            
+            # Update examination
+            examination.name = new_name
+            examination.exam_type = new_type
+            examination.save()
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': f'Exam column updated successfully',
+                'exam_id': examination.id,
+                'exam_name': examination.name,
+                'exam_type': examination.exam_type
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+
+@login_required
+@csrf_exempt
+def delete_exam_column(request, school_id, class_id):
+    """Delete exam column and all associated scores"""
+    if request.method == 'POST':
+        try:
+            school = get_object_or_404(School, pk=school_id)
+            
+            data = json.loads(request.body)
+            exam_id = data.get('exam_id')
+            examination = get_object_or_404(Examination, pk=exam_id, school=school)
+            
+            exam_name = examination.name
+            
+            # Delete all student scores for this exam
+            StudentExamination.objects.filter(examination=examination).delete()
+            
+            # Delete the examination
+            examination.delete()
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': f'Exam column "{exam_name}" deleted successfully'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+
+@login_required
+@csrf_exempt
+def save_scores(request, school_id, class_id):
+    """Save all score changes"""
+    if request.method == 'POST':
+        try:
+            school = get_object_or_404(School, pk=school_id)
+            class_obj = get_object_or_404(Class, pk=class_id)
+            
+            data = json.loads(request.body)
+            changes = data.get('changes', [])
+            
+            updated_count = 0
+            
+            for change in changes:
+                student_id = change.get('student_id')
+                exam_id = change.get('exam_id')
+                new_score = float(change.get('score'))
+                
+                try:
+                    student = get_object_or_404(Student, pk=student_id)
+                    examination = get_object_or_404(Examination, pk=exam_id, school=school)
+                    
+                    # Update or create student examination record
+                    student_exam, created = StudentExamination.objects.update_or_create(
+                        student=student,
+                        examination=examination,
+                        defaults={'score': new_score}
+                    )
+                    
+                    updated_count += 1
+                    
+                except Exception as e:
+                    print(f"Error updating score for student {student_id}, exam {exam_id}: {e}")
+                    continue
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': f'Updated {updated_count} scores successfully'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            })
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+
+
+@login_required
+def get_exam_data(request, school_id, class_id):
+    """Get exam data for AJAX requests"""
+    school = get_object_or_404(School, pk=school_id)
+    class_obj = get_object_or_404(Class, pk=class_id)
+    
+    examinations = Examination.objects.filter(
+        examination_class=class_obj,
+        is_active=True,
+        school=school
+    ).order_by('created_at')
+    
+    students = class_obj.get_current_students()
+    
+    exam_data = []
+    for exam in examinations:
+        exam_data.append({
+            'id': exam.id,
+            'name': exam.name,
+            'type': exam.exam_type,
+            'default_score': exam.default_score
+        })
+    
+    student_data = []
+    for student in students:
+        scores = {}
+        for exam in examinations:
+            try:
+                student_exam = StudentExamination.objects.get(
+                    student=student,
+                    examination=exam
+                )
+                scores[str(exam.id)] = student_exam.score
+            except StudentExamination.DoesNotExist:
+                scores[str(exam.id)] = exam.default_score
+        
+        student_data.append({
+            'id': student.id,
+            'name': student.name,
+            'scores': scores
+        })
+    
+    return JsonResponse({
+        'status': 'success',
+        'examinations': exam_data,
+        'students': student_data
+    })
 
 
 

@@ -1,118 +1,544 @@
-<div class="w-full px-6 py-6 mx-auto">
-    <!-- Page Title and Add Button -->
-    <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800">Exam Scores</h1>
-        <button class="inline-flex items-center px-6 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            <svg class="w-5 h-5 mr-2 -ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-            </svg>
-            Add New Exam
-        </button>
+<div class="w-full max-w-full px-3 mx-auto">
+    <!-- Page Title and Action Buttons -->
+    <div class="flex justify-between items-center mb-4">
+        <div>
+            <h1 class="text-3xl font-bold text-theme">Exam Scores</h1>
+            <p class="text-sm text-gray-600 mt-1">
+                <i class="fas fa-info-circle text-blue-500"></i>
+                Hiển thị tất cả học sinh có điểm thi, bao gồm cả học sinh đã ngưng lớp để dễ quản lý
+            </p>
+        </div>
+        <div class="flex space-x-3">
+            <button id="saveChangesBtn" class="btn btn-success">
+                <i class="fas fa-save mr-2"></i>
+                <span id="saveText">Save Changes</span>
+            </button>
+            <button id="addExamBtn" class="btn btn-primary">
+                <i class="fas fa-plus mr-2"></i>
+                Add New Exam Column
+            </button>
+        </div>
     </div>
 
     <!-- Exams Table -->
-    <div class="flex flex-col">
-        <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                <div class="shadow-lg overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Student Name
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Mid-term Test
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Final Test
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Average
-                                </th>
-                                <th scope="col" class="relative px-6 py-3">
-                                    <span class="sr-only">Edit</span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <!-- Fake Student 1 -->
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="text-sm font-medium text-gray-900">Nguyen Van A</div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        8.5
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        9.0
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-bold">
-                                    8.75
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                </td>
-                            </tr>
-                            <!-- Fake Student 2 -->
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="text-sm font-medium text-gray-900">Tran Thi B</div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                        6.0
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        7.5
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-bold">
-                                    6.75
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                </td>
-                            </tr>
-                            <!-- Fake Student 3 -->
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="text-sm font-medium text-gray-900">Le Van C</div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                        4.0
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                        5.5
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-bold">
-                                    4.75
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                </td>
-                            </tr>
-                            <!-- Add more fake students as needed -->
-                        </tbody>
-                    </table>
+    <div class="card">
+        <div class="flex flex-col">
+            <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                    <div class="shadow-lg overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Student Name
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status
+                                    </th>
+                                    {% for exam in examinations %}
+                                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider exam-column" data-exam-id="{{ exam.id }}">
+                                        <div class="flex flex-col items-center gap-2">
+                                            <span class="exam-name">{{ exam.name }}</span>
+                                            <div class="flex gap-1">
+                                                <button class="edit-exam-column-btn text-indigo-500 hover:text-indigo-700 p-1" data-exam-id="{{ exam.id }}" data-exam-name="{{ exam.name }}" title="Edit Exam">
+                                                    <i class="fas fa-edit text-xs"></i>
+                                                </button>
+                                                <button class="delete-exam-column-btn text-red-500 hover:text-red-700 p-1" data-exam-id="{{ exam.id }}" data-exam-name="{{ exam.name }}" title="Delete Exam">
+                                                    <i class="fas fa-trash-alt text-xs"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    {% endfor %}
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Average
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for student_data in students_data %}
+                                <tr data-student-id="{{ student_data.student.id }}">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="text-sm font-medium text-gray-900">{{ student_data.student.name }}</div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        <span class="px-3 py-1 text-xs font-medium rounded-full {{ student_data.status_class }}">
+                                            {{ student_data.status_display }}
+                                        </span>
+                                    </td>
+                                    {% for score_data in student_data.scores %}
+                                    <td class="px-6 py-4 whitespace-nowrap text-center exam-score" data-exam-id="{{ score_data.exam_id }}">
+                                        <input type="number" min="0" max="10" step="0.1" value="{{ score_data.score }}" 
+                                               class="px-3 py-1 text-sm font-semibold rounded-full {{ score_data.color_class }} border-0 text-center w-16 focus:ring-2 focus:ring-blue-500 focus:bg-white focus:text-gray-900 score-input {% if not student_data.is_current_student %}opacity-75 bg-gray-50{% endif %}"
+                                               data-student-id="{{ student_data.student.id }}" data-exam-id="{{ score_data.exam_id }}"
+                                               {% if not student_data.is_current_student %}title="Học sinh đã ngưng lớp - cần cẩn thận khi chỉnh sửa điểm"{% endif %}>
+                                    </td>
+                                    {% endfor %}
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-bold average-cell">
+                                        {{ student_data.average }}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="100%" class="px-6 py-8 text-center text-gray-500">
+                                        No students found in this class or with exam scores.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal placeholder -->
+<div id="modal" up-hungry></div>
+
+<!-- Add New Exam Column Modal -->
+<div id="addExamModal" class="hidden modal z-50 fixed inset-0 bg-slate-600 bg-opacity-60 overflow-y-auto h-full w-full flex justify-center">
+    <div class="relative top-10 mb-10 mx-4 card h-fit w-full sm:w-fit">
+        <button id='close-add-modal' type="button" class="btn btn-outline w-10 h-10 rounded-full border-0 text-theme absolute top-5 right-5">
+            <i class="fas fa-times text-lg"></i>
+        </button>
+        
+        <h3 class="my-5 text-xl font-bold leading-6 text-center text-theme">Add New Exam Column</h3>
+        
+        <form id="addExamForm" class="grid grid-cols-1 sm:w-[500px] gap-4 px-6">
+            <div class="form-row">
+                <label for="add_exam_name" class="text-theme">Exam Name</label>
+                <input type="text" id="add_exam_name" name="exam_name" class="form-input" placeholder="e.g. Quiz 1, Homework 1, Midterm 2" required>
+            </div>
+            
+            <div class="form-row">
+                <label for="add_exam_type" class="text-theme">Exam Type</label>
+                <select id="add_exam_type" name="exam_type" class="form-input">
+                    <option value="quiz">Quiz</option>
+                    <option value="homework">Homework</option>
+                    <option value="midterm">Mid-term Test</option>
+                    <option value="final">Final Test</option>
+                    <option value="project">Project</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-row">
+                <label for="add_default_score" class="text-theme">Default Score (Optional)</label>
+                <input type="number" id="add_default_score" name="default_score" class="form-input" min="0" max="10" step="0.1" placeholder="Leave empty for 0">
+            </div>
+            
+            <div class="flex justify-center items-center gap-5 pt-6 pb-7">
+                <button type="button" id="cancel-add" class="btn btn-secondary rounded-full w-36">
+                    Cancel
+                </button>
+                <button type="submit" class="btn btn-primary rounded-full w-36">
+                    Add Column
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Exam Column Modal -->
+<div id="editExamModal" class="hidden modal z-50 fixed inset-0 bg-slate-600 bg-opacity-60 overflow-y-auto h-full w-full flex justify-center">
+    <div class="relative top-10 mb-10 mx-4 card h-fit w-full sm:w-fit">
+        <button id='close-edit-modal' type="button" class="btn btn-outline w-10 h-10 rounded-full border-0 text-theme absolute top-5 right-5">
+            <i class="fas fa-times text-lg"></i>
+        </button>
+        
+        <h3 class="my-5 text-xl font-bold leading-6 text-center text-theme">Edit Exam Column</h3>
+        
+        <form id="editExamForm" class="grid grid-cols-1 sm:w-[500px] gap-4 px-6">
+            <input type="hidden" id="edit_exam_id" name="exam_id">
+            
+            <div class="form-row">
+                <label for="edit_exam_name" class="text-theme">Exam Name</label>
+                <input type="text" id="edit_exam_name" name="exam_name" class="form-input" required>
+            </div>
+            
+            <div class="form-row">
+                <label for="edit_exam_type" class="text-theme">Exam Type</label>
+                <select id="edit_exam_type" name="exam_type" class="form-input">
+                    <option value="quiz">Quiz</option>
+                    <option value="homework">Homework</option>
+                    <option value="midterm">Mid-term Test</option>
+                    <option value="final">Final Test</option>
+                    <option value="project">Project</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="flex justify-center items-center gap-5 pt-6 pb-7">
+                <button type="button" id="cancel-edit" class="btn btn-secondary rounded-full w-36">
+                    Cancel
+                </button>
+                <button type="submit" class="btn btn-primary rounded-full w-36">
+                    Update Column
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Exam Column Confirmation Modal -->
+<div id="deleteExamModal" class="hidden modal z-50 fixed inset-0 bg-slate-600 bg-opacity-60 overflow-y-auto h-full w-full flex justify-center">
+    <div class="relative top-10 mb-10 mx-4 card h-fit w-full sm:w-fit">
+        <button id='close-delete-modal' type="button" class="btn btn-outline w-10 h-10 rounded-full border-0 text-theme absolute top-5 right-5">
+            <i class="fas fa-times text-lg"></i>
+        </button>
+        
+        <div class="text-center p-6 sm:w-[400px]">
+            <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+            <h3 class="text-xl font-bold leading-6 text-theme mb-4">Delete Exam Column</h3>
+            <p class="text-gray-600 mb-2">Are you sure you want to delete the exam column:</p>
+            <p class="text-lg font-semibold text-theme mb-6" id="delete-exam-name"></p>
+            <p class="text-sm text-red-600 mb-6">This will permanently delete all scores for this exam. This action cannot be undone.</p>
+            
+            <div class="flex justify-center gap-4">
+                <button type="button" id="cancel-delete" class="btn btn-secondary rounded-full w-32">
+                    Cancel
+                </button>
+                <button type="button" id="confirm-delete" class="btn btn-danger rounded-full w-32">
+                    Delete Column
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+// Django context variables
+const SCHOOL_ID = {{ school_id }};
+const CLASS_ID = {{ class_id }};
+
+// Column-based exam management system
+document.addEventListener('DOMContentLoaded', function() {
+    const scoreInputs = document.querySelectorAll('.score-input');
+    const saveBtn = document.getElementById('saveChangesBtn');
+    const saveText = document.getElementById('saveText');
+    let hasChanges = false;
+    let currentEditingColumn = null;
+    let currentDeletingColumn = null;
+    let examCounter = 0;
+    
+    // Modal elements
+    const addExamModal = document.getElementById('addExamModal');
+    const editExamModal = document.getElementById('editExamModal');
+    const deleteExamModal = document.getElementById('deleteExamModal');
+    
+    // Initially disable save button
+    saveBtn.disabled = true;
+    
+    // Initialize existing score inputs
+    initializeScoreInputs();
+    
+    function initializeScoreInputs() {
+        scoreInputs.forEach(function(input) {
+            input.dataset.originalValue = input.value;
+            input.addEventListener('input', function() {
+                updateRowAverage(this.closest('tr'));
+                updateInputColors(this);
+                checkForChanges();
+            });
+        });
+    }
+    
+    function updateRowAverage(row) {
+        const scoreInputsInRow = row.querySelectorAll('.score-input');
+        const averageCell = row.querySelector('.average-cell');
+        
+        let total = 0;
+        let count = 0;
+        
+        scoreInputsInRow.forEach(function(input) {
+            const value = parseFloat(input.value) || 0;
+            total += value;
+            count++;
+        });
+        
+        const average = count > 0 ? (total / count) : 0;
+        averageCell.textContent = average.toFixed(2);
+    }
+    
+    function updateInputColors(input) {
+        const score = parseFloat(input.value) || 0;
+        input.className = input.className.replace(/bg-\w+-100\s+text-\w+-800/g, '');
+        input.classList.add(...getScoreColorClass(score).split(' '));
+    }
+    
+    function getScoreColorClass(score) {
+        if (score >= 8) return 'bg-green-100 text-green-800';
+        if (score >= 5) return 'bg-yellow-100 text-yellow-800';
+        return 'bg-red-100 text-red-800';
+    }
+    
+    function checkForChanges() {
+        hasChanges = false;
+        scoreInputs.forEach(function(input) {
+            if (input.value !== input.dataset.originalValue) {
+                hasChanges = true;
+            }
+        });
+        
+        saveBtn.disabled = !hasChanges;
+    }
+    
+    // Save button click handler
+    saveBtn.addEventListener('click', function() {
+        if (!hasChanges) return;
+        
+        saveBtn.disabled = true;
+        saveText.textContent = 'Saving...';
+        
+        // Collect all scores data
+        const scoresData = {};
+        document.querySelectorAll('.score-input').forEach(function(input) {
+            const examId = input.closest('[data-exam-id]').getAttribute('data-exam-id');
+            const studentId = input.closest('tr').getAttribute('data-student-id') || 
+                             input.closest('tr').querySelector('[data-student-id]')?.getAttribute('data-student-id');
+            
+            if (studentId && examId) {
+                if (!scoresData[studentId]) scoresData[studentId] = {};
+                scoresData[studentId][examId] = parseFloat(input.value) || 0;
+            }
+        });
+        
+        // Make API call to save scores
+        fetch(`/schools/${SCHOOL_ID}/classes/${CLASS_ID}/exams/save-scores/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ scores: scoresData })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                scoreInputs.forEach(function(input) {
+                    input.dataset.originalValue = input.value;
+                });
+                
+                saveText.textContent = 'Saved!';
+                saveBtn.classList.remove('btn-primary');
+                saveBtn.classList.add('btn-success');
+                
+                setTimeout(function() {
+                    saveText.textContent = 'Save Changes';
+                    saveBtn.classList.remove('btn-success');
+                    saveBtn.classList.add('btn-primary');
+                    saveBtn.disabled = false;
+                    checkForChanges();
+                }, 2000);
+            } else {
+                saveText.textContent = 'Error';
+                setTimeout(function() {
+                    saveText.textContent = 'Save Changes';
+                    checkForChanges();
+                }, 2000);
+            }
+        })
+        .catch(error => {
+            console.error('Save error:', error);
+            saveText.textContent = 'Error';
+            saveBtn.disabled = false;
+            setTimeout(function() {
+                saveText.textContent = 'Save Changes';
+                checkForChanges();
+            }, 2000);
+        });
+    });
+    
+    // Add New Exam Column Modal Functions
+    document.getElementById('addExamBtn').addEventListener('click', function() {
+        addExamModal.classList.remove('hidden');
+        document.getElementById('addExamForm').reset();
+    });
+    
+    document.getElementById('close-add-modal').addEventListener('click', function() {
+        addExamModal.classList.add('hidden');
+    });
+    
+    document.getElementById('cancel-add').addEventListener('click', function() {
+        addExamModal.classList.add('hidden');
+    });
+    
+    document.getElementById('addExamForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const examName = document.getElementById('add_exam_name').value;
+        const examType = document.getElementById('add_exam_type').value;
+        const defaultScore = parseFloat(document.getElementById('add_default_score').value) || 0;
+        
+        // Make API call to add exam
+        fetch(`/schools/${SCHOOL_ID}/classes/${CLASS_ID}/exams/add/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                exam_name: examName,
+                exam_type: examType,
+                default_score: defaultScore
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Reload the page to show the new exam column
+                window.location.reload();
+            } else {
+                alert('Error adding exam: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Add exam error:', error);
+            alert('Error adding exam. Please try again.');
+        });
+    });
+    
+    // Edit Exam Column Modal Functions
+    function handleEditExamColumn(e) {
+        const button = e.target.closest('.edit-exam-column-btn');
+        const examId = button.getAttribute('data-exam-id');
+        const examName = button.getAttribute('data-exam-name');
+        
+        currentEditingColumn = examId;
+        
+        document.getElementById('edit_exam_id').value = examId;
+        document.getElementById('edit_exam_name').value = examName;
+        
+        editExamModal.classList.remove('hidden');
+    }
+    
+    document.getElementById('close-edit-modal').addEventListener('click', function() {
+        editExamModal.classList.add('hidden');
+    });
+    
+    document.getElementById('cancel-edit').addEventListener('click', function() {
+        editExamModal.classList.add('hidden');
+    });
+    
+    document.getElementById('editExamForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const newExamName = document.getElementById('edit_exam_name').value;
+        const newExamType = document.getElementById('edit_exam_type').value;
+        const examId = document.getElementById('edit_exam_id').value;
+        
+        // Make API call to edit exam
+        fetch(`/schools/${SCHOOL_ID}/classes/${CLASS_ID}/exams/edit/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                exam_id: examId,
+                exam_name: newExamName,
+                exam_type: newExamType
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Update header name
+                const header = document.querySelector(`[data-exam-id="${currentEditingColumn}"]`);
+                const examNameSpan = header.querySelector('.exam-name');
+                examNameSpan.textContent = newExamName;
+                
+                // Update button data attributes
+                const editBtn = header.querySelector('.edit-exam-column-btn');
+                const deleteBtn = header.querySelector('.delete-exam-column-btn');
+                editBtn.setAttribute('data-exam-name', newExamName);
+                deleteBtn.setAttribute('data-exam-name', newExamName);
+                
+                editExamModal.classList.add('hidden');
+            } else {
+                alert('Error editing exam: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Edit exam error:', error);
+            alert('Error editing exam. Please try again.');
+        });
+    });
+    
+    // Delete Exam Column Modal Functions
+    function handleDeleteExamColumn(e) {
+        const button = e.target.closest('.delete-exam-column-btn');
+        const examId = button.getAttribute('data-exam-id');
+        const examName = button.getAttribute('data-exam-name');
+        
+        currentDeletingColumn = examId;
+        document.getElementById('delete-exam-name').textContent = examName;
+        deleteExamModal.classList.remove('hidden');
+    }
+    
+    document.getElementById('close-delete-modal').addEventListener('click', function() {
+        deleteExamModal.classList.add('hidden');
+    });
+    
+    document.getElementById('cancel-delete').addEventListener('click', function() {
+        deleteExamModal.classList.add('hidden');
+    });
+    
+    document.getElementById('confirm-delete').addEventListener('click', function() {
+        // Make API call to delete exam
+        fetch(`/schools/${SCHOOL_ID}/classes/${CLASS_ID}/exams/delete/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                exam_id: currentDeletingColumn
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Reload the page to reflect the deletion
+                window.location.reload();
+            } else {
+                alert('Error deleting exam: ' + (data.message || 'Unknown error'));
+                deleteExamModal.classList.add('hidden');
+            }
+        })
+        .catch(error => {
+            console.error('Delete exam error:', error);
+            alert('Error deleting exam. Please try again.');
+            deleteExamModal.classList.add('hidden');
+        });
+    });
+    
+    // Initialize existing column buttons
+    document.querySelectorAll('.edit-exam-column-btn').forEach(function(btn) {
+        btn.addEventListener('click', handleEditExamColumn);
+    });
+    
+    document.querySelectorAll('.delete-exam-column-btn').forEach(function(btn) {
+        btn.addEventListener('click', handleDeleteExamColumn);
+    });
+    
+    // Close modals when clicking outside
+    window.addEventListener('click', function(e) {
+        if (e.target === addExamModal) {
+            addExamModal.classList.add('hidden');
+        }
+        if (e.target === editExamModal) {
+            editExamModal.classList.add('hidden');
+        }
+        if (e.target === deleteExamModal) {
+            deleteExamModal.classList.add('hidden');
+        }
+    });
+});
+</script>

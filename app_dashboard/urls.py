@@ -2,7 +2,8 @@ from . import views, views_db
 from .views import (
     StudentConvertViewSet, CMRViewSet, CRMNoteViewSet, SchoolViewSet, ClassViewSet, StudentViewSet, StudentNoteViewSet, TuitionPaymentViewSet, ClassRoomViewSet, TuitionPaymentOldViewSet, TuitionPaymentSpecialViewSet,
     FinancialTransactionViewSet, AttendanceViewSet, StudentAttendanceCalendarViewSet, FinancialTransactionNoteViewSet, AnnouncementViewSet,
-    home,wheel,calculate_student_balance, landing_page, classroom_exams_view
+    home,wheel,calculate_student_balance, landing_page, classroom_exams_view,
+    add_exam_column, edit_exam_column, delete_exam_column, save_scores, get_exam_data
 )
 
 from django.urls import re_path, path
@@ -23,6 +24,13 @@ urlpatterns = [
     path('schools/<int:school_id>/classes/<int:pk>/', ClassViewSet.as_view(), name='classroom'),
     path('schools/<int:school_id>/classes/<int:class_id>/<int:pk>/', ClassRoomViewSet.as_view(), name='classroom_student'),
     path('schools/<int:school_id>/classes/<int:class_id>/exams/', views.classroom_exams_view, name='classroom_exams'),
+    
+    # Examination API endpoints
+    path('schools/<int:school_id>/classes/<int:class_id>/exams/add/', add_exam_column, name='add_exam_column'),
+    path('schools/<int:school_id>/classes/<int:class_id>/exams/edit/', edit_exam_column, name='edit_exam_column'),
+    path('schools/<int:school_id>/classes/<int:class_id>/exams/delete/', delete_exam_column, name='delete_exam_column'),
+    path('schools/<int:school_id>/classes/<int:class_id>/exams/save-scores/', save_scores, name='save_scores'),
+    path('schools/<int:school_id>/classes/<int:class_id>/exams/data/', get_exam_data, name='get_exam_data'),
 
     path('schools/<int:school_id>/students/', StudentViewSet.as_view(), name='students'),
     path('schools/<int:school_id>/students/<int:pk>/', StudentViewSet.as_view(), name='student_detail'),

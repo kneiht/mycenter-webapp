@@ -6,7 +6,8 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Exists, OuterRef
     
 from .models import (School, Student, Class, 
-                     StudentClass, FinancialTransaction, Attendance, Announcement, TuitionPlan)
+                     StudentClass, FinancialTransaction, Attendance, Announcement, TuitionPlan,
+                     Examination, StudentExamination)
 
 class SchoolForm(forms.ModelForm):
     class Meta:
@@ -605,5 +606,95 @@ class AnnouncementForm(forms.ModelForm):
                 'type': 'datetime-local'
             }),
         }
+
+
+class ExaminationForm(forms.ModelForm):
+    """Form for creating and editing exam columns"""
+    class Meta:
+        model = Examination
+        fields = ['name', 'exam_type', 'date', 'default_score', 'note']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'placeholder': 'e.g. Quiz 1, Midterm Test, Final Exam',
+                'required': 'required',
+                'class': 'form-input'
+            }),
+            'exam_type': forms.Select(attrs={
+                'class': 'form-input'
+            }),
+            'date': forms.DateInput(attrs={
+                'class': 'form-input',
+                'type': 'date'
+            }),
+            'default_score': forms.NumberInput(attrs={
+                'class': 'form-input',
+                'min': '0',
+                'max': '10',
+                'step': '0.1',
+                'placeholder': '0.0'
+            }),
+            'note': forms.Textarea(attrs={
+                'class': 'form-input',
+                'rows': 3,
+                'placeholder': 'Optional notes about this exam'
+            })
+        }
+
+
+class StudentExaminationForm(forms.ModelForm):
+    """Form for updating student scores"""
+    class Meta:
+        model = StudentExamination
+        fields = ['score', 'note']
+        widgets = {
+            'score': forms.NumberInput(attrs={
+                'class': 'score-input px-3 py-1 text-sm font-semibold rounded-full border-0 text-center w-16 focus:ring-2 focus:ring-blue-500',
+                'min': '0',
+                'max': '10',
+                'step': '0.1'
+            }),
+            'note': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Optional note'
+            })
+        }
+
+
+class BulkScoreUpdateForm(forms.Form):
+    """Form for bulk updating scores for all students in an exam"""
+    def __init__(self, examination, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.examination = examination
+        
+        # Get all students in the class
+        students = examination.examination_class.get_current_students()
+        
+        # Create a score field for each student
+        for student in students:
+            field_name = f'score_{student.id}'
+            try:
+                # Try to get existing score
+                student_exam = StudentExamination.objects.get(
+                    student=student, 
+                    examination=examination
+                )
+                initial_score = student_exam.score
+            except StudentExamination.DoesNotExist:
+                initial_score = examination.default_score
+            
+            self.fields[field_name] = forms.FloatField(
+                label=student.name,
+                min_value=0,
+                max_value=10,
+                initial=initial_score,
+                required=True,
+                widget=forms.NumberInput(attrs={
+                    'class': 'score-input px-3 py-1 text-sm font-semibold rounded-full border-0 text-center w-16',
+                    'min': '0',
+                    'max': '10',
+                    'step': '0.1',
+                    'data-student-id': student.id
+                })
+            )
 
 
